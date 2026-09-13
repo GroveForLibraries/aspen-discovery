@@ -71,12 +71,8 @@ class ListsRecordDriver extends IndexRecordDriver {
 		} else {
 			$interface->assign('summDescription', '');
 		}
-		if (isset($this->fields['num_titles'])) {
-			$interface->assign('summNumTitles', $this->fields['num_titles']);
-		} else {
-			$interface->assign('summNumTitles', 0);
-		}
 		$listObject = $this->getListObject();
+		$interface->assign('summNumTitles', $listObject ? $listObject->numValidListItems() : 0);
 		$interface->assign('summDateUpdated', !$listObject ? '' : $listObject->dateUpdated);
 		$interface->assign('summUrl', $this->getAbsoluteUrl());
 
