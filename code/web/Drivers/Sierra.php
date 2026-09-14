@@ -452,9 +452,13 @@ class Sierra extends AbstractIlsDriver {
 				$recordType = $sierraHold->recordType;
 				// for item level holds we need to grab the bib id.
 				$id = $recordId; //$m[1];
+				$volumeId = '';
 				if ($recordType == 'i') {
 					$itemId = ".i$id" . $this->getCheckDigit($id);
 					$id = $this->getBibIdForItem($itemId, $id);
+				} else if ($recordType == 'j') {
+					$volumeId = ".j$id" . $this->getCheckDigit($id);
+					$id = $this->getBibIdForVolume($volumeId, $id);
 				} else {
 					$recordXD = $this->getCheckDigit($id);
 					$id = ".b$id$recordXD";
@@ -480,6 +484,14 @@ class Sierra extends AbstractIlsDriver {
 									$curHold->volume = $groupingItem->volume;
 									$curHold->callNumber = $groupingItem->callNumber;
 								}
+							}
+						}else if ($recordType == 'j') {
+							//Set the volume and call number
+							$ilsVolumeInfo = new IlsVolumeInfo();
+							$ilsVolumeInfo->volumeId = $volumeId;
+							if ($ilsVolumeInfo->find(true)) {
+								$curHold->volume = $ilsVolumeInfo->displayLabel;
+								$curHold->callNumber =  "";
 							}
 						}
 					}
@@ -1054,6 +1066,51 @@ class Sierra extends AbstractIlsDriver {
 		return $id;
 	}
 
+	/**
+	 * @param string $volumeId
+	 * @param string|null $shortId
+	 * @return string|false
+	 */
+	private function getBibIdForVolume(string $volumeId, ?string $shortId) : string|false {
+		require_once ROOT_DIR . '/sys/ILS/IlsVolumeInfo.php';
+		$ilsVolumeInfo = new IlsVolumeInfo();
+		$ilsVolumeInfo->volumeId = $volumeId;
+		$id = false;
+		if ($ilsVolumeInfo->find(true)) {
+			$id = $ilsVolumeInfo->recordId;
+			if (str_contains($id, ':')) {
+				list (, $id) = explode(':', $id);
+			}
+		}
+		if (!$id && !empty($shortId)) {
+			//Lookup the bib id from the Sierra APIs
+			$sierraUrl = $this->accountProfile->vendorOpacUrl;
+			$sierraUrl .= "/iii/sierra-api/v{$this->accountProfile->apiVersion}/volumes/$shortId";
+			$id = $this->getBibIdFromVolumeLink($sierraUrl);
+		}
+		return $id;
+	}
+
+	private function getBibIdFromVolumeLink(string $volumeLink) : string|false {
+		$volumeInfo = $this->_callUrl('sierra.getVolumeInfo', $volumeLink);
+		if (!empty($volumeInfo)) {
+			if (empty($volumeInfo->bibIds)) {
+				$id = false;
+			}else if (is_array($volumeInfo->bibIds)) {
+				$id = reset($volumeInfo->bibIds);
+				$id = '.b' . $id . $this->getCheckDigit($id);
+			}else if (is_string($volumeInfo->bibIds)) {
+				$id = $volumeInfo->bibIds;
+				$id = '.b' . $id . $this->getCheckDigit($id);
+			}else{
+				$id = false;
+			}
+		} else {
+			$id = false;
+		}
+		return $id;
+	}
+
 	function freezeHold(User $patron, string $recordId, string $itemToFreezeId, ?string $dateToReactivate): array {
 		$sierraUrl = $this->accountProfile->vendorOpacUrl . "/iii/sierra-api/v{$this->accountProfile->apiVersion}/patrons/holds/$itemToFreezeId";
 		$params = [
@@ -1379,9 +1436,7 @@ class Sierra extends AbstractIlsDriver {
 	 * TODO: This should be updated to not use screen scraping
 	 */
 	public function placeVolumeHold(User $patron, $recordId, $volumeId, $pickupBranch, $pickupSublocation = null) : array {
-		require_once ROOT_DIR . '/Drivers/marmot_inc/MillenniumHolds.php';
-		$millenniumHolds = new MillenniumHolds($this);
-		return $millenniumHolds->placeVolumeHold($patron, $recordId, $volumeId, $pickupBranch);
+		return $this->placeHold($patron, $volumeId, $pickupBranch, $pickupSublocation);
 	}
 
 	public function hasFastRenewAll() : bool {
