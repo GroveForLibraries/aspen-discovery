@@ -454,6 +454,8 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			$fieldsToReturn .= ',available_at';
 			$fieldsToReturn .= ',itype';
 			$fieldsToReturn .= ',score';
+			$fieldsToReturn .= ",callnumber_sort_$solrScope";
+			$fieldsToReturn .= ",available_copies_$solrScope";
 			if ($solrScope !== false) {
 				$fieldsToReturn .= ',[child childFilter="scope:' . $solrScope . '"]';
 			}
