@@ -248,9 +248,10 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		if ($recommendations && !empty($facetConfig)) {
 			require_once ROOT_DIR . '/sys/Grouping/GroupedWorkFacet.php';
 			$numLocations = GroupedWorkFacet::calculateDynamicFacetLimit('available_at');
+
 			$domainInfo = [
 				'blockChildren' => 'recordtype:grouped_work',
-				'filter' => 'scope:' . $solrScope,
+				'filter' => $childDocFilters,
 				'excludeTags' => 'child_filter'
 			];
 
@@ -346,41 +347,38 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		$validFields = $this->loadValidFields();
 		$dynamicFields = $this->loadDynamicFields();
 		global $solrScope;
-		if (!empty($filterQuery)) {
-			if (!is_array($filterQuery)) {
-				$filterQuery = [$filterQuery];
-			}
 
-			$validFilters = [];
-			foreach ($filterQuery as $id => $filterTerm) {
-				//Allow the parent query through since we build it above
-				if (str_starts_with($filterTerm, '{!parent')) {
-					$validFilters[$id] = $filterTerm;
-					continue;
-				}
-				[
-					$fieldName,
-					$term,
-				] = explode(":", $filterTerm, 2);
-				$tagging = '';
-				if (preg_match("/({!tag=.*?})\(?(.*)/", $fieldName, $matches)) {
-					$tagging = $matches[1];
-					$fieldName = $matches[2];
-				}
-				if (!in_array($fieldName, $validFields)) {
-					//Field doesn't exist, check to see if it is a dynamic field
-					//Where we can replace the scope with the current scope
-					foreach ($dynamicFields as $dynamicField) {
-						if (preg_match("/^{$dynamicField}[^_]+$/", $fieldName)) {
-							//This is a dynamic field with the wrong scope
-							$validFilters[$id] = $tagging . $dynamicField . $solrScope . ":" . $term;
-							break;
-						}
-					}
-				} else {
-					$validFilters[$id] = $filterTerm;
-				}
+		$validFilters = [];
+		foreach ($filterQuery as $id => $filterTerm) {
+			//Allow the parent query through since we build it above
+			if (str_starts_with($filterTerm, '{!parent')) {
+				$validFilters[$id] = $filterTerm;
+				continue;
 			}
+			[
+				$fieldName,
+				$term,
+			] = explode(":", $filterTerm, 2);
+			$tagging = '';
+			if (preg_match("/({!tag=.*?})\(?(.*)/", $fieldName, $matches)) {
+				$tagging = $matches[1];
+				$fieldName = $matches[2];
+			}
+			if (!in_array($fieldName, $validFields)) {
+				//Field doesn't exist, check to see if it is a dynamic field
+				//Where we can replace the scope with the current scope
+				foreach ($dynamicFields as $dynamicField) {
+					if (preg_match("/^{$dynamicField}[^_]+$/", $fieldName)) {
+						//This is a dynamic field with the wrong scope
+						$validFilters[$id] = $tagging . $dynamicField . $solrScope . ":" . $term;
+						break;
+					}
+				}
+			} else {
+				$validFilters[$id] = $filterTerm;
+			}
+		}
+		if (!empty($validFilters)) {
 			$filterQuery = $validFilters;
 		}
 
