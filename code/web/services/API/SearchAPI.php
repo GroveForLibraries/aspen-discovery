@@ -180,6 +180,10 @@ class SearchAPI extends AbstractAPI {
 
 			//Get the number of CPUs available
 			$numCPUs = (int)shell_exec("cat /proc/cpuinfo | grep processor | wc -l");
+			if ($numCPUs == 0) {
+				$output = shell_exec('/usr/bin/nproc 2>&1');
+				$numCPUs = (int) trim($output);
+			}
 
 			//Check the load (use the 5 minute load)
 			$load = sys_getloadavg();

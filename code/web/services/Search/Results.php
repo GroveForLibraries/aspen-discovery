@@ -308,6 +308,10 @@ class Search_Results extends ResultsAction {
 			if ($configArray['System']['operatingSystem'] == 'linux') {
 				//Get the number of CPUs available
 				$numCPUs = (int)shell_exec("cat /proc/cpuinfo | grep processor | wc -l");
+				if ($numCPUs == 0) {
+					$output = shell_exec('/usr/bin/nproc 2>&1');
+					$numCPUs = (int) trim($output);
+				}
 
 				//Check load (use the 5-minute load)
 				$load = sys_getloadavg();
