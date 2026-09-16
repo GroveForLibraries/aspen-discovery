@@ -324,6 +324,57 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 	}
 
 	/**
+	 * Normalize a sort option.
+	 *
+	 * @param string $sort The sort option.
+	 *
+	 * @return string            The normalized sort value.
+	 * @access private
+	 */
+	protected function _normalizeSort($sort) {
+		// Break apart sort into field name and sort direction (note error
+		// suppression to prevent notice when direction is left blank):
+		$sort = trim($sort);
+		$parts = explode(' ', $sort, 2);
+		$sortField = $parts[0];
+		$sortDirection = $parts[1] ?? '';
+
+		// Default sort order (may be overridden by switch below):
+		$defaultSortDirection = 'asc';
+		global $solrScope;
+
+		// Translate special sort values into appropriate Solr fields:
+		switch ($sortField) {
+			case 'year':
+			case 'publishDate':
+				$sortField = 'publishDateSort';
+				$defaultSortDirection = 'desc';
+				break;
+			case 'author':
+				$sortField = 'author_sort asc, title_sort';
+				break;
+			case 'title':
+				$sortField = 'title_sort asc, author_sort';
+				break;
+			case 'callnumber_sort':
+				$sortField = 'callnumber_sort_' . $solrScope;
+				break;
+			case 'copies_available':
+				return "available_copies_$solrScope desc,title_sort asc";
+			case 'copies_available_asc':
+				return "available_copies_$solrScope asc,title_sort asc";
+		}
+
+		// Normalize sort direction to either "asc" or "desc":
+		$sortDirection = strtolower(trim($sortDirection));
+		if ($sortDirection != 'desc' && $sortDirection != 'asc') {
+			$sortDirection = $defaultSortDirection;
+		}
+
+		return $sortField . ' ' . $sortDirection;
+	}
+
+	/**
 	 * Load Boost factors for a query
 	 *
 	 * @param Library $searchLibrary
