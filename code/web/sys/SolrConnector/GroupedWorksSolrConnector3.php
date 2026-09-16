@@ -16,6 +16,71 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 		return SearchObject_GroupedWorkSearcher3::$fields_to_return;
 	}
 
+	/**
+	 * Retrieves a document specified by the ID.
+	 *
+	 * @param ?array $ids A list of document to retrieve from Solr
+	 * @param ?string $fieldsToReturn An optional list of fields to return separated by commas
+	 * @param bool $applyScoping whether scoping should be applied to the search
+	 * @return    array                            The requested resources
+	 * @throws    AspenError
+	 */
+	function getRecords(?array $ids, ?string $fieldsToReturn = null, bool $applyScoping = false) : array {
+		if (empty($ids)) {
+			return [];
+		}
+		//Solr does not seem to be able to return more than 50 records at a time,
+		//If we have more than 50 ids, we will need to make multiple calls and
+		//concatenate the results.
+		$records = [];
+		$startIndex = 0;
+		$batchSize = 40;
+
+		$lastBatch = false;
+		while (true) {
+			$endIndex = $startIndex + $batchSize;
+			if ($endIndex >= count($ids)) {
+				$lastBatch = true;
+				$endIndex = count($ids);
+				$batchSize = count($ids) - $startIndex;
+			}
+			$tmpIds = array_slice($ids, $startIndex, $batchSize);
+
+			// Query String Parameters
+			$idString = implode(' OR ', $tmpIds);
+			$options = ['q' => "id:($idString)"];
+			$options['fl'] = $fieldsToReturn;
+			$options['rows'] = count($tmpIds);
+
+			if ($applyScoping) {
+				global $solrScope;
+				$options['fq'] = "{!parent which=\"recordtype:grouped_work\" tag=child_filter}(availability_toggle:global AND scope:$solrScope)";
+			}
+
+			// Send Request
+			global $timer;
+			$timer->logTime("Prepare to send get (ids)  request to solr");
+			$getRecordsUrl = $this->host . "/select?" . http_build_query($options);
+			$result = $this->client->curlGetPage($getRecordsUrl);
+			$timer->logTime("Send data to solr for getRecords");
+
+			if ($result) {
+				$result = $this->_process($result);
+
+				foreach ($result['response']['docs'] as $record) {
+					$records[$record['id']] = $record;
+				}
+			}
+			if ($lastBatch) {
+				break;
+			} else {
+				$startIndex = $endIndex;
+			}
+		}
+		//echo("Found " . count($records) . " records.	Should have found " . count($ids) . "\r\n<br/>");
+		return $records;
+	}
+
 	protected $mltPrefixThese = '{!mlt qf="language^1000 subject_facet^800 topic_facet^600 awards_facet^100 authorStr^75 era^50 genre_facet^50 geographic_facet^50 personal_name_facet^50 corporate_name_facet^50 content_rating accelerated_reader_interest_level mpaa_rating" mlt.fl=language,subject_facet,topic_facet,awards_facet,authorStr,era,genre_facet,geographic_facet,personal_name_facet,corporate_name_facet,content_rating,accelerated_reader_interest_level,mpaa_rating mintf=1 mindf=2}';
 	protected $mltPrefixThis = '{!mlt qf="language^1000,subject_facet^800,topic_facet^600,awards_facet^100,authorStr^75,era^50,genre_facet^50,geographic_facet^50,personal_name_facet^50,corporate_name_facet^50,content_rating,accelerated_reader_interest_level,mpaa_rating" mintf=1 mindf=2}';
 
