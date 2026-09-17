@@ -244,15 +244,21 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 
 		// Build a list of facets we want from the index
 		$facetConfig = $this->getFacetConfig();
-		$jsonFacets = [];
+		$jsonFacets = [
+			'child_facets' => [
+				'type' => 'query',
+				'q' => '*:*',
+				'domain' => [
+					'blockChildren' => 'recordtype:grouped_work',
+					'filter' => $childDocFilters,
+					'excludeTags' => 'child_filter'
+				],
+				'facet' => []
+			]
+		];
 		if ($recommendations && !empty($facetConfig)) {
 			require_once ROOT_DIR . '/sys/Grouping/GroupedWorkFacet.php';
 			$numLocations = GroupedWorkFacet::calculateDynamicFacetLimit('available_at');
-			$domainInfo = [
-				'blockChildren' => 'recordtype:grouped_work',
-				'filter' => 'scope:' . $solrScope,
-				'excludeTags' => 'child_filter'
-			];
 
 			$facetSet['limit'] = $this->facetLimit;
 			foreach ($facetConfig as $facetField => $facetInfo) {
@@ -278,13 +284,14 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 						'mincount' => $minCount
 					];
 					if (in_array($facetName, $childDocFields)) {
-						$jsonInfoForField['domain'] = $domainInfo;
 						$jsonInfoForField['limit'] = -1;
 						$jsonInfoForField['facet'] = [
 							'parent_count' => 'uniqueBlock(_root_)'
 						];
+						$jsonFacets['child_facets']['facet'][$facetName] = $jsonInfoForField;
+					}else{
+						$jsonFacets[$facetName] = $jsonInfoForField;
 					}
-					$jsonFacets[$facetName] = $jsonInfoForField;
 				} else {
 					$facetSet['field'][$facetField] = $facetInfo;
 				}
@@ -300,6 +307,9 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			}
 			if ($this->facetSort != null) {
 				$facetSet['sort'] = $this->facetSort;
+			}
+			if (empty($jsonFacets['child_facets']['facet'])) {
+				$jsonFacets['child_facets']['facet'] = new stdClass();
 			}
 			$this->facetOptions["json.facet"] = json_encode($jsonFacets);
 		}
@@ -346,41 +356,38 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		$validFields = $this->loadValidFields();
 		$dynamicFields = $this->loadDynamicFields();
 		global $solrScope;
-		if (!empty($filterQuery)) {
-			if (!is_array($filterQuery)) {
-				$filterQuery = [$filterQuery];
-			}
 
-			$validFilters = [];
-			foreach ($filterQuery as $id => $filterTerm) {
-				//Allow the parent query through since we build it above
-				if (str_starts_with($filterTerm, '{!parent')) {
-					$validFilters[$id] = $filterTerm;
-					continue;
-				}
-				[
-					$fieldName,
-					$term,
-				] = explode(":", $filterTerm, 2);
-				$tagging = '';
-				if (preg_match("/({!tag=.*?})\(?(.*)/", $fieldName, $matches)) {
-					$tagging = $matches[1];
-					$fieldName = $matches[2];
-				}
-				if (!in_array($fieldName, $validFields)) {
-					//Field doesn't exist, check to see if it is a dynamic field
-					//Where we can replace the scope with the current scope
-					foreach ($dynamicFields as $dynamicField) {
-						if (preg_match("/^{$dynamicField}[^_]+$/", $fieldName)) {
-							//This is a dynamic field with the wrong scope
-							$validFilters[$id] = $tagging . $dynamicField . $solrScope . ":" . $term;
-							break;
-						}
-					}
-				} else {
-					$validFilters[$id] = $filterTerm;
-				}
+		$validFilters = [];
+		foreach ($filterQuery as $id => $filterTerm) {
+			//Allow the parent query through since we build it above
+			if (str_starts_with($filterTerm, '{!parent')) {
+				$validFilters[$id] = $filterTerm;
+				continue;
 			}
+			[
+				$fieldName,
+				$term,
+			] = explode(":", $filterTerm, 2);
+			$tagging = '';
+			if (preg_match("/({!tag=.*?})\(?(.*)/", $fieldName, $matches)) {
+				$tagging = $matches[1];
+				$fieldName = $matches[2];
+			}
+			if (!in_array($fieldName, $validFields)) {
+				//Field doesn't exist, check to see if it is a dynamic field
+				//Where we can replace the scope with the current scope
+				foreach ($dynamicFields as $dynamicField) {
+					if (preg_match("/^{$dynamicField}[^_]+$/", $fieldName)) {
+						//This is a dynamic field with the wrong scope
+						$validFilters[$id] = $tagging . $dynamicField . $solrScope . ":" . $term;
+						break;
+					}
+				}
+			} else {
+				$validFilters[$id] = $filterTerm;
+			}
+		}
+		if (!empty($validFilters)) {
 			$filterQuery = $validFilters;
 		}
 
@@ -456,6 +463,8 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			$fieldsToReturn .= ',available_at';
 			$fieldsToReturn .= ',itype';
 			$fieldsToReturn .= ',score';
+			$fieldsToReturn .= ",callnumber_sort_$solrScope";
+			$fieldsToReturn .= ",available_copies_$solrScope";
 			if ($solrScope !== false) {
 				$fieldsToReturn .= ',[child childFilter="scope:' . $solrScope . '"]';
 			}
@@ -578,6 +587,9 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		}
 
 		$allFacets = $this->indexResult['facets'] ?? $this->indexResult['facet_counts']['facet_fields'];
+		if (isset($this->indexResult['facets']['child_facets'])) {
+			$allFacets += $this->indexResult['facets']['child_facets'];
+		}
 		/** @var FacetSetting $facetConfig */
 		$facetConfig = $this->getFacetConfig();
 		foreach ($allFacets as $field => $data) {
