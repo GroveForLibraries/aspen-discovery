@@ -700,7 +700,7 @@ abstract class Solr {
 			$values['onephrase'] = '"' . str_replace('"', '', implode(' ', $tokenized)) . '"';
 			if (count($tokenized) > 1) {
 				$values['proximal'] = $values['onephrase'] . '~10';
-				$values['proximal2'] = $values['onephrase'] . '~2';
+				$values['proximal2'] = $values['onephrase'] . '~3';
 				$values['single_word'] = null;
 			} else {
 				$values['proximal'] = null;
