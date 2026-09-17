@@ -128,6 +128,8 @@ abstract class Solr {
 	/** return string */
 	abstract public function getSearchesFile();
 
+	protected ?string $childQuery = null;
+
 	/**
 	 * Constructor
 	 *
@@ -1195,11 +1197,6 @@ abstract class Solr {
 		}
 		$timer->logTime("build query in Solr");
 
-		if (!empty($options['q']) && is_string($options['q']) && (!isset($options['qt']) || $options['qt'] != 'dismax') && $this->index == "grouped_works_v3" && preg_match('/(^|[\s(])local_callnumber(_exact|_left)?:/', $options['q'])) {
-					$options['pq'] = $options['q'];
-					$options['q'] = '{!parent which="recordtype:grouped_work" v=$pq}';
-		}
-
 		// Limit Fields
 		if ($fields) {
 			$options['fl'] = $fields;
@@ -1305,6 +1302,10 @@ abstract class Solr {
 
 		if (isset($facet['additionalOptions'])) {
 			$options = array_merge($options, $facet['additionalOptions']);
+		}
+
+		if (!empty($this->childQuery)) {
+			$options['child_query'] = $this->childQuery;
 		}
 
 		$timer->logTime("build facet options");
