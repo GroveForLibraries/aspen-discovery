@@ -244,16 +244,21 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 
 		// Build a list of facets we want from the index
 		$facetConfig = $this->getFacetConfig();
-		$jsonFacets = [];
+		$jsonFacets = [
+			'child_facets' => [
+				'type' => 'query',
+				'q' => '*:*',
+				'domain' => [
+					'blockChildren' => 'recordtype:grouped_work',
+					'filter' => $childDocFilters,
+					'excludeTags' => 'child_filter'
+				],
+				'facet' => []
+			]
+		];
 		if ($recommendations && !empty($facetConfig)) {
 			require_once ROOT_DIR . '/sys/Grouping/GroupedWorkFacet.php';
 			$numLocations = GroupedWorkFacet::calculateDynamicFacetLimit('available_at');
-
-			$domainInfo = [
-				'blockChildren' => 'recordtype:grouped_work',
-				'filter' => $childDocFilters,
-				'excludeTags' => 'child_filter'
-			];
 
 			$facetSet['limit'] = $this->facetLimit;
 			foreach ($facetConfig as $facetField => $facetInfo) {
@@ -279,13 +284,14 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 						'mincount' => $minCount
 					];
 					if (in_array($facetName, $childDocFields)) {
-						$jsonInfoForField['domain'] = $domainInfo;
 						$jsonInfoForField['limit'] = -1;
 						$jsonInfoForField['facet'] = [
 							'parent_count' => 'uniqueBlock(_root_)'
 						];
+						$jsonFacets['child_facets']['facet'][$facetName] = $jsonInfoForField;
+					}else{
+						$jsonFacets[$facetName] = $jsonInfoForField;
 					}
-					$jsonFacets[$facetName] = $jsonInfoForField;
 				} else {
 					$facetSet['field'][$facetField] = $facetInfo;
 				}
@@ -301,6 +307,9 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			}
 			if ($this->facetSort != null) {
 				$facetSet['sort'] = $this->facetSort;
+			}
+			if (empty($jsonFacets['child_facets']['facet'])) {
+				$jsonFacets['child_facets']['facet'] = new stdClass();
 			}
 			$this->facetOptions["json.facet"] = json_encode($jsonFacets);
 		}
@@ -578,6 +587,9 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		}
 
 		$allFacets = $this->indexResult['facets'] ?? $this->indexResult['facet_counts']['facet_fields'];
+		if (isset($this->indexResult['facets']['child_facets'])) {
+			$allFacets += $this->indexResult['facets']['child_facets'];
+		}
 		/** @var FacetSetting $facetConfig */
 		$facetConfig = $this->getFacetConfig();
 		foreach ($allFacets as $field => $data) {
