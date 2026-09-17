@@ -7,6 +7,7 @@ require_once ROOT_DIR . '/sys/SystemVariables.php';
 
 class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 {
+	private array $childDocFields;
 	function __construct($host, $index = '')
 	{
 		parent::__construct($host, 'grouped_works_v3');
@@ -323,6 +324,11 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 		return $result;
 	}
 
+	public function setChildDocFields(array $childDocFields)
+	{
+		$this->childDocFields = $childDocFields;
+	}
+
 	/**
 	 * Normalize a sort option.
 	 *
@@ -481,6 +487,7 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 	 */
 	protected function _applySearchSpecs($structure, $values, $joiner = "OR") : string {
 		$clauses = [];
+		$childClauses = [];
 		foreach ($structure as $field => $clauseArray) {
 			if (is_numeric($field)) {
 				// shift off the join string and weight
@@ -563,12 +570,24 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 					}
 
 					// ..and push it on the stack of clauses
-					$clauses[] = $searchString;
+					if (in_array($field, $this->childDocFields)) {
+						$childClauses[] = $searchString;
+					} else {
+						$clauses[] = $searchString;
+					}
 				}
 			}
 		}
 
 		// Join it all together
-		return implode(' ' . $joiner . ' ', $clauses);
+		$search = implode(' ' . $joiner . ' ', $clauses);
+		if (!empty($childClauses)) {
+			if (!empty($search)) {
+				$search .= ' OR ';
+			}
+			$search .= '_query_:"{!parent which=recordtype:grouped_work score=max v=$child_query}"';
+			$this->childQuery = implode(' ' . $joiner . ' ', $childClauses) ;
+		}
+		return $search;
 	}
 }
