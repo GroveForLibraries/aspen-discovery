@@ -514,11 +514,15 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				$doc['total_holds'] = 0;
 				if (!empty($doc['record_scoping'])) {
 					foreach ($doc['record_scoping'] as $record_scoping) {
-						foreach ($record_scoping['format'] as $format) {
-							$doc['format'][$format] = $format;
+						if (isset($record_scoping['format'])) {
+							foreach ($record_scoping['format'] as $format) {
+								$doc['format'][$format] = $format;
+							}
 						}
-						foreach ($record_scoping['format_category'] as $formatCategory) {
-							$doc['format_category'][$formatCategory] = $formatCategory;
+						if (isset($record_scoping['format_category'])) {
+							foreach ($record_scoping['format_category'] as $formatCategory) {
+								$doc['format_category'][$formatCategory] = $formatCategory;
+							}
 						}
 						$doc['popularity'] += $record_scoping['popularity'] ?? 0;
 						$doc['total_holds'] += $record_scoping['total_holds'] ?? 0;
