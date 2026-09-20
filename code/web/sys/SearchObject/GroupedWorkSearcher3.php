@@ -513,6 +513,31 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			}
 		}
 
+		//Move child doc fields up to the parent.
+		if ($this->resultsTotal > 0) {
+			foreach ($this->indexResult['response']['docs'] as $key => $doc) {
+				$doc['format'] = [];
+				$doc['format_category'] = [];
+				$doc['local_days_since_added'] = 0;
+				$doc['popularity'] = 0;
+				$doc['total_holds'] = 0;
+				if (!empty($doc['record_scoping'])) {
+					foreach ($doc['record_scoping'] as $record_scoping) {
+						foreach ($record_scoping['format'] as $format) {
+							$doc['format'][$format] = $format;
+						}
+						foreach ($record_scoping['format_category'] as $formatCategory) {
+							$doc['format_category'][$formatCategory] = $formatCategory;
+						}
+						$doc['popularity'] += $record_scoping['popularity'] ?? 0;
+						$doc['total_holds'] += $record_scoping['total_holds'] ?? 0;
+						$doc['local_days_since_added'] = max($doc['local_days_since_added'], ($record_scoping['local_days_since_added'] ?? 0));
+					}
+				}
+				$this->indexResult['response']['docs'][$key] = $doc;
+			}
+		}
+
 		//Add debug information to the results if available
 		if ($this->debug && isset($this->indexResult['debug'])) {
 			$explainInfo = $this->indexResult['debug']['explain'];
@@ -548,6 +573,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			$fieldsToReturn .= ',score';
 			$fieldsToReturn .= ",callnumber_sort_$solrScope";
 			$fieldsToReturn .= ",available_copies_$solrScope";
+			$fieldsToReturn .= ",record_scoping";
 			if ($solrScope !== false) {
 
 				if (empty($childDocFilters)) {
@@ -555,7 +581,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				}else{
 					$childFilter = implode(' +', str_replace('"', '\"', $childDocFilters)) ;
 				}
-				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter. '"]';
+				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="format,format_category,popularity,total_hods,date_added"]';
 			}
 		}
 		return $fieldsToReturn;

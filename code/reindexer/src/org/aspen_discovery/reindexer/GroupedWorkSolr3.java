@@ -442,12 +442,14 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			logEntry.incErrors("Error determining call number sort", e);
 		}
 
+		ArrayList<SolrInputDocument> allScopingDocuments = new ArrayList<>();
 		for (RecordInfo recordInfo : relatedRecords.values()) {
 			ArrayList<SolrInputDocument> recordDocuments = recordInfo.getRecordScopeSolrDocuments(groupedWorkIndexer, this, daysAddedSincePubDate);
 			if (recordDocuments != null) {
-				groupedWorkDoc.addChildDocuments(recordDocuments);
+				allScopingDocuments.addAll(recordDocuments);
 			}
 		}
+		groupedWorkDoc.setField("record_scoping", allScopingDocuments);
 
 		return groupedWorkDoc;
 	}
