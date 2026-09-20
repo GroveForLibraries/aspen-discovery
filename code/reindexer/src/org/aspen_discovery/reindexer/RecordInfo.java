@@ -742,8 +742,6 @@ public class RecordInfo {
 				recordDoc.addField("local_time_since_added", DateUtils.getTimeSinceAdded(daysSinceAddedForScope));
 			}
 			recordDoc.addField("lib_boost", libraryBoostForScope);
-			recordDoc.addField("available_copies", availableCopiesForScope);
-			recordDoc.addField("callnumber_sort", sortableCallNumberForScope);
 
 			recordSolrScopeDocuments.add(recordDoc);
 		}
