@@ -8,6 +8,8 @@ require_once ROOT_DIR . '/sys/SystemVariables.php';
 class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 {
 	private array $childDocFields;
+	private array $childDocFilters;
+
 	function __construct($host, $index = '')
 	{
 		parent::__construct($host, 'grouped_works_v3');
@@ -324,9 +326,12 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 		return $result;
 	}
 
-	public function setChildDocFields(array $childDocFields)
-	{
+	public function setChildDocFields(array $childDocFields) : void {
 		$this->childDocFields = $childDocFields;
+	}
+
+	public function setChildDocFilters(array $childDocFilters) : void {
+		$this->childDocFilters = $childDocFilters;
 	}
 
 	/**
@@ -586,7 +591,10 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 				$search .= ' OR ';
 			}
 			$search .= '_query_:"{!parent which=recordtype:grouped_work score=max v=$child_query}"';
-			$this->childQuery = implode(' ' . $joiner . ' ', $childClauses) ;
+			global $solrScope;
+			//TODO: add additional child filters
+			$childFilterString = '+' . implode(' +', $this->childDocFilters);
+			$this->childQuery = "+recordtype:record_scoping $childFilterString +(" . implode(' ' . $joiner . ' ', $childClauses) . ')';
 		}
 		return $search;
 	}
