@@ -254,11 +254,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				'domain' => [
 					//'blockChildren' => 'recordtype:grouped_work',
 					'excludeTags' => 'child_filter',
-					'join' => [
-						'from' => "_root_",
-						'to' => "_root_",
-						'method' => 'index'
-					],
+					'blockChildren' => 'recordtype:grouped_work',
 					'filter' => ["recordtype:record_scoping"],
 				],
 				'facet' => []
