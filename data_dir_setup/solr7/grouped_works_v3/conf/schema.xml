@@ -210,6 +210,9 @@
 		<field name="recordtype" type="unchanged_string" indexed="true" stored="true" multiValued="false" required="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 		<!-- The scope for this record if the recordtype is record_scoping -->
 		<field name="scope" type="unchanged_string" indexed="true" stored="false" docValues="true" omitNorms="true" omitTermFreqAndPositions="true" />
+		<!-- Relevant scopes for the grouped_work -->
+		<field name="related_scopes" type="unchanged_string" indexed="true" stored="false" docValues="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true" />
+
 		<field name="_version_" type="long" indexed="true" stored="true"/>
 
 		<!-- Grouped Work Level Fields -->

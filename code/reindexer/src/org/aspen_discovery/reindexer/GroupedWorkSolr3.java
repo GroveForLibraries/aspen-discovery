@@ -396,6 +396,8 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			daysAddedSincePubDate = DateUtils.getDaysSinceAddedForDate(publicationDate.getTime());
 		}
 
+		groupedWorkDoc.addField("related_scopes", relatedScopes.keySet());
+
 		//Determine sortable call numbers and available copies for each scope
 		try {
 			for (String scopeName : relatedScopes.keySet()) {

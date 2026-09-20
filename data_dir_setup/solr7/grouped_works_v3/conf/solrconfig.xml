@@ -719,6 +719,8 @@
 					<str name="fq">recordtype:grouped_work</str>
 					<str name="fq">{!parent which="recordtype:grouped_work" tag=child_filter}(availability_toggle:global AND scope:${aspen.warming.scope:main})</str>
 					<str name="rows">0</str>
+					<str name="start">0</str>
+					<str name="fl">id</str>
 					<str name="spellcheck">false</str>
 					<str name="timeAllowed">300000</str>
 					<str name="json.facet"><![CDATA[
