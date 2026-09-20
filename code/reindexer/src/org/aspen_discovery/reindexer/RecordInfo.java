@@ -551,7 +551,6 @@ public class RecordInfo {
 			}
 			SolrInputDocument recordDoc = new SolrInputDocument();
 			recordDoc.setField("id", "record_" + databaseId + "_" + scopeName);
-			recordDoc.setField("_nest_path_", "/record_scoping");
 			recordDoc.setField("recordtype", "record_scoping");
 			recordDoc.setField("scope", scopeName);
 
