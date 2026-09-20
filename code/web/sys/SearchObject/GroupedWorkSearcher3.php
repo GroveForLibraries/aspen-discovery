@@ -6,6 +6,28 @@ require_once ROOT_DIR . '/sys/Grouping/GroupedWorkFacet.php';
 class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher2 {
 	public static string $fields_to_return = 'auth_author2,author2-role,id,content_rating,title_display,title_full,title_short,subtitle_display,author,author_display,isbn,upc,issn,series,series_with_volume,recordtype,display_description,literary_form,literary_form_full,publisherStr,publishDate,publishDateSort,placeOfPublication,subject_facet,topic_facet,primary_isbn,primary_upc,accelerated_reader_point_value,accelerated_reader_reading_level,accelerated_reader_interest_level,lexile_code,lexile_score,fountas_pinnell,last_indexed,lc_subject,bisac_subject,format,format_category,language,ils_description,popularity,total_holds,date_added';
 
+	protected $childDocFields = [
+		'available_at',
+		'availability_toggle',
+		'callnumber_sort',
+		'collection',
+		'detailed_location',
+		'econtent_source',
+		'format',
+		'format_category',
+		'local_callnumber',
+		'local_callnumber_exact',
+		'local_callnumber_left',
+		'local_days_since_added',
+		'local_time_since_added',
+		'lib_boost',
+		'owning_library',
+		'owning_location',
+		'shelf_location',
+		'target_audience',
+		'target_audience_full'
+	];
+
 	public function getSolrConnector($indexUrl) : GroupedWorksSolrConnector3 {
 		return new GroupedWorksSolrConnector3($indexUrl);
 	}
@@ -98,25 +120,6 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		$this->selectedAvailabilityToggleValue = null;
 		$facetConfig = $this->getFacetConfig();
 		$availabilityToggleId = null;
-		$childDocFields = [
-			'available_at',
-			'availability_toggle',
-			'callnumber_sort',
-			'collection',
-			'detailed_location',
-			'econtent_source',
-			'format',
-			'format_category',
-			'local_callnumber',
-			'local_days_since_added',
-			'local_time_since_added',
-			'lib_boost',
-			'owning_library',
-			'owning_location',
-			'shelf_location',
-			'target_audience',
-			'target_audience_full'
-		];
 		foreach ($this->filterList as $field => $filter) {
 			$multiSelect = false;
 			if (isset($facetConfig[$field])) {
@@ -165,7 +168,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 						//The value is already specified as field:value
 						if (is_numeric($field)) {
 							[$facetName, $fieldValue] = explode(':', $value);
-							if (in_array($field, $childDocFields)) {
+							if (in_array($field, $this->childDocFields)) {
 								$childDocFilters[] = "$facetName:$fieldValue";;
 							}else {
 								$filterQuery[] = "$facetName:$fieldValue";;
@@ -183,7 +186,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 						}
 						$fieldValue .= $value;
 					} else {
-						if (in_array($facetName, $childDocFields)) {
+						if (in_array($facetName, $this->childDocFields)) {
 							$childDocFilters[] = "$facetName:$value";
 						}else {
 							$filterQuery[] = "$facetName:$value";
@@ -193,7 +196,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			}
 			//Apply multi select filters now that we have all values grouped
 			if ($multiSelect) {
-				if (in_array($facetName, $childDocFields)) {
+				if (in_array($facetName, $this->childDocFields)) {
 					$childDocFilters[] = str_contains($fieldValue, ' OR ') ? "$facetName:($fieldValue)" : "$facetName:$fieldValue";
 				}else{
 					$filterQuery[] = str_contains($fieldValue, ' OR ') ? "$facetName:($fieldValue)" : "$facetName:$fieldValue";
@@ -244,15 +247,21 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 
 		// Build a list of facets we want from the index
 		$facetConfig = $this->getFacetConfig();
-		$jsonFacets = [];
+		$jsonFacets = [
+			'child_facets' => [
+				'type' => 'query',
+				'q' => '*:*',
+				'domain' => [
+					'blockChildren' => 'recordtype:grouped_work',
+					'filter' => $childDocFilters,
+					'excludeTags' => 'child_filter'
+				],
+				'facet' => []
+			]
+		];
 		if ($recommendations && !empty($facetConfig)) {
 			require_once ROOT_DIR . '/sys/Grouping/GroupedWorkFacet.php';
 			$numLocations = GroupedWorkFacet::calculateDynamicFacetLimit('available_at');
-			$domainInfo = [
-				'blockChildren' => 'recordtype:grouped_work',
-				'filter' => 'scope:' . $solrScope,
-				'excludeTags' => 'child_filter'
-			];
 
 			$facetSet['limit'] = $this->facetLimit;
 			foreach ($facetConfig as $facetField => $facetInfo) {
@@ -277,14 +286,15 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 						'limit' => (int)$limit,
 						'mincount' => $minCount
 					];
-					if (in_array($facetName, $childDocFields)) {
-						$jsonInfoForField['domain'] = $domainInfo;
+					if (in_array($facetName, $this->childDocFields)) {
 						$jsonInfoForField['limit'] = -1;
 						$jsonInfoForField['facet'] = [
 							'parent_count' => 'uniqueBlock(_root_)'
 						];
+						$jsonFacets['child_facets']['facet'][$facetName] = $jsonInfoForField;
+					}else{
+						$jsonFacets[$facetName] = $jsonInfoForField;
 					}
-					$jsonFacets[$facetName] = $jsonInfoForField;
 				} else {
 					$facetSet['field'][$facetField] = $facetInfo;
 				}
@@ -300,6 +310,9 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			}
 			if ($this->facetSort != null) {
 				$facetSet['sort'] = $this->facetSort;
+			}
+			if (empty($jsonFacets['child_facets']['facet'])) {
+				$jsonFacets['child_facets']['facet'] = new stdClass();
 			}
 			$this->facetOptions["json.facet"] = json_encode($jsonFacets);
 		}
@@ -346,44 +359,44 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		$validFields = $this->loadValidFields();
 		$dynamicFields = $this->loadDynamicFields();
 		global $solrScope;
-		if (!empty($filterQuery)) {
-			if (!is_array($filterQuery)) {
-				$filterQuery = [$filterQuery];
-			}
 
-			$validFilters = [];
-			foreach ($filterQuery as $id => $filterTerm) {
-				//Allow the parent query through since we build it above
-				if (str_starts_with($filterTerm, '{!parent')) {
-					$validFilters[$id] = $filterTerm;
-					continue;
-				}
-				[
-					$fieldName,
-					$term,
-				] = explode(":", $filterTerm, 2);
-				$tagging = '';
-				if (preg_match("/({!tag=.*?})\(?(.*)/", $fieldName, $matches)) {
-					$tagging = $matches[1];
-					$fieldName = $matches[2];
-				}
-				if (!in_array($fieldName, $validFields)) {
-					//Field doesn't exist, check to see if it is a dynamic field
-					//Where we can replace the scope with the current scope
-					foreach ($dynamicFields as $dynamicField) {
-						if (preg_match("/^{$dynamicField}[^_]+$/", $fieldName)) {
-							//This is a dynamic field with the wrong scope
-							$validFilters[$id] = $tagging . $dynamicField . $solrScope . ":" . $term;
-							break;
-						}
-					}
-				} else {
-					$validFilters[$id] = $filterTerm;
-				}
+		$validFilters = [];
+		foreach ($filterQuery as $id => $filterTerm) {
+			//Allow the parent query through since we build it above
+			if (str_starts_with($filterTerm, '{!parent')) {
+				$validFilters[$id] = $filterTerm;
+				continue;
 			}
+			[
+				$fieldName,
+				$term,
+			] = explode(":", $filterTerm, 2);
+			$tagging = '';
+			if (preg_match("/({!tag=.*?})\(?(.*)/", $fieldName, $matches)) {
+				$tagging = $matches[1];
+				$fieldName = $matches[2];
+			}
+			if (!in_array($fieldName, $validFields)) {
+				//Field doesn't exist, check to see if it is a dynamic field
+				//Where we can replace the scope with the current scope
+				foreach ($dynamicFields as $dynamicField) {
+					if (preg_match("/^{$dynamicField}[^_]+$/", $fieldName)) {
+						//This is a dynamic field with the wrong scope
+						$validFilters[$id] = $tagging . $dynamicField . $solrScope . ":" . $term;
+						break;
+					}
+				}
+			} else {
+				$validFilters[$id] = $filterTerm;
+			}
+		}
+		if (!empty($validFilters)) {
 			$filterQuery = $validFilters;
 		}
 
+		/** @var GroupedWorksSolrConnector3 $solrConnector3Engine */
+		$solrConnector3Engine = $this->indexEngine;
+		$solrConnector3Engine->setChildDocFields($this->childDocFields);
 		$this->indexResult = $this->indexEngine->search($this->query,      // Query string
 			$handler,      // DisMax Handler
 			$filterQuery,      // Filter query
@@ -456,6 +469,8 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			$fieldsToReturn .= ',available_at';
 			$fieldsToReturn .= ',itype';
 			$fieldsToReturn .= ',score';
+			$fieldsToReturn .= ",callnumber_sort_$solrScope";
+			$fieldsToReturn .= ",available_copies_$solrScope";
 			if ($solrScope !== false) {
 				$fieldsToReturn .= ',[child childFilter="scope:' . $solrScope . '"]';
 			}
@@ -578,6 +593,9 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		}
 
 		$allFacets = $this->indexResult['facets'] ?? $this->indexResult['facet_counts']['facet_fields'];
+		if (isset($this->indexResult['facets']['child_facets'])) {
+			$allFacets += $this->indexResult['facets']['child_facets'];
+		}
 		/** @var FacetSetting $facetConfig */
 		$facetConfig = $this->getFacetConfig();
 		foreach ($allFacets as $field => $data) {
