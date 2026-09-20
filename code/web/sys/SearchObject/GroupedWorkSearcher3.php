@@ -268,12 +268,6 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			require_once ROOT_DIR . '/sys/Grouping/GroupedWorkFacet.php';
 			$numLocations = GroupedWorkFacet::calculateDynamicFacetLimit('available_at');
 
-			$domainInfo = [
-				'blockChildren' => 'recordtype:grouped_work',
-				'filter' => $childDocFilters,
-				'excludeTags' => 'child_filter'
-			];
-
 			$facetSet['limit'] = $this->facetLimit;
 			$childFacetGroups = [];
 			foreach ($facetConfig as $facetField => $facetInfo) {
@@ -581,7 +575,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				}else{
 					$childFilter = implode(' +', str_replace('"', '\"', $childDocFilters)) ;
 				}
-				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="format,format_category,popularity,total_hods,date_added"]';
+				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="id,recordtype,scope,format,format_category,popularity,total_holds,date_added"]';
 			}
 		}
 		return $fieldsToReturn;

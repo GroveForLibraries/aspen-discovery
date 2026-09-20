@@ -586,7 +586,8 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 				$search .= ' OR ';
 			}
 			$search .= '_query_:"{!parent which=recordtype:grouped_work score=max v=$child_query}"';
-			$this->childQuery = implode(' ' . $joiner . ' ', $childClauses) ;
+			global $solrScope;
+			$this->childQuery = "+recordtype:record_scoping +scope:$solrScope +(" . implode(' ' . $joiner . ' ', $childClauses) . ')';
 		}
 		return $search;
 	}
