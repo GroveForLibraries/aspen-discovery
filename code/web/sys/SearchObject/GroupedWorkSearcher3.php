@@ -468,6 +468,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		/** @var GroupedWorksSolrConnector3 $solrConnector3Engine */
 		$solrConnector3Engine = $this->indexEngine;
 		$solrConnector3Engine->setChildDocFields($this->childDocFields);
+		$solrConnector3Engine->setChildDocFilters($childDocFiltersWithScope);
 		$this->indexResult = $this->indexEngine->search($this->query,      // Query string
 			$handler,      // DisMax Handler
 			$filterQuery,      // Filter query
