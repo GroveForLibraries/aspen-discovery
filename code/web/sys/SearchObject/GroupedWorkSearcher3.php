@@ -86,8 +86,6 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		$filterQuery = $this->hiddenFilters;
 		//restrict to our grouped works
 		$filterQuery[] = "+recordtype:grouped_work";
-		$filterQuery[] = "+related_scopes:$solrScope";
-		$filterQuery[] = "+recordtype:grouped_work +related_scopes:$solrScope";
 		//Remove any empty filters if we get them
 		//(typically happens when a subdomain has a function disabled that is enabled in the main scope)
 		//Also fix dynamic field names
@@ -232,7 +230,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 
 		//Filter by scope - this is done at the domain level for all child_facets
 		$childDocFiltersWithScope = array_merge($childDocFilters, ["scope:$solrScope"]);
-		$filterQuery[] = "{!tag=child_filter}related_scopes:$solrScope";
+		//$filterQuery[] = "{!tag=child_filter}related_scopes:$solrScope";
 		$filterQuery[] = '{!parent which="recordtype:grouped_work" tag=child_filter}(+recordtype:record_scoping +' . implode(' +', $childDocFiltersWithScope) . ')';
 
 		$facetSet = [];
