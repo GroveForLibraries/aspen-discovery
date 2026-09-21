@@ -9643,8 +9643,8 @@ AspenDiscovery.Admin = (function () {
 			});
 		},
 		toggleBrandedAppThemeOptions: function () {
-			const useIndividualThemes = $("#useIndividualThemes").prop("checked");
-			if (useIndividualThemes) {
+			const useSingleTheme = $("#useSingleTheme").prop("checked");
+			if (useSingleTheme) {
 				$('#propertyRowoverallTheme').show();
 			} else {
 				$('#propertyRowoverallTheme').hide();
