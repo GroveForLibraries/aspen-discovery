@@ -7,8 +7,8 @@ require_once ROOT_DIR . '/sys/SystemVariables.php';
 
 class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 {
-	private array $childDocFields;
-	private array $childDocFilters;
+	private array $childDocFields = [];
+	private array $childDocFilters = [];
 
 	function __construct($host, $index = '')
 	{
