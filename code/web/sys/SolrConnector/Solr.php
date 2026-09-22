@@ -1195,11 +1195,6 @@ abstract class Solr {
 		}
 		$timer->logTime("build query in Solr");
 
-		if (!empty($options['q']) && is_string($options['q']) && (!isset($options['qt']) || $options['qt'] != 'dismax') && $this->index == "grouped_works_v3" && preg_match('/(^|[\s(])local_callnumber(_exact|_left)?:/', $options['q'])) {
-					$options['pq'] = $options['q'];
-					$options['q'] = '{!parent which="recordtype:grouped_work" v=$pq}';
-		}
-
 		// Limit Fields
 		if ($fields) {
 			$options['fl'] = $fields;
