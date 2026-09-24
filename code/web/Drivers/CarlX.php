@@ -1869,7 +1869,7 @@ class CarlX extends AbstractIlsDriver {
 				return [
 					'success' => false,
 					'message' => translate([
-						'text' => 'Error updating payment, please visit the library with your receipt.',
+						'text' => 'Error updating payment, please visit the library with your receipt. Did not get a response from the backend server.',
 						'isPublicFacing' => true,
 					]),
 				];
