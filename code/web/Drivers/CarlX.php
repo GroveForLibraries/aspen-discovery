@@ -49,6 +49,7 @@ class CarlX extends AbstractIlsDriver {
 	 * @return stdClass|false Returns the SOAP response object or false on failure.
 	 */
 	protected function doSoapRequest(string $requestName, stdClass $request, string $WSDL = '', array $soapRequestOptions = [], array $dataToSanitize = []): stdClass|false {
+		global $logger;
 		if (empty($WSDL)) { // Let the patron WSDL be the assumed default WSDL when not specified.
 			if (!empty($this->patronWsdl)) {
 				$WSDL = $this->patronWsdl;
@@ -71,7 +72,8 @@ class CarlX extends AbstractIlsDriver {
 			}
 			if (empty($this->accountProfile->staffUsername)) {
 				$logger->log('No Staff Username configured in Account Profile', Logger::LOG_ERROR);
-				$result['message'] = 'No Staff Username configured in Account Profile';
+				$result = new stdClass();
+				$result->error = 'No Staff Username configured in Account Profile';
 				return $result;
 			}
 			$staff = $this->accountProfile->staffUsername;
@@ -114,7 +116,6 @@ class CarlX extends AbstractIlsDriver {
 					}
 				}
 			} catch (SoapFault $e) {
-				global $logger;
 				$logger->log("Error connecting to SOAP " . $e->getMessage(), Logger::LOG_ERROR);
 				// Create a result object with error information.
 				if ($result === false) {
@@ -1833,7 +1834,7 @@ class CarlX extends AbstractIlsDriver {
 			$requestOptions['login'] = $this->accountProfile->oAuthClientId;
 			$requestOptions['password'] = $this->accountProfile->oAuthClientSecret;
 			$settleFinesAndFeesResult = $this->doSoapRequest('settleFinesAndFees', $paymentRequest, $this->patronWsdl, $requestOptions, []);
-			ExternalRequestLogEntry::logRequest('carlX.CompleteFinePayment', 'SOAP', $this->patronWsdl, $requestOptions, print_r($paymentRequest, true), $settleFinesAndFeesResult->ResponseStatuses->ResponseStatus[0], $settleFinesAndFeesResult, []);
+			ExternalRequestLogEntry::logRequest('carlX.CompleteFinePayment', 'POST', $this->patronWsdl, $requestOptions, print_r($paymentRequest, true), $settleFinesAndFeesResult->ResponseStatuses->ResponseStatus[0]->Code, $settleFinesAndFeesResult, []);
 			if ($settleFinesAndFeesResult) {
 				if (!$settleFinesAndFeesResult->ReceiptNumber) {
 					$allPaymentsSucceed = false;
