@@ -1065,6 +1065,7 @@ class UserPayment extends DataObject {
 
 			if ($payload['transaction_status'] != 0 && $payload['fail_code'] != 0) {
 				// transaction failed
+				require_once ROOT_DIR . '/sys/ECommerce/CertifiedPaymentsByDeluxeSetting.php';
 				$userPayment->error = true;
 				$message = 'Unable to process payment. ';
 				$message = CertifiedPaymentsByDeluxeSetting::getFailedPaymentMessage($payload['fail_code'], $message);
