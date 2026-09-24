@@ -1834,7 +1834,6 @@ class CarlX extends AbstractIlsDriver {
 			$requestOptions['login'] = $this->accountProfile->oAuthClientId;
 			$requestOptions['password'] = $this->accountProfile->oAuthClientSecret;
 			$settleFinesAndFeesResult = $this->doSoapRequest('settleFinesAndFees', $paymentRequest, $this->patronWsdl, $requestOptions, []);
-			ExternalRequestLogEntry::logRequest('carlX.CompleteFinePayment', 'POST', $this->patronWsdl, $requestOptions, print_r($paymentRequest, true), $settleFinesAndFeesResult->ResponseStatuses->ResponseStatus[0]->Code, $settleFinesAndFeesResult, []);
 			if ($settleFinesAndFeesResult) {
 				if (!$settleFinesAndFeesResult->ReceiptNumber) {
 					$allPaymentsSucceed = false;
@@ -1867,7 +1866,6 @@ class CarlX extends AbstractIlsDriver {
 				}
 			} else {
 				$logger->log('CarlX ILS gave no response when attempting to settle payment.', Logger::LOG_ERROR);
-				$logger->log(print_r(json_encode($settleFinesAndFeesResult, JSON_PRETTY_PRINT), true), Logger::LOG_ERROR);
 				return [
 					'success' => false,
 					'message' => translate([
@@ -1884,7 +1882,6 @@ class CarlX extends AbstractIlsDriver {
 					'text' => 'Your fines have been paid successfully, thank you.',
 					'isPublicFacing' => true,
 				]);
-				$logger->log("Successful payment: $payment->id:", Logger::LOG_ERROR);
 			} else {
 				$result['success'] = false;
 			}
