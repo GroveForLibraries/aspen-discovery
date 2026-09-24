@@ -1833,6 +1833,7 @@ class CarlX extends AbstractIlsDriver {
 			$requestOptions['login'] = $this->accountProfile->oAuthClientId;
 			$requestOptions['password'] = $this->accountProfile->oAuthClientSecret;
 			$settleFinesAndFeesResult = $this->doSoapRequest('settleFinesAndFees', $paymentRequest, $this->patronWsdl, $requestOptions, []);
+			ExternalRequestLogEntry::logRequest('carlX.CompleteFinePayment', 'SOAP', $this->patronWsdl, $requestOptions, print_r($paymentRequest, true), $settleFinesAndFeesResult->ResponseStatuses->ResponseStatus[0], $settleFinesAndFeesResult, []);
 			if ($settleFinesAndFeesResult) {
 				if (!$settleFinesAndFeesResult->ReceiptNumber) {
 					$allPaymentsSucceed = false;
@@ -1849,18 +1850,23 @@ class CarlX extends AbstractIlsDriver {
 							'text' => 'Error updating payment, please visit the library with your receipt.  Did not get a valid response from the backend server.',
 							'isPublicFacing' => true,
 						]);
+						$logger->log("Error updating payment $payment->id:", Logger::LOG_ERROR);
+						$logger->log(print_r(json_encode($settleFinesAndFeesResult, JSON_PRETTY_PRINT), true), Logger::LOG_ERROR);
 					} elseif ($settleFinesAndFeesResult->ResponseStatuses->ResponseStatus[0]->Code != 0) {
 						$allPaymentsSucceed = false;
 						$result['message'] = translate([
 							'text' => "Error updating payment, please visit the library with your receipt. {$settleFinesAndFeesResult->ResponseStatuses->ResponseStatus[0]->ShortMessage}",
 							'isPublicFacing' => true,
 						]);
+						$logger->log("Error updating payment $payment->id:", Logger::LOG_ERROR);
+						$logger->log(print_r(json_encode($settleFinesAndFeesResult, JSON_PRETTY_PRINT), true), Logger::LOG_ERROR);
 					} else {
 						$payment->message .= "CarlX Receipt Number $settleFinesAndFeesResult->ReceiptNumber. ";
 					}
 				}
 			} else {
 				$logger->log('CarlX ILS gave no response when attempting to settle payment.', Logger::LOG_ERROR);
+				$logger->log(print_r(json_encode($settleFinesAndFeesResult, JSON_PRETTY_PRINT), true), Logger::LOG_ERROR);
 				return [
 					'success' => false,
 					'message' => translate([
@@ -1877,6 +1883,7 @@ class CarlX extends AbstractIlsDriver {
 					'text' => 'Your fines have been paid successfully, thank you.',
 					'isPublicFacing' => true,
 				]);
+				$logger->log("Successful payment: $payment->id:", Logger::LOG_ERROR);
 			} else {
 				$result['success'] = false;
 			}
