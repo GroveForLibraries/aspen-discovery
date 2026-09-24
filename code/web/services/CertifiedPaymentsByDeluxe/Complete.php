@@ -12,16 +12,17 @@ class CertifiedPaymentsByDeluxe_Complete extends Action {
 		require_once ROOT_DIR . '/sys/Account/UserPayment.php';
 		$result = UserPayment::completeCertifiedPaymentsByDeluxePayment($_POST);
 
-		if($result['success']) {
+		if ($result['success']) {
 			$logger->log('User payment processed successfully.', Logger::LOG_ERROR);
 			echo http_build_query([
-				'success' => true,
+				'success' => 'true',
+				'user_message' => '',
 			]);
 			die();
 		} else {
 			$logger->log('Unable to process user payment. ' . $result['message'], Logger::LOG_ERROR);
 			echo http_build_query([
-				'success' => false,
+				'success' => 'false',
 				'user_message' => $result['message'],
 			]);
 			die();

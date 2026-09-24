@@ -1054,17 +1054,16 @@ class UserPayment extends DataObject {
 
 	public static function completeCertifiedPaymentsByDeluxePayment($payload): array {
 		$success = false;
-		$error = '';
 		$message = '';
 
 		$userPayment = new UserPayment();
 		$userPayment->deluxeRemittanceId = $payload['remittance_id'];
 		$userPayment->deluxeSecurityId = $payload['security_id'];
-		if($userPayment->find(true)) {
+		if ($userPayment->find(true)) {
 			$userPayment->transactionId = $payload['transaction_id'];
 			$userPayment->orderId = $payload['approval_code'];
 
-			if($payload['transaction_status'] != 0 && $payload['fail_code'] != 0) {
+			if ($payload['transaction_status'] != 0 && $payload['fail_code'] != 0) {
 				// transaction failed
 				$userPayment->error = true;
 				$message = 'Unable to process payment. ';
@@ -1076,7 +1075,7 @@ class UserPayment extends DataObject {
 				$userPayment->totalPaid = $payload['total_amount'];
 				$userPayment->update();
 
-				if($userPayment->transactionType == 'donation') {
+				if ($userPayment->transactionType == 'donation') {
 					//Check to see if we have a donation for this payment
 					require_once ROOT_DIR . '/sys/Donations/Donation.php';
 					$donation = new Donation();
@@ -1117,19 +1116,23 @@ class UserPayment extends DataObject {
 							$userPayment->error = true;
 							$userPayment->message .= $completePayment['message'];
 							$userPayment->update();
+							$message = $completePayment['message'];
 						}
 					} else {
 						$userPayment->error = true;
 						$userPayment->message .= 'Could not find user to mark the fine paid in the ILS. ';
 						$userPayment->update();
+						$message = 'Could not find user to mark the fine paid in the ILS. ';
 					}
 				}
 			}
+		} else {
+			$message = 'Could not find a deluxe payment matching this one.';
 		}
 
 		return [
 			'success' => $success,
-			'message' => $success ? $message : $error,
+			'message' => $message,
 		];
 	}
 
