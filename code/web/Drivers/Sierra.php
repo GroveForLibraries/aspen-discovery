@@ -2418,6 +2418,12 @@ class Sierra extends AbstractIlsDriver {
 					]),
 				];
 			}
+			if (!empty($selfRegistrationForm->selfRegStaffMessage)) {
+				$params['varFields'][] = [
+					'fieldTag' => 'm',
+					'content' => $selfRegistrationForm->selfRegStaffMessage,
+				];
+			}
 
 			// Override with any municipality-specific settings
 			if (!empty($municipalities)) {
