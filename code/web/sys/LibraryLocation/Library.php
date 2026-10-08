@@ -124,6 +124,7 @@ class Library extends DataObject {
 	public $enableListDescriptions;
 	public $allowableListNames;
 	public $hideSoftDeleteListUI;
+	public $hideListItemsNoLongerInCatalog;
 	public $showConvertListsFromClassic;
 	public $showUserCirculationModules;
 	public $showUserPreferences;
@@ -3790,6 +3791,14 @@ class Library extends DataObject {
 						'type' => 'checkbox',
 						'label' => 'Hide Soft Delete UI for Lists',
 						'description' => 'When enabled, the soft delete messaging and checkbox will not be shown to patrons when deleting lists. Lists will still be soft-deleted in the background.',
+						'hideInLists' => true,
+						'default' => 0,
+					],
+					'hideListItemsNoLongerInCatalog' => [
+						'property' => 'hideListItemsNoLongerInCatalog',
+						'type' => 'checkbox',
+						'label' => 'Hide List Items No Longer in Catalog',
+						'description' => 'When enabled, users will no longer see list items that no longer exist in the catalog.',
 						'hideInLists' => true,
 						'default' => 0,
 					],
