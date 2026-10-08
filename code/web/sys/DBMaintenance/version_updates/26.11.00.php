@@ -20,14 +20,14 @@ function getUpdates26_11_00(): array {
 		//kirstien
 
 		//kodi
-		'disallow_reading_history_return_date_edits' => [
-			'title' => 'Disallow reading history return date edits',
-			'description' => 'Add setting to library table for disallowing editing of return dates in reading history.',
+		'sierra_self_reg_staff_message' => [
+			'title' => 'Self Registration Staff Message',
+			'description' => 'Message to display to staff in Sierra ILS for self-registered patrons.',
 			'continueOnError' => false,
 			'sql' => [
-				"ALTER TABLE library ADD COLUMN disallowReturnDateEdits TINYINT(1) NOT NULL DEFAULT 0"
+				"ALTER TABLE self_registration_form_sierra ADD COLUMN selfRegStaffMessage VARCHAR(250) NOT NULL DEFAULT ''"
 			]
-		], //disallow_reading_history_return_date_edits
+		], //sierra_self_reg_staff_message
 
 		//yanjun
 
