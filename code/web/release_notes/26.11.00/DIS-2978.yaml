@@ -1,0 +1,13 @@
+Jira: DIS-2827
+Type: Enhancement
+Developer: Kodi Lein (KL)
+Contributing Org: Grove For Libraries
+Sponsor: OCLS
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Reading History
+Description:
+  - Add option to disallow editing of reading history return dates.
+New Settings:
+  - Library Systems > ILS/Account Integration > Reading History > Disallow Editing of Return Dates
+New Permissions:

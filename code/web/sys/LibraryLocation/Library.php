@@ -214,6 +214,7 @@ class Library extends DataObject {
 		$displayCallNumberInCheckoutHistory;
 	public /** @noinspection PhpUnused */
 		$displayVolumeInCheckoutHistory;
+	public $disallowReturnDateEdits;
 
 	public $alwaysDisplayRenewalCount;
 	public $allowRenewingOutOfHoldGroupCheckouts;
@@ -3133,6 +3134,15 @@ class Library extends DataObject {
 								'hideInLists' => true,
 								'permissions' => ['Library ILS Connection'],
 								'relatedIls' => ['evergreen', 'koha'],
+							],
+							'disallowReturnDateEdits' => [
+								'property' => 'disallowReturnDateEdits',
+								'type' => 'checkbox',
+								'label' => 'Disallow Editing of Return Dates',
+								'description' => 'Whether users can edit the return date of titles in their reading history within Aspen.',
+								'hideInLists' => true,
+								'default' => 0,
+								'permissions' => ['Library ILS Options'],
 							],
 							'forceReadingHistoryOptIn' => [
 								'property' => 'forceReadingHistoryOptIn',
