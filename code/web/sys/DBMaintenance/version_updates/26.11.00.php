@@ -27,7 +27,7 @@ function getUpdates26_11_00(): array {
 			'sql' => [
 				"ALTER TABLE library ADD COLUMN disallowReturnDateEdits TINYINT(1) NOT NULL DEFAULT 0"
 			]
-		] //disallow_reading_history_return_date_edits
+		], //disallow_reading_history_return_date_edits
 
 		//yanjun
 
