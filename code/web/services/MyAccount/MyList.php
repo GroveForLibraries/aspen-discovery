@@ -377,6 +377,7 @@ class MyAccount_MyList extends MyAccount {
 	 */
 	private function buildListForDisplay(UserList $list, bool $allowEdit, string $sortName, int $pageSize, array $selectedResourceTypes, array $filterParams): void {
 		global $interface;
+		global $library;
 
 		$printInterface = isset($_REQUEST['print']) && filter_var($_REQUEST['print'], FILTER_VALIDATE_BOOLEAN);
 		$queryParams = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
@@ -431,13 +432,44 @@ class MyAccount_MyList extends MyAccount {
 			$totalResults = $resourceList['numFilteredEntries'];
 			$formattedRecords = $resourceList['formattedRecords'];
 
-			if (empty($filterParams)) {
+			if (isset($_REQUEST['hideItemsNoLongerInCatalog'])) {
+				$hideItems = filter_var($_REQUEST['hideItemsNoLongerInCatalog'], FILTER_VALIDATE_BOOLEAN);
+			} else {
+				$hideItems = !empty($library->hideListItemsNoLongerInCatalog);
+			}
+
+			$hasFilters = !empty($filterParams);
+			$showHideItemsCheckbox = true;
+
+			// Build the URL that flips the current state (and resets pagination)
+			$toggleParams = [];
+			$uriQuery = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+			if (!empty($uriQuery)) {
+				parse_str($uriQuery, $toggleParams);
+			}
+			unset($toggleParams['page']);
+			$toggleParams['hideItemsNoLongerInCatalog'] = $hideItems ? 'false' : 'true';
+			$hideItemsToggleUrl = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) . '?' . http_build_query($toggleParams);
+
+			$interface->assign('hideItemsNoLongerInCatalog', $hideItems || $hasFilters);
+			$interface->assign('hideItemsDisabled', $hasFilters);
+			$interface->assign('showHideItemsNoLongerInCatalog', $showHideItemsCheckbox);
+			$interface->assign('hideItemsToggleUrl', $hideItemsToggleUrl);
+
+			// Show every entry (including ones no longer in the catalog) unless the user/library wants them hidden
+			if (empty($filterParams) && !$hideItems) {
 				$resourceList = $list->getListRecords($startRecord, $pageSize, $allowEdit, 'html', null, $sortName, false, 0, $selectedResourceTypes);
 				$numFilteredResults = $list->numValidListItems($selectedResourceTypes);
 				$totalResults = $numFilteredResults;
 				$formattedRecords = $resourceList;
 			}
 		} else {
+			// Defaults
+			$interface->assign('showHideItemsNoLongerInCatalog', false);
+			$interface->assign('hideItemsNoLongerInCatalog', false);
+			$interface->assign('hideItemsToggleUrl', '');
+			$interface->assign('hideItemsDisabled', false);
+
 			$resourceList = $list->getListRecords($startRecord, $pageSize, $allowEdit, 'html', null, $sortName, false, 0, $selectedResourceTypes);
 			$numFilteredResults = $list->numValidListItems($selectedResourceTypes);
 			$totalResults = $numFilteredResults;
