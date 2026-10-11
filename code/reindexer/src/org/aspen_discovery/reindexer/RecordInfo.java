@@ -534,7 +534,7 @@ public class RecordInfo {
 			return null;
 		}
 
-		ArrayList<SolrInputDocument> recordSolrScopeDocuments = new ArrayList<>();
+		Map<String, RecordScopeDocumentGroup> groupedScopeDocuments = new HashMap<>();
 		HashSet<String> formatsForRecord = getFormats();
 		HashSet<String> formatCategoriesForRecord = getFormatCategories();
 
@@ -544,13 +544,16 @@ public class RecordInfo {
 		if (parentWork.isDebugEnabled()) {parentWork.addDebugMessage("Final full target audience " + this.recordIdentifier + " is " + targetAudienceFull, 1);}
 
 
-		for (String scopeName : relatedScopes) {
+		TreeSet<String> sortedRelatedScopes = new TreeSet<>(relatedScopes);
+
+		int groupNumber = 1;
+		for (String scopeName : sortedRelatedScopes) {
 			Scope curScope = groupedWorkIndexer.getScopes().get(scopeName);
 			if (curScope == null) {
 				continue;
 			}
 			SolrInputDocument recordDoc = new SolrInputDocument();
-			recordDoc.setField("id", "record_" + databaseId + "_" + scopeName);
+			recordDoc.setField("id", "record_" + databaseId + "_" + groupNumber++);
 			recordDoc.setField("recordtype", "record_scoping");
 			recordDoc.setField("scope", scopeName);
 
@@ -709,7 +712,7 @@ public class RecordInfo {
 			}
 			if (formatsForRecordScope.contains("CD + Book")) {
 				formatCategoriesForRecordScope.add("Books");
-				formatCategoriesForRecordScope.add("#udio Books");
+				formatCategoriesForRecordScope.add("Audio Books");
 			}
 			if (formatsForRecordScope.contains("VOX Books")) {
 				formatCategoriesForRecordScope.add("Books");
@@ -742,7 +745,57 @@ public class RecordInfo {
 			}
 			recordDoc.addField("lib_boost", libraryBoostForScope);
 
-			recordSolrScopeDocuments.add(recordDoc);
+			String documentSignature = getRecordScopeDocumentSignature(recordDoc);
+
+			RecordScopeDocumentGroup documentGroup = groupedScopeDocuments.get(documentSignature);
+			if (documentGroup == null) {
+				documentGroup = new RecordScopeDocumentGroup(recordDoc);
+				groupedScopeDocuments.put(documentSignature, documentGroup);
+			}
+
+			documentGroup.scopes.add(scopeName);
+		}
+
+		ArrayList<RecordScopeDocumentGroup> sortedDocumentGroups =
+			new ArrayList<>(groupedScopeDocuments.values());
+
+		sortedDocumentGroups.sort(
+			(group1, group2) ->
+				group1.scopes.first().compareTo(group2.scopes.first())
+		);
+
+		ArrayList<SolrInputDocument> recordSolrScopeDocuments =
+			new ArrayList<>(sortedDocumentGroups.size());
+
+		for (RecordScopeDocumentGroup documentGroup : sortedDocumentGroups) {
+			String primaryScope = documentGroup.scopes.first();
+
+			/*
+			 * Using the first scope preserves your existing ID format and produces
+			 * a deterministic, unique ID within this record's child block.
+			 */
+			documentGroup.document.setField(
+				"id",
+				"record_" + databaseId + "_" + primaryScope
+			);
+
+			documentGroup.document.setField(
+				"scope",
+				new ArrayList<>(documentGroup.scopes)
+			);
+
+			recordSolrScopeDocuments.add(documentGroup.document);
+		}
+
+		if (parentWork.isDebugEnabled()) {
+			parentWork.addDebugMessage(
+				"Combined " + relatedScopes.size()
+					+ " scope documents into "
+					+ recordSolrScopeDocuments.size()
+					+ " record_scoping documents for "
+					+ recordIdentifier,
+				1
+			);
 		}
 
 		return recordSolrScopeDocuments;
@@ -772,5 +825,107 @@ public class RecordInfo {
 			relatedScopes.addAll(itemInfo.getScopingInfo().keySet());
 		}
 		return relatedScopes;
+	}
+
+	/**
+	 * A solr record_scoping document with it's related scopes
+	 */
+	private static class RecordScopeDocumentGroup {
+		private final SolrInputDocument document;
+		private final TreeSet<String> scopes = new TreeSet<>();
+
+		private RecordScopeDocumentGroup(SolrInputDocument document) {
+			this.document = document;
+		}
+	}
+
+	/**
+	 * Creates a canonical representation of a record_scoping document,
+	 * excluding fields that are expected to differ between otherwise
+	 * equivalent scope documents.
+	 *
+	 * Multi-valued fields are treated as sets: ordering and duplicate values
+	 * do not affect whether two documents are considered equivalent.
+	 */
+	private static String getRecordScopeDocumentSignature(SolrInputDocument document) {
+		StringBuilder signature = new StringBuilder();
+
+		TreeSet<String> fieldNames = new TreeSet<>(document.getFieldNames());
+		//remove fields that should not make things distinct
+		fieldNames.remove("id");
+		fieldNames.remove("scope");
+		fieldNames.remove("recordtype");
+
+		for (String fieldName : fieldNames) {
+			Collection<Object> fieldValues = document.getFieldValues(fieldName);
+			if (fieldValues == null || fieldValues.isEmpty()) {
+				continue;
+			}
+
+			TreeSet<String> normalizedValues = new TreeSet<>();
+			for (Object fieldValue : fieldValues) {
+				addNormalizedSignatureValues(normalizedValues, fieldValue);
+			}
+
+			if (normalizedValues.isEmpty()) {
+				continue;
+			}
+
+			appendSignatureValue(signature, fieldName);
+			signature.append(normalizedValues.size()).append(';');
+
+			for (String normalizedValue : normalizedValues) {
+				appendSignatureValue(signature, normalizedValue);
+			}
+		}
+
+		return signature.toString();
+	}
+
+	private static void addNormalizedSignatureValues(
+		TreeSet<String> normalizedValues,
+		Object value
+	) {
+		if (value == null) {
+			return;
+		}
+
+		if (value instanceof Collection<?>) {
+			Collection<?> collection = (Collection<?>) value;
+			for (Object collectionValue : collection) {
+				addNormalizedSignatureValues(normalizedValues, collectionValue);
+			}
+			return;
+		}
+
+		if (value.getClass().isArray()) {
+			int arrayLength = java.lang.reflect.Array.getLength(value);
+			for (int i = 0; i < arrayLength; i++) {
+				addNormalizedSignatureValues(
+					normalizedValues,
+					java.lang.reflect.Array.get(value, i)
+				);
+			}
+			return;
+		}
+
+		// Include the type so that, for example, Integer 1 and String "1"
+		// do not accidentally produce the same signature.
+		normalizedValues.add(
+			value.getClass().getName() + ':' + String.valueOf(value)
+		);
+	}
+
+	private static void appendSignatureValue(
+		StringBuilder signature,
+		String value
+	) {
+		// Length-prefixing avoids collisions caused by delimiters contained
+		// within the actual field names or values.
+		signature
+			.append(value.length())
+			.append(':')
+			.append(value)
+			.append(';');
 	}
 }

@@ -86,7 +86,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		$filterQuery = $this->hiddenFilters;
 		//restrict to our grouped works
 		$filterQuery[] = "+recordtype:grouped_work";
-		$filterQuery[] = "related_scopes:$solrScope";
+		//$filterQuery[] = "related_scopes:$solrScope";
 		//Remove any empty filters if we get them
 		//(typically happens when a subdomain has a function disabled that is enabled in the main scope)
 		//Also fix dynamic field names
@@ -205,15 +205,16 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			}
 		}
 
+		global $library;
+		$location = Location::getSearchLocation();
+		if ($location != null) {
+			$groupedWorkDisplaySettings = $location->getGroupedWorkDisplaySettings();
+		} else {
+			$groupedWorkDisplaySettings = $library->getGroupedWorkDisplaySettings();
+		}
+
 		//Check to see if we should apply a default filter for availability toggle
 		if ($this->selectedAvailabilityToggleValue == null && !$this->disableDefaultAvailabilityToggle) {
-			global $library;
-			$location = Location::getSearchLocation();
-			if ($location != null) {
-				$groupedWorkDisplaySettings = $location->getGroupedWorkDisplaySettings();
-			} else {
-				$groupedWorkDisplaySettings = $library->getGroupedWorkDisplaySettings();
-			}
 			$availabilityToggleValue = $groupedWorkDisplaySettings->defaultAvailabilityToggle;
 			$this->selectedAvailabilityToggleValue = $availabilityToggleValue;
 
@@ -304,9 +305,11 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 
 				//Child document facets need to count parents rather than the children
 				$jsonInfoForField['limit'] = -1;
-//				$jsonInfoForField['facet'] = [
-//					'parent_count' => 'uniqueBlock(_root_)'
-//				];
+				if ($groupedWorkDisplaySettings->facetCountsToShow != 3) {
+					$jsonInfoForField['facet'] = [
+						'parent_count' => 'uniqueBlock(_root_)'
+					];
+				}
 
 				// Figure out the filters that apply to the facet
 				// Values for other facets are always retained
