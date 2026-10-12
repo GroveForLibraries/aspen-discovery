@@ -194,16 +194,16 @@ public class RecordInfo {
 		if (recordDetails == null) {
 			//None of this changes by scope, so we can just form it once and then return the previous value
 			recordDetails = this.getFullIdentifier() + "|" +
-					getPrimaryFormat() + "|" +
-					getPrimaryFormatCategory() + "|" +
-					Util.getCleanDetailValue(edition) + "|" +
-					Util.getCleanDetailValue(audience) + "|" +
-					Util.getCleanDetailValue(primaryLanguage) + "|" +
-					Util.getCleanDetailValue(publisher) + "|" +
-					Util.getCleanDetailValue(placeOfPublication) + "|" +
-					Util.getCleanDetailValue(publicationDate) + "|" +
-					Util.getCleanDetailValue(physicalDescription)
-					;
+				getPrimaryFormat() + "|" +
+				getPrimaryFormatCategory() + "|" +
+				Util.getCleanDetailValue(edition) + "|" +
+				Util.getCleanDetailValue(audience) + "|" +
+				Util.getCleanDetailValue(primaryLanguage) + "|" +
+				Util.getCleanDetailValue(publisher) + "|" +
+				Util.getCleanDetailValue(placeOfPublication) + "|" +
+				Util.getCleanDetailValue(publicationDate) + "|" +
+				Util.getCleanDetailValue(physicalDescription)
+			;
 		}
 		return recordDetails;
 	}
@@ -261,21 +261,21 @@ public class RecordInfo {
 
 	public String getPrimaryFormatCategory() {
 		if (primaryFormatCategory == null) {
-			HashMap<String, Integer> relatedFormats = new HashMap<>();
-			for (String format : formatCategories) {
-				relatedFormats.put(format, 1);
+			HashMap<String, Integer> relatedFormatCategories = new HashMap<>();
+			for (String formatCategory : formatCategories) {
+				relatedFormatCategories.put(formatCategory, 1);
 			}
 			for (ItemInfo curItem : relatedItems) {
 				if (curItem.getFormatCategory() != null) {
-					relatedFormats.put(curItem.getFormatCategory(), relatedFormats.getOrDefault(curItem.getFormatCategory(), 1));
+					relatedFormatCategories.put(curItem.getFormatCategory(), relatedFormatCategories.getOrDefault(curItem.getFormatCategory(), 0) + 1);
 				}
 			}
 			int timesUsed = 0;
 			String mostUsedFormat = null;
-			for (String curFormat : relatedFormats.keySet()) {
-				if (relatedFormats.get(curFormat) > timesUsed) {
+			for (String curFormat : relatedFormatCategories.keySet()) {
+				if (relatedFormatCategories.get(curFormat) > timesUsed) {
 					mostUsedFormat = curFormat;
-					timesUsed = relatedFormats.get(curFormat);
+					timesUsed = relatedFormatCategories.get(curFormat);
 				}
 			}
 			primaryFormatCategory = Objects.requireNonNullElse(mostUsedFormat, "Unknown");
@@ -480,7 +480,7 @@ public class RecordInfo {
 	public HashSet<String> getUniqueItemFormatsCategories() {
 		HashSet<String> uniqueItemFormatCategories = new HashSet<>();
 		for (ItemInfo curItem : relatedItems){
-			if (curItem.getFormat() != null){
+			if (curItem.getFormatCategory() != null){
 				uniqueItemFormatCategories.add(curItem.getFormatCategory());
 			}
 		}
@@ -534,7 +534,7 @@ public class RecordInfo {
 			return null;
 		}
 
-		Map<String, RecordScopeDocumentGroup> groupedScopeDocuments = new HashMap<>();
+		Map<RecordScopeData, RecordScopeDocumentGroup> groupedScopeDocuments = new HashMap<>();
 		HashSet<String> formatsForRecord = getFormats();
 		HashSet<String> formatCategoriesForRecord = getFormatCategories();
 
@@ -546,28 +546,16 @@ public class RecordInfo {
 
 		TreeSet<String> sortedRelatedScopes = new TreeSet<>(relatedScopes);
 
-		int groupNumber = 1;
 		for (String scopeName : sortedRelatedScopes) {
 			Scope curScope = groupedWorkIndexer.getScopes().get(scopeName);
 			if (curScope == null) {
 				continue;
 			}
-			SolrInputDocument recordDoc = new SolrInputDocument();
-			recordDoc.setField("id", "record_" + databaseId + "_" + groupNumber++);
-			recordDoc.setField("recordtype", "record_scoping");
-			recordDoc.setField("scope", scopeName);
-
-
+			RecordScopeData scopeData = new RecordScopeData();
 			AvailabilityToggleInfo availabilityToggleValuesForScope = new AvailabilityToggleInfo();
-			Long daysSinceAddedForScope = null;
-			String sortableCallNumberForScope = null;
-			int libraryBoostForScope = 0;
 
 			String scopeFacetLabel = curScope.getFacetLabel();
 			GroupedWorkDisplaySettings scopeDisplaySettings = curScope.getGroupedWorkDisplaySettings();
-
-			HashSet<String> formatsForRecordScope = new HashSet<>(formatsForRecord);
-			HashSet<String> formatCategoriesForRecordScope = new HashSet<>(formatCategoriesForRecord);
 
 			HashSet<String> targetAudiencesForScopeByItem = new HashSet<>();
 
@@ -576,17 +564,19 @@ public class RecordInfo {
 				if (scopingInfo == null) {
 					continue;
 				}
-				Long daysSinceAdded = curItem.getDaysSinceAdded(daysAddedSincePubDate);
 				String trimmedIType = curItem.getTrimmedIType();
+				String itemFormat = curItem.getFormat();
+				String itemFormatCategory = curItem.getFormatCategory();
+				String itemTargetAudience = curItem.getTargetAudience();
 
-				if (curItem.getFormat() != null) {
-					formatsForRecordScope.add(curItem.getFormat());
+				if (itemFormat != null && !formatsForRecord.contains(itemFormat)) {
+					scopeData.additionalFormats.add(itemFormat);
 				}
-				if (curItem.getFormatCategory() != null) {
-					formatCategoriesForRecordScope.add(curItem.getFormatCategory());
+				if (itemFormatCategory != null && !formatCategoriesForRecord.contains(itemFormatCategory)) {
+					scopeData.additionalFormatCategories.add(itemFormatCategory);
 				}
-				if (curItem.getTargetAudience() != null) {
-					targetAudiencesForScopeByItem.add(curItem.getTargetAudience());
+				if (itemTargetAudience != null) {
+					targetAudiencesForScopeByItem.add(itemTargetAudience);
 				}
 
 				boolean addAllOwningLocations = false;
@@ -605,19 +595,19 @@ public class RecordInfo {
 						trimmedEContentSource = "Libby";
 					}
 					availabilityToggleValuesForScope.updateToggleValues(locallyOwned || libraryOwned, scopeDisplaySettings.isIncludeOnlineMaterialsInAvailableToggle() && isAvailable, isAvailable);
-					recordDoc.addField("owning_library", trimmedEContentSource);
+					scopeData.owningLibraries.add(trimmedEContentSource);
 					if (isAvailable) {
-						recordDoc.addField("available_at", trimmedEContentSource);
+						scopeData.availableAt.add(trimmedEContentSource);
 					}
-					recordDoc.addField("econtent_source", trimmedEContentSource);
+					scopeData.econtentSources.add(trimmedEContentSource);
 				} else { //physical materials
 					if (locallyOwned) {
 						availabilityToggleValuesForScope.updateToggleValues(locallyOwned, isAvailable, false);
 						if (isAvailable) {
-							recordDoc.addField("available_at", scopeFacetLabel);
+							scopeData.availableAt.add(scopeFacetLabel);
 						}
-						recordDoc.addField("owning_location", scopeFacetLabel);
-						recordDoc.addField("owning_library", curScope.isLibraryScope() ? scopeFacetLabel : curScope.getLibraryScope().getFacetLabel());
+						scopeData.owningLocations.add(scopeFacetLabel);
+						scopeData.owningLibraries.add(curScope.isLibraryScope() ? scopeFacetLabel : curScope.getLibraryScope().getFacetLabel());
 						if (curScope.isIncludeAllLibraryBranchesInFacets()) {
 							//Include other branches of this library that own the title within the owning locations
 							//isIncludeAllLibraryBranchesInFacets is only a setting at the location level
@@ -631,7 +621,7 @@ public class RecordInfo {
 						if (isAvailable) {
 							addAllOwningLocationsToAvailableAt = true;
 						}
-						recordDoc.addField("owning_library", scopeFacetLabel);
+						scopeData.owningLibraries.add(scopeFacetLabel);
 						addAllOwningLocations = true;
 					}
 					if (!locallyOwned && !libraryOwned && !scopeDisplaySettings.isBaseAvailabilityToggleOnLocalHoldingsOnly()) {
@@ -648,110 +638,105 @@ public class RecordInfo {
 					}
 
 					if (!curScope.isRestrictOwningLibraryAndLocationFacets() || curScope.isConsortialCatalog()) {
-						for (String libraryOwnedName : curItem.getLibraryOwnedNames()) {
-							recordDoc.addField("owning_library", libraryOwnedName);
-						}
+						scopeData.owningLibraries.addAll(curItem.getLibraryOwnedNames());
 						addAllOwningLocations = true;
 					}
 				}
 
 				if (addAllOwningLocations) {
-					recordDoc.addField("owning_location", curItem.getLocationOwnedNames());
+					scopeData.owningLocations.addAll(curItem.getLocationOwnedNames());
 				}
 				if (addAllOwningLocationsToAvailableAt) {
-					recordDoc.addField("available_at", curItem.getLocationOwnedNames());
+					scopeData.availableAt.addAll(curItem.getLocationOwnedNames());
 				}
 
 				if (locallyOwned || libraryOwned || scopeDisplaySettings.isIncludeAllRecordsInShelvingFacets()) {
 					String collection = curItem.getCollection();
 					if (collection != null && !collection.isEmpty()) {
-						recordDoc.addField("collection", curItem.getCollection());
+						scopeData.collections.add(collection);
 					}
 					String detailedLocation = curItem.getDetailedLocation();
 					if (detailedLocation != null && !detailedLocation.isEmpty()) {
-						recordDoc.addField("detailed_location", curItem.getDetailedLocation());
+						scopeData.detailedLocations.add(detailedLocation);
 					}
 					String shelfLocation = curItem.getShelfLocation();
 					if (shelfLocation != null && !shelfLocation.isEmpty() && (scopeDisplaySettings.includeEContentInShelvingLocations() || !isEContent)) {
-						recordDoc.addField("shelf_location", curItem.getShelfLocation());
+						scopeData.shelfLocations.add(shelfLocation);
 					}
 				}
 
 				if (isEContent || locallyOwned || libraryOwned || scopeDisplaySettings.isIncludeAllRecordsInDateAddedFacets()) {
-					if (daysSinceAddedForScope == null || daysSinceAdded > daysSinceAddedForScope) {
-						daysSinceAddedForScope = daysSinceAdded;
+					Long daysSinceAdded = curItem.getDaysSinceAdded(daysAddedSincePubDate);
+					if (scopeData.daysSinceAdded == null || daysSinceAdded > scopeData.daysSinceAdded) {
+						scopeData.daysSinceAdded = daysSinceAdded;
 					}
 				}
 
 				if (locallyOwned || libraryOwned) {
 					if (isAvailable) {
-						if (libraryBoostForScope < groupedWorkIndexer.availableAtBoostValue) {
-							libraryBoostForScope = groupedWorkIndexer.availableAtBoostValue;
+						if (scopeData.libraryBoost < groupedWorkIndexer.availableAtBoostValue) {
+							scopeData.libraryBoost = groupedWorkIndexer.availableAtBoostValue;
 						}
 					} else {
-						if (libraryBoostForScope < groupedWorkIndexer.ownedByBoostValue) {
-							libraryBoostForScope = groupedWorkIndexer.ownedByBoostValue;
+						if (scopeData.libraryBoost < groupedWorkIndexer.ownedByBoostValue) {
+							scopeData.libraryBoost = groupedWorkIndexer.ownedByBoostValue;
 						}
 					}
 				}
 
 				if (trimmedIType != null) {
-					recordDoc.addField("itype", trimmedIType);
+					scopeData.itemTypes.add(trimmedIType);
 				}
 
 				if (locallyOwned || libraryOwned || !scopingInfo.getScope().isRestrictOwningLibraryAndLocationFacets()) {
-					recordDoc.addField("local_callnumber", curItem.getCallNumber());
-					if (sortableCallNumberForScope == null) {
-						sortableCallNumberForScope = curItem.getSortableCallNumber();
+					String callNumber = curItem.getCallNumber();
+					if (callNumber != null) {
+						scopeData.localCallNumbers.add(callNumber);
 					}
 				}
 			} // End looping through items
 
-			if (formatsForRecordScope.contains("eAudiobook")) {
-				formatCategoriesForRecordScope.add("eBook");
-			}
-			if (formatsForRecordScope.contains("CD + Book")) {
-				formatCategoriesForRecordScope.add("Books");
-				formatCategoriesForRecordScope.add("Audio Books");
-			}
-			if (formatsForRecordScope.contains("VOX Books")) {
-				formatCategoriesForRecordScope.add("Books");
-				formatCategoriesForRecordScope.add("Audio Books");
-			}
-
-			recordDoc.setField("format", formatsForRecordScope);
-			recordDoc.setField("format_category", formatCategoriesForRecordScope);
-
-			if (targetAudiencesForScopeByItem.isEmpty()) {
-				recordDoc.setField("target_audience", filteredTargetAudiences);
-				recordDoc.setField("target_audience_full", filteredTargetAudiencesFull);
-			}else{
-				HashSet<String> cleanedAudiencesForScopeByItem = groupedWorkIndexer.cleanTargetAudiences(targetAudiencesForScopeByItem);
-				recordDoc.setField("target_audience", cleanedAudiencesForScopeByItem);
-				recordDoc.setField("target_audience_full", cleanedAudiencesForScopeByItem);
-			}
-
-			recordDoc.addField("availability_toggle", availabilityToggleValuesForScope.getValues());
-			if (curScope.getLocationsToExcludeAvailabilityForPattern() != null) {
-				//Filter available At by locationsToExcludeAvailabilityFor
-				if (recordDoc.getField("available_at") != null) {
-					ArrayList<String> availableAtFiltered = filterCollection(recordDoc.getField("available_at").getValues(), curScope.getLocationsToExcludeAvailabilityForPattern());
-					recordDoc.setField("available_at", availableAtFiltered);
+			if (formatsForRecord.contains("eAudiobook") || scopeData.additionalFormats.contains("eAudiobook")) {
+				if (!formatCategoriesForRecord.contains("eBook")) {
+					scopeData.additionalFormatCategories.add("eBook");
 				}
 			}
-			if (daysSinceAddedForScope != null) {
-				recordDoc.addField("local_days_since_added", daysSinceAddedForScope);
-				recordDoc.addField("local_time_since_added", DateUtils.getTimeSinceAdded(daysSinceAddedForScope));
+			if (formatsForRecord.contains("CD + Book") || scopeData.additionalFormats.contains("CD + Book")) {
+				if (!formatCategoriesForRecord.contains("Books")) {
+					scopeData.additionalFormatCategories.add("Books");
+				}
+				if (!formatCategoriesForRecord.contains("Audio Books")) {
+					scopeData.additionalFormatCategories.add("Audio Books");
+				}
 			}
-			recordDoc.addField("lib_boost", libraryBoostForScope);
-
-			String documentSignature = getRecordScopeDocumentSignature(recordDoc);
-
-			RecordScopeDocumentGroup documentGroup = groupedScopeDocuments.get(documentSignature);
-			if (documentGroup == null) {
-				documentGroup = new RecordScopeDocumentGroup(recordDoc);
-				groupedScopeDocuments.put(documentSignature, documentGroup);
+			if (formatsForRecord.contains("VOX Books") || scopeData.additionalFormats.contains("VOX Books")) {
+				if (!formatCategoriesForRecord.contains("Books")) {
+					scopeData.additionalFormatCategories.add("Books");
+				}
+				if (!formatCategoriesForRecord.contains("Audio Books")) {
+					scopeData.additionalFormatCategories.add("Audio Books");
+				}
 			}
+
+			if (targetAudiencesForScopeByItem.isEmpty()) {
+				scopeData.targetAudiences.addAll(filteredTargetAudiences);
+				scopeData.targetAudiencesFull.addAll(filteredTargetAudiencesFull);
+			}else{
+				HashSet<String> cleanedAudiencesForScopeByItem = groupedWorkIndexer.cleanTargetAudiences(targetAudiencesForScopeByItem);
+				scopeData.targetAudiences.addAll(cleanedAudiencesForScopeByItem);
+				scopeData.targetAudiencesFull.addAll(cleanedAudiencesForScopeByItem);
+			}
+
+			scopeData.availabilityToggles.addAll(availabilityToggleValuesForScope.getValues());
+			if (curScope.getLocationsToExcludeAvailabilityForPattern() != null) {
+				Pattern locationsToExclude = curScope.getLocationsToExcludeAvailabilityForPattern();
+				scopeData.availableAt.removeIf(location -> locationsToExclude.matcher(location).matches());
+			}
+
+			RecordScopeDocumentGroup documentGroup = groupedScopeDocuments.computeIfAbsent(
+				scopeData,
+				RecordScopeDocumentGroup::new
+			);
 
 			documentGroup.scopes.add(scopeName);
 		}
@@ -767,24 +752,15 @@ public class RecordInfo {
 		ArrayList<SolrInputDocument> recordSolrScopeDocuments =
 			new ArrayList<>(sortedDocumentGroups.size());
 
+		int scopeGroupNumber = 1;
 		for (RecordScopeDocumentGroup documentGroup : sortedDocumentGroups) {
-			String primaryScope = documentGroup.scopes.first();
-
-			/*
-			 * Using the first scope preserves your existing ID format and produces
-			 * a deterministic, unique ID within this record's child block.
-			 */
-			documentGroup.document.setField(
-				"id",
-				"record_" + databaseId + "_" + primaryScope
-			);
-
-			documentGroup.document.setField(
-				"scope",
-				new ArrayList<>(documentGroup.scopes)
-			);
-
-			recordSolrScopeDocuments.add(documentGroup.document);
+			recordSolrScopeDocuments.add(createRecordScopeSolrDocument(
+				documentGroup.scopeData,
+				documentGroup.scopes,
+				scopeGroupNumber++,
+				formatsForRecord,
+				formatCategoriesForRecord
+			));
 		}
 
 		if (parentWork.isDebugEnabled()) {
@@ -801,17 +777,56 @@ public class RecordInfo {
 		return recordSolrScopeDocuments;
 	}
 
-	private ArrayList<String> filterCollection(Collection<Object> collectionToFilter, Pattern valuesToSkip) {
-		ArrayList<String> filteredCollection = new ArrayList<>();
-		for (Object valueToAdd : collectionToFilter){
-			if (valueToAdd instanceof String) {
-				String valueToAddStr = (String)valueToAdd;
-				if (valuesToSkip == null || !valuesToSkip.matcher(valueToAddStr).matches()) {
-					filteredCollection.add(valueToAddStr);
-				}
-			}
+	private SolrInputDocument createRecordScopeSolrDocument(
+		RecordScopeData scopeData,
+		TreeSet<String> scopes,
+		int scopeGroupNumber,
+		Set<String> formatsForRecord,
+		Set<String> formatCategoriesForRecord
+	) {
+		SolrInputDocument recordDoc = new SolrInputDocument();
+		recordDoc.setField("id", "record_" + databaseId + "_" + scopeGroupNumber);
+		recordDoc.setField("recordtype", "record_scoping");
+		recordDoc.setField("scope", new ArrayList<>(scopes));
+
+		HashSet<String> finalFormats = new HashSet<>(formatsForRecord);
+		finalFormats.addAll(scopeData.additionalFormats);
+		recordDoc.setField("format", finalFormats);
+
+		HashSet<String> finalFormatCategories = new HashSet<>(formatCategoriesForRecord);
+		finalFormatCategories.addAll(scopeData.additionalFormatCategories);
+		recordDoc.setField("format_category", finalFormatCategories);
+
+		recordDoc.setField("target_audience", scopeData.targetAudiences);
+		recordDoc.setField("target_audience_full", scopeData.targetAudiencesFull);
+		setFieldIfNotEmpty(recordDoc, "availability_toggle", scopeData.availabilityToggles);
+		setFieldIfNotEmpty(recordDoc, "owning_library", scopeData.owningLibraries);
+		setFieldIfNotEmpty(recordDoc, "owning_location", scopeData.owningLocations);
+		setFieldIfNotEmpty(recordDoc, "available_at", scopeData.availableAt);
+		setFieldIfNotEmpty(recordDoc, "econtent_source", scopeData.econtentSources);
+		setFieldIfNotEmpty(recordDoc, "collection", scopeData.collections);
+		setFieldIfNotEmpty(recordDoc, "detailed_location", scopeData.detailedLocations);
+		setFieldIfNotEmpty(recordDoc, "shelf_location", scopeData.shelfLocations);
+		setFieldIfNotEmpty(recordDoc, "itype", scopeData.itemTypes);
+		setFieldIfNotEmpty(recordDoc, "local_callnumber", scopeData.localCallNumbers);
+
+		if (scopeData.daysSinceAdded != null) {
+			recordDoc.setField("local_days_since_added", scopeData.daysSinceAdded);
+			recordDoc.setField("local_time_since_added", DateUtils.getTimeSinceAdded(scopeData.daysSinceAdded));
 		}
-		return filteredCollection;
+		recordDoc.setField("lib_boost", scopeData.libraryBoost);
+
+		return recordDoc;
+	}
+
+	private static void setFieldIfNotEmpty(
+		SolrInputDocument document,
+		String fieldName,
+		Collection<String> values
+	) {
+		if (!values.isEmpty()) {
+			document.setField(fieldName, values);
+		}
 	}
 
 
@@ -828,104 +843,89 @@ public class RecordInfo {
 	}
 
 	/**
-	 * A solr record_scoping document with it's related scopes
+	 * The scope-dependent values used to build a record_scoping document.
+	 *
+	 * Instances are mutable while a scope is being processed, but must not be
+	 * modified after being inserted into groupedScopeDocuments because they are
+	 * used as HashMap keys.
 	 */
-	private static class RecordScopeDocumentGroup {
-		private final SolrInputDocument document;
-		private final TreeSet<String> scopes = new TreeSet<>();
+	private static class RecordScopeData {
+		private final HashSet<String> additionalFormats = new HashSet<>();
+		private final HashSet<String> additionalFormatCategories = new HashSet<>();
+		private final HashSet<String> targetAudiences = new HashSet<>();
+		private final HashSet<String> targetAudiencesFull = new HashSet<>();
+		private final HashSet<String> availabilityToggles = new HashSet<>();
+		private final HashSet<String> owningLibraries = new HashSet<>();
+		private final HashSet<String> owningLocations = new HashSet<>();
+		private final HashSet<String> availableAt = new HashSet<>();
+		private final HashSet<String> econtentSources = new HashSet<>();
+		private final HashSet<String> collections = new HashSet<>();
+		private final HashSet<String> detailedLocations = new HashSet<>();
+		private final HashSet<String> shelfLocations = new HashSet<>();
+		private final HashSet<String> itemTypes = new HashSet<>();
+		private final HashSet<String> localCallNumbers = new HashSet<>();
+		private Long daysSinceAdded;
+		private int libraryBoost;
 
-		private RecordScopeDocumentGroup(SolrInputDocument document) {
-			this.document = document;
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) {
+				return true;
+			}
+			if (!(object instanceof RecordScopeData)) {
+				return false;
+			}
+
+			RecordScopeData other = (RecordScopeData)object;
+			return libraryBoost == other.libraryBoost
+				&& Objects.equals(additionalFormats, other.additionalFormats)
+				&& Objects.equals(additionalFormatCategories, other.additionalFormatCategories)
+				&& Objects.equals(targetAudiences, other.targetAudiences)
+				&& Objects.equals(targetAudiencesFull, other.targetAudiencesFull)
+				&& Objects.equals(availabilityToggles, other.availabilityToggles)
+				&& Objects.equals(owningLibraries, other.owningLibraries)
+				&& Objects.equals(owningLocations, other.owningLocations)
+				&& Objects.equals(availableAt, other.availableAt)
+				&& Objects.equals(econtentSources, other.econtentSources)
+				&& Objects.equals(collections, other.collections)
+				&& Objects.equals(detailedLocations, other.detailedLocations)
+				&& Objects.equals(shelfLocations, other.shelfLocations)
+				&& Objects.equals(itemTypes, other.itemTypes)
+				&& Objects.equals(localCallNumbers, other.localCallNumbers)
+				&& Objects.equals(daysSinceAdded, other.daysSinceAdded);
+		}
+
+		@Override
+		public int hashCode() {
+			int result = additionalFormats.hashCode();
+			result = 31 * result + additionalFormatCategories.hashCode();
+			result = 31 * result + targetAudiences.hashCode();
+			result = 31 * result + targetAudiencesFull.hashCode();
+			result = 31 * result + availabilityToggles.hashCode();
+			result = 31 * result + owningLibraries.hashCode();
+			result = 31 * result + owningLocations.hashCode();
+			result = 31 * result + availableAt.hashCode();
+			result = 31 * result + econtentSources.hashCode();
+			result = 31 * result + collections.hashCode();
+			result = 31 * result + detailedLocations.hashCode();
+			result = 31 * result + shelfLocations.hashCode();
+			result = 31 * result + itemTypes.hashCode();
+			result = 31 * result + localCallNumbers.hashCode();
+			result = 31 * result + Objects.hashCode(daysSinceAdded);
+			result = 31 * result + libraryBoost;
+			return result;
 		}
 	}
 
 	/**
-	 * Creates a canonical representation of a record_scoping document,
-	 * excluding fields that are expected to differ between otherwise
-	 * equivalent scope documents.
-	 *
-	 * Multi-valued fields are treated as sets: ordering and duplicate values
-	 * do not affect whether two documents are considered equivalent.
+	 * A unique record_scoping data set and every scope that can share it.
 	 */
-	private static String getRecordScopeDocumentSignature(SolrInputDocument document) {
-		StringBuilder signature = new StringBuilder();
+	private static class RecordScopeDocumentGroup {
+		private final RecordScopeData scopeData;
+		private final TreeSet<String> scopes = new TreeSet<>();
 
-		TreeSet<String> fieldNames = new TreeSet<>(document.getFieldNames());
-		//remove fields that should not make things distinct
-		fieldNames.remove("id");
-		fieldNames.remove("scope");
-		fieldNames.remove("recordtype");
-
-		for (String fieldName : fieldNames) {
-			Collection<Object> fieldValues = document.getFieldValues(fieldName);
-			if (fieldValues == null || fieldValues.isEmpty()) {
-				continue;
-			}
-
-			TreeSet<String> normalizedValues = new TreeSet<>();
-			for (Object fieldValue : fieldValues) {
-				addNormalizedSignatureValues(normalizedValues, fieldValue);
-			}
-
-			if (normalizedValues.isEmpty()) {
-				continue;
-			}
-
-			appendSignatureValue(signature, fieldName);
-			signature.append(normalizedValues.size()).append(';');
-
-			for (String normalizedValue : normalizedValues) {
-				appendSignatureValue(signature, normalizedValue);
-			}
+		private RecordScopeDocumentGroup(RecordScopeData scopeData) {
+			this.scopeData = scopeData;
 		}
-
-		return signature.toString();
-	}
-
-	private static void addNormalizedSignatureValues(
-		TreeSet<String> normalizedValues,
-		Object value
-	) {
-		if (value == null) {
-			return;
-		}
-
-		if (value instanceof Collection<?>) {
-			Collection<?> collection = (Collection<?>) value;
-			for (Object collectionValue : collection) {
-				addNormalizedSignatureValues(normalizedValues, collectionValue);
-			}
-			return;
-		}
-
-		if (value.getClass().isArray()) {
-			int arrayLength = java.lang.reflect.Array.getLength(value);
-			for (int i = 0; i < arrayLength; i++) {
-				addNormalizedSignatureValues(
-					normalizedValues,
-					java.lang.reflect.Array.get(value, i)
-				);
-			}
-			return;
-		}
-
-		// Include the type so that, for example, Integer 1 and String "1"
-		// do not accidentally produce the same signature.
-		normalizedValues.add(
-			value.getClass().getName() + ':' + String.valueOf(value)
-		);
-	}
-
-	private static void appendSignatureValue(
-		StringBuilder signature,
-		String value
-	) {
-		// Length-prefixing avoids collisions caused by delimiters contained
-		// within the actual field names or values.
-		signature
-			.append(value.length())
-			.append(':')
-			.append(value)
-			.append(';');
 	}
 }
