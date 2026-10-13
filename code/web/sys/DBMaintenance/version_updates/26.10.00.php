@@ -32,6 +32,14 @@ function getUpdates26_10_00(): array {
 				'ALTER TABLE grouped_work_display_settings ADD COLUMN showDescriptionInSearchResults TINYINT(1) DEFAULT 1'
 			]
 		], //showDescriptionInSearchResults
+		'filterPickupLocationsByPType' => [
+			'title' => 'Filter Pickup Locations By PType',
+			'description' => 'Filter Pickup Locations By PType',
+			'continueOnError' => false,
+			'sql' =>[
+				"ALTER TABLE location ADD COLUMN validAsPickupLocationForPTypes TINYTEXT DEFAULT ''"
+			]
+		], //filterPickupLocationsByPType
 
 		//kirstien
 		'add_oauth2_user_consents_table' => [
