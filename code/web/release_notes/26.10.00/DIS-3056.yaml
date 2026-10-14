@@ -1,0 +1,12 @@
+Jira: DIS-3056
+Type: Enhancement
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor: Grove For Libraries
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: Interface Updates and Usability
+Description:
+  - When using horizontal display for editions, if no shelf locations are displayed, move the View All Locations button below the actions to minimize whitespace.
+New Settings:
+New Permissions:
