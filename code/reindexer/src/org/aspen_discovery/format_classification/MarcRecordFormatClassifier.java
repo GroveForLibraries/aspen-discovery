@@ -674,7 +674,7 @@ public class MarcRecordFormatClassifier {
 	}
 
 	private final Pattern yotoPattern = Pattern.compile(".*?\\byoto\\b.*?", Pattern.CASE_INSENSITIVE);
-	private final Pattern toniePattern = Pattern.compile(".*?\\btonie\\b.*?", Pattern.CASE_INSENSITIVE);
+	private final Pattern toniePattern = Pattern.compile(".*?\\btonies?\\b.*?", Pattern.CASE_INSENSITIVE);
 	public void getFormatFromPublicationInfo(AbstractGroupedWorkSolr groupedWork, org.marc4j.marc.Record record, Set<String> result) {
 		// check for playaway in 260|b
 		List<DataField> publicationFields = record.getDataFields(new int[]{260, 264});
