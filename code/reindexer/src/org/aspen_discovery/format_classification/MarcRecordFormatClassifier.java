@@ -481,7 +481,7 @@ public class MarcRecordFormatClassifier {
 					}else if (fieldData.contains("playaway digital audio") || fieldData.contains("findaway world")) {
 						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Playaway based on 710 Added Entry", 2);}
 						result.add("Playaway");
-					}else if (fieldData.contains("boxine")) {
+					}else if (fieldData.contains("boxine") || fieldData.contains("tonie")) {
 						//The 245a should also contain the word tonie
 						if (titleMatchesPattern(record, toniePattern)) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Tonie based on 710 Added Entry and 245", 2);}
@@ -687,7 +687,7 @@ public class MarcRecordFormatClassifier {
 				} else if (sysDetailsValue.contains("go reader") || sysDetailsValue.contains("goreader")) {
 					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GoReader based on 260/264", 2);}
 					result.add("GoReader");
-				} else if (sysDetailsValue.contains("boxine")) {
+				} else if (sysDetailsValue.contains("boxine") || sysDetailsValue.contains("tonie")) {
 					//The 245a should also contain the word tonie
 					if (titleMatchesPattern(record, toniePattern)) {
 						if (groupedWork != null && groupedWork.isDebugEnabled()) {
@@ -1464,10 +1464,12 @@ public class MarcRecordFormatClassifier {
 		if (printFormats.contains("Tonies")){
 			printFormats.clear();
 			printFormats.add("Tonies");
+			return;
 		}
 		if (printFormats.contains("Yoto")){
 			printFormats.clear();
 			printFormats.add("Yoto");
+			return;
 		}
 		if (printFormats.contains("Kit")){
 			printFormats.clear();
