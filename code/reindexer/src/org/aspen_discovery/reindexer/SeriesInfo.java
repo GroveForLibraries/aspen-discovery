@@ -28,8 +28,8 @@ public class SeriesInfo {
 	}
 
 	public SeriesInfo(String seriesName, String author, String language, GroupedWorkIndexer indexer) {
-		this.seriesName = seriesName;
-		this.author = author;
+		this.seriesName = AspenStringUtils.trimTrailingPunctuation(seriesName);
+		this.author = AspenStringUtils.trimTrailingPunctuation(author);
 		this.setLanguage(language, indexer);
 		this.version = 2;
 	}
