@@ -86,7 +86,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		$filterQuery = $this->hiddenFilters;
 		//restrict to our grouped works
 		$filterQuery[] = "+recordtype:grouped_work";
-		$filterQuery[] = "related_scopes:$solrScope";
+		//$filterQuery[] = "related_scopes:$solrScope";
 		//Remove any empty filters if we get them
 		//(typically happens when a subdomain has a function disabled that is enabled in the main scope)
 		//Also fix dynamic field names
@@ -205,15 +205,16 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			}
 		}
 
+		global $library;
+		$location = Location::getSearchLocation();
+		if ($location != null) {
+			$groupedWorkDisplaySettings = $location->getGroupedWorkDisplaySettings();
+		} else {
+			$groupedWorkDisplaySettings = $library->getGroupedWorkDisplaySettings();
+		}
+
 		//Check to see if we should apply a default filter for availability toggle
 		if ($this->selectedAvailabilityToggleValue == null && !$this->disableDefaultAvailabilityToggle) {
-			global $library;
-			$location = Location::getSearchLocation();
-			if ($location != null) {
-				$groupedWorkDisplaySettings = $location->getGroupedWorkDisplaySettings();
-			} else {
-				$groupedWorkDisplaySettings = $library->getGroupedWorkDisplaySettings();
-			}
 			$availabilityToggleValue = $groupedWorkDisplaySettings->defaultAvailabilityToggle;
 			$this->selectedAvailabilityToggleValue = $availabilityToggleValue;
 
@@ -304,9 +305,11 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 
 				//Child document facets need to count parents rather than the children
 				$jsonInfoForField['limit'] = -1;
-//				$jsonInfoForField['facet'] = [
-//					'parent_count' => 'uniqueBlock(_root_)'
-//				];
+				if ($groupedWorkDisplaySettings->facetCountsToShow != 3) {
+					$jsonInfoForField['facet'] = [
+						'parent_count' => 'uniqueBlock(_root_)'
+					];
+				}
 
 				// Figure out the filters that apply to the facet
 				// Values for other facets are always retained
@@ -506,32 +509,8 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		}
 
 		//Move child doc fields up to the parent.
-		if ($this->resultsTotal > 0) {
-			foreach ($this->indexResult['response']['docs'] as $key => $doc) {
-				$doc['format'] = [];
-				$doc['format_category'] = [];
-				$doc['local_days_since_added'] = 0;
-				$doc['popularity'] = 0;
-				$doc['total_holds'] = 0;
-				if (!empty($doc['record_scoping'])) {
-					foreach ($doc['record_scoping'] as $record_scoping) {
-						if (isset($record_scoping['format'])) {
-							foreach ($record_scoping['format'] as $format) {
-								$doc['format'][$format] = $format;
-							}
-						}
-						if (isset($record_scoping['format_category'])) {
-							foreach ($record_scoping['format_category'] as $formatCategory) {
-								$doc['format_category'][$formatCategory] = $formatCategory;
-							}
-						}
-						$doc['popularity'] += $record_scoping['popularity'] ?? 0;
-						$doc['total_holds'] += $record_scoping['total_holds'] ?? 0;
-						$doc['local_days_since_added'] = max($doc['local_days_since_added'], ($record_scoping['local_days_since_added'] ?? 0));
-					}
-				}
-				$this->indexResult['response']['docs'][$key] = $doc;
-			}
+		if (!empty($this->indexResult['response'])) {
+			$this->indexResult['response'] = $this->copyChildDocFieldsToParent($this->indexResult['response']);
 		}
 
 		//Add debug information to the results if available
@@ -590,6 +569,41 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 	 */
 	public function getUnscopedFieldName(string $scopedFieldName): string {
 		return $scopedFieldName;
+	}
+
+	/**
+	 * Copies fields that are stored in child documents to the parent record for backward compatibility
+	 */
+	private function copyChildDocFieldsToParent(array $response): array
+	{
+		if (!empty($response['docs'])) {
+			foreach ($response['docs'] as $key => $doc) {
+				$doc['format'] = [];
+				$doc['format_category'] = [];
+				$doc['local_days_since_added'] = 0;
+				$doc['popularity'] = 0;
+				$doc['total_holds'] = 0;
+				if (!empty($doc['record_scoping'])) {
+					foreach ($doc['record_scoping'] as $record_scoping) {
+						if (isset($record_scoping['format'])) {
+							foreach ($record_scoping['format'] as $format) {
+								$doc['format'][$format] = $format;
+							}
+						}
+						if (isset($record_scoping['format_category'])) {
+							foreach ($record_scoping['format_category'] as $formatCategory) {
+								$doc['format_category'][$formatCategory] = $formatCategory;
+							}
+						}
+						$doc['popularity'] += $record_scoping['popularity'] ?? 0;
+						$doc['total_holds'] += $record_scoping['total_holds'] ?? 0;
+						$doc['local_days_since_added'] = max($doc['local_days_since_added'], ($record_scoping['local_days_since_added'] ?? 0));
+					}
+				}
+				$response['docs'][$key] = $doc;
+			}
+		}
+		return $response;
 	}
 
 	/**
@@ -933,5 +947,27 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 	public function getRecordDriverForResult($record): GroupedWorkDriver {
 		require_once ROOT_DIR . '/RecordDrivers/GroupedWorkDriver.php';
 		return new GroupedWorkDriver($record);
+	}
+
+	/**
+	 * Get records similar to one record
+	 * Uses MoreLikeThis Request Handler
+	 *
+	 * Uses SOLR MLT Query Handler
+	 *
+	 * @access    public
+	 *
+	 * @param array $ids
+	 * @param ?int $page
+	 * @param ?int $limit
+	 * @param ?string[] $notInterestedTitles
+	 * @return    array                            An array of query results
+	 */
+	function getMoreLikeThese(array $ids, ?int $page = 1, ?int $limit = 25, ?array $notInterestedTitles = []) : array {
+		$moreLikeThese = $this->indexEngine->getMoreLikeThese($ids, $this->getFieldsToReturn(), $page, $limit, $notInterestedTitles);
+		if (!empty($moreLikeThese['response'])) {
+			$moreLikeThese['response'] = $this->copyChildDocFieldsToParent($moreLikeThese['response']);
+		}
+		return $moreLikeThese;
 	}
 }

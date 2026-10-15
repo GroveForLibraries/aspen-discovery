@@ -1833,17 +1833,25 @@ class SearchAPI extends AbstractAPI {
 			$record = $suggestionData['titleInfo'];
 			$formats = [];
 			foreach($record['format'] as $format) {
-				$splitFormat = explode('#', $format);
-				if(!in_array($splitFormat[1], $formats)) {
-					$formats[] = $splitFormat[1];
+				if (str_contains($format, ':')) {
+					$splitFormat = explode('#', $format);
+					if(!in_array($splitFormat[1], $formats)) {
+						$formats[] = $splitFormat[1];
+					}
+				}else{
+					$formats[] = $format;
 				}
 			}
 			$record['format'] = $formats;
 			$formatCategories = [];
 			foreach($record['format_category'] as $format) {
-				$splitFormat = explode('#', $format);
-				if(!in_array($splitFormat[1], $formatCategories)) {
-					$formatCategories[] = $splitFormat[1];
+				if (str_contains($format, ':')) {
+					$splitFormat = explode('#', $format);
+					if (!in_array($splitFormat[1], $formatCategories)) {
+						$formatCategories[] = $splitFormat[1];
+					}
+				}else{
+					$formatCategories[] = $format;
 				}
 			}
 			$record['format_category'] = $formatCategories;
@@ -2755,7 +2763,7 @@ class SearchAPI extends AbstractAPI {
 								$formats = [];
 								// DIS-2951: Check that the format key exists and is an array before iterating over it to populate the formats array.
 								// This prevents errors when the format key is missing or not an array.
-								if (array_key_exists('format', $record) && $record['format'] && is_array($record['format'])) {
+								if (array_key_exists('format', $record) && is_array($record['format'])) {
 									foreach ($record['format'] as $key => $format) {
 										$formats[$format]['key'] = $key;
 										$formats[$format]['name'] = $format;

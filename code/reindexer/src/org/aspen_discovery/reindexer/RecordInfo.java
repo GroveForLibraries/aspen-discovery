@@ -96,20 +96,12 @@ public class RecordInfo {
 		this.targetAudience.add(targetAudiences);
 	}
 
-	public String getTargetAudience() {
-		return String.join(", ", targetAudience);
-	}
-
 	void addTargetAudiencesFull(HashSet<String> targetAudiencesFull) {
 		this.targetAudienceFull.addAll(targetAudiencesFull);
 	}
 
 	void addTargetAudienceFull(String targetAudiencesFull) {
 		this.targetAudienceFull.add(targetAudiencesFull);
-	}
-
-	public String getTargetAudienceFull() {
-		return String.join(", ", targetAudienceFull);
 	}
 
 	void setPrimaryLanguage(String primaryLanguage) {
@@ -192,18 +184,18 @@ public class RecordInfo {
 	private String recordDetails = null;
 	String getDetails() {
 		if (recordDetails == null) {
-			//None of this changes by scope, so we can just form it once and then return the previous value
+			//None of these change by scope, so we can just form it once and then return the previous value
 			recordDetails = this.getFullIdentifier() + "|" +
-					getPrimaryFormat() + "|" +
-					getPrimaryFormatCategory() + "|" +
-					Util.getCleanDetailValue(edition) + "|" +
-					Util.getCleanDetailValue(audience) + "|" +
-					Util.getCleanDetailValue(primaryLanguage) + "|" +
-					Util.getCleanDetailValue(publisher) + "|" +
-					Util.getCleanDetailValue(placeOfPublication) + "|" +
-					Util.getCleanDetailValue(publicationDate) + "|" +
-					Util.getCleanDetailValue(physicalDescription)
-					;
+				getPrimaryFormat() + "|" +
+				getPrimaryFormatCategory() + "|" +
+				Util.getCleanDetailValue(edition) + "|" +
+				Util.getCleanDetailValue(audience) + "|" +
+				Util.getCleanDetailValue(primaryLanguage) + "|" +
+				Util.getCleanDetailValue(publisher) + "|" +
+				Util.getCleanDetailValue(placeOfPublication) + "|" +
+				Util.getCleanDetailValue(publicationDate) + "|" +
+				Util.getCleanDetailValue(physicalDescription)
+			;
 		}
 		return recordDetails;
 	}
@@ -215,13 +207,10 @@ public class RecordInfo {
 			HashMap<String, Integer> relatedFormats = new HashMap<>();
 			HashMap<String, String> formatToFormatCategory = new HashMap<>();
 			for (ItemInfo curItem : relatedItems){
-				if (curItem.getFormat() != null && !curItem.getFormat().isEmpty()) {
-					if (relatedFormats.containsKey(curItem.getFormat())){
-						relatedFormats.merge(curItem.getFormat(), 1, Integer::sum);
-					}else{
-						relatedFormats.put(curItem.getFormat(), relatedFormats.getOrDefault(curItem.getFormat(), 1));
-					}
-					formatToFormatCategory.put(curItem.getFormat(), curItem.getFormatCategory());
+				String itemFormat = curItem.getFormat();
+				if (itemFormat != null && !itemFormat.isEmpty()) {
+					relatedFormats.merge(itemFormat, 1, Integer::sum);
+					formatToFormatCategory.put(itemFormat, curItem.getFormatCategory());
 				}
 			}
 
@@ -263,11 +252,12 @@ public class RecordInfo {
 		if (primaryFormatCategory == null) {
 			HashMap<String, Integer> relatedFormats = new HashMap<>();
 			for (String format : formatCategories) {
-				relatedFormats.put(format, 1);
+				relatedFormats.merge(format, 1, Integer::sum);
 			}
 			for (ItemInfo curItem : relatedItems) {
-				if (curItem.getFormatCategory() != null) {
-					relatedFormats.put(curItem.getFormatCategory(), relatedFormats.getOrDefault(curItem.getFormatCategory(), 1));
+				String itemFormatCategory = curItem.getFormatCategory();
+				if (itemFormatCategory != null) {
+					relatedFormats.merge(itemFormatCategory, 1, Integer::sum);
 				}
 			}
 			int timesUsed = 0;
@@ -286,6 +276,10 @@ public class RecordInfo {
 	public void addItem(ItemInfo itemInfo) {
 		relatedItems.add(itemInfo);
 		itemInfo.setRecordInfo(this);
+		// These values are derived from the item collection.  Make sure they are
+		// recalculated if an item is added after either getter has been called.
+		primaryFormat = null;
+		primaryFormatCategory = null;
 	}
 
 	HashSet<String> getFormats() {
@@ -458,6 +452,7 @@ public class RecordInfo {
 		isClosedCaptioned = closedCaptioned;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean allItemsHaveFormats() {
 		for (ItemInfo curItem : relatedItems){
 			if (curItem.getFormat() == null){
@@ -480,7 +475,7 @@ public class RecordInfo {
 	public HashSet<String> getUniqueItemFormatsCategories() {
 		HashSet<String> uniqueItemFormatCategories = new HashSet<>();
 		for (ItemInfo curItem : relatedItems){
-			if (curItem.getFormat() != null){
+			if (curItem.getFormatCategory() != null){
 				uniqueItemFormatCategories.add(curItem.getFormatCategory());
 			}
 		}
@@ -522,255 +517,543 @@ public class RecordInfo {
 		this.notForLoan = notForLoan;
 	}
 
-	@SuppressWarnings("DuplicatedCode")
-	public ArrayList<SolrInputDocument> getRecordScopeSolrDocuments(GroupedWorkIndexer groupedWorkIndexer, AbstractGroupedWorkSolr parentWork, Long daysAddedSincePubDate) {
-		if (databaseId == -1) {
-			//This did not save for some reason
-			return null;
-		}
+	/**
+	 * Builds the record-level summary, parent scope values, and merged child
+	 * documents in one pass over the items and their actual scope associations.
+	 */
+	public RecordScopeBuildResult buildRecordScopeDocuments(
+		GroupedWorkIndexer groupedWorkIndexer,
+		AbstractGroupedWorkSolr parentWork,
+		Long daysAddedSincePubDate,
+		Map<String, ParentScopeData> parentScopeDataByName
+	) {
+		RecordItemSummary itemSummary = new RecordItemSummary();
+		Map<String, OptimizedScopeData> scopeDataByName = new HashMap<>();
+		Map<String, ScopeBuildContext> scopeContextByName = new HashMap<>();
 
-		HashSet<String> relatedScopes = getRelatedScopes();
-		if (relatedScopes.isEmpty()) {
-			return null;
-		}
+		for (ItemInfo item : relatedItems) {
+			PreparedItemData itemData = new PreparedItemData(item, daysAddedSincePubDate);
+			itemSummary.add(item, itemData);
 
-		ArrayList<SolrInputDocument> recordSolrScopeDocuments = new ArrayList<>();
-		HashSet<String> formatsForRecord = getFormats();
-		HashSet<String> formatCategoriesForRecord = getFormatCategories();
-
-		HashSet<String> filteredTargetAudiences = groupedWorkIndexer.cleanTargetAudiences(targetAudience);
-		HashSet<String> filteredTargetAudiencesFull = groupedWorkIndexer.cleanTargetAudiences(targetAudienceFull);
-		if (parentWork.isDebugEnabled()) {parentWork.addDebugMessage("Final target audience for " + this.recordIdentifier + " is " + targetAudience, 1);}
-		if (parentWork.isDebugEnabled()) {parentWork.addDebugMessage("Final full target audience " + this.recordIdentifier + " is " + targetAudienceFull, 1);}
-
-
-		for (String scopeName : relatedScopes) {
-			Scope curScope = groupedWorkIndexer.getScopes().get(scopeName);
-			if (curScope == null) {
+			if (databaseId == -1) {
 				continue;
 			}
-			SolrInputDocument recordDoc = new SolrInputDocument();
-			recordDoc.setField("id", "record_" + databaseId + "_" + scopeName);
-			recordDoc.setField("recordtype", "record_scoping");
-			recordDoc.setField("scope", scopeName);
 
-
-			AvailabilityToggleInfo availabilityToggleValuesForScope = new AvailabilityToggleInfo();
-			Long daysSinceAddedForScope = null;
-			String sortableCallNumberForScope = null;
-			int libraryBoostForScope = 0;
-
-			String scopeFacetLabel = curScope.getFacetLabel();
-			GroupedWorkDisplaySettings scopeDisplaySettings = curScope.getGroupedWorkDisplaySettings();
-
-			HashSet<String> formatsForRecordScope = new HashSet<>(formatsForRecord);
-			HashSet<String> formatCategoriesForRecordScope = new HashSet<>(formatCategoriesForRecord);
-
-			HashSet<String> targetAudiencesForScopeByItem = new HashSet<>();
-
-			for (ItemInfo curItem : relatedItems) {
-				ScopingInfo scopingInfo = curItem.getScopingInfo().get(scopeName);
-				if (scopingInfo == null) {
-					continue;
-				}
-				Long daysSinceAdded = curItem.getDaysSinceAdded(daysAddedSincePubDate);
-				String trimmedIType = curItem.getTrimmedIType();
-
-				if (curItem.getFormat() != null) {
-					formatsForRecordScope.add(curItem.getFormat());
-				}
-				if (curItem.getFormatCategory() != null) {
-					formatCategoriesForRecordScope.add(curItem.getFormatCategory());
-				}
-				if (curItem.getTargetAudience() != null) {
-					targetAudiencesForScopeByItem.add(curItem.getTargetAudience());
+			for (Map.Entry<String, ScopingInfo> scopeEntry : item.getScopingInfo().entrySet()) {
+				String scopeName = scopeEntry.getKey();
+				ScopeBuildContext scopeContext = scopeContextByName.get(scopeName);
+				if (scopeContext == null) {
+					Scope scope = groupedWorkIndexer.getScopes().get(scopeName);
+					if (scope == null) {
+						continue;
+					}
+					scopeContext = new ScopeBuildContext(scope);
+					scopeContextByName.put(scopeName, scopeContext);
 				}
 
-				boolean addAllOwningLocations = false;
-				boolean addAllOwningLocationsToAvailableAt = false;
-				boolean locallyOwned = scopingInfo.isLocallyOwned();
-				boolean libraryOwned = scopingInfo.isLibraryOwned();
-				boolean isAvailable = curItem.isAvailable();
-				boolean isEContent = curItem.isEContent();
+				ScopingInfo scopingInfo = scopeEntry.getValue();
+				OptimizedScopeData scopeData = scopeDataByName.computeIfAbsent(
+					scopeName,
+					ignored -> new OptimizedScopeData()
+				);
+				scopeData.add(itemData, scopingInfo, scopeContext, groupedWorkIndexer);
 
-				if (isEContent) {
-					String trimmedEContentSource = curItem.getTrimmedEContentSource();
-					if (trimmedEContentSource == null) {
-						trimmedEContentSource = "Unknown";
-					}
-					if (trimmedEContentSource.equals("overdrive")) {
-						trimmedEContentSource = "Libby";
-					}
-					availabilityToggleValuesForScope.updateToggleValues(locallyOwned || libraryOwned, scopeDisplaySettings.isIncludeOnlineMaterialsInAvailableToggle() && isAvailable, isAvailable);
-					recordDoc.addField("owning_library", trimmedEContentSource);
-					if (isAvailable) {
-						recordDoc.addField("available_at", trimmedEContentSource);
-					}
-					recordDoc.addField("econtent_source", trimmedEContentSource);
-				} else { //physical materials
-					if (locallyOwned) {
-						availabilityToggleValuesForScope.updateToggleValues(locallyOwned, isAvailable, false);
-						if (isAvailable) {
-							recordDoc.addField("available_at", scopeFacetLabel);
-						}
-						recordDoc.addField("owning_location", scopeFacetLabel);
-						recordDoc.addField("owning_library", curScope.isLibraryScope() ? scopeFacetLabel : curScope.getLibraryScope().getFacetLabel());
-						if (curScope.isIncludeAllLibraryBranchesInFacets()) {
-							//Include other branches of this library that own the title within the owning locations
-							//isIncludeAllLibraryBranchesInFacets is only a setting at the location level
-							addAllOwningLocations = true;
-						}
-					}
-					if (libraryOwned) {
-						if (curScope.isLibraryScope() || (curScope.isLocationScope() && !scopeDisplaySettings.isBaseAvailabilityToggleOnLocalHoldingsOnly())) {
-							availabilityToggleValuesForScope.updateToggleValues(libraryOwned, isAvailable, false);
-						}
-						if (isAvailable) {
-							addAllOwningLocationsToAvailableAt = true;
-						}
-						recordDoc.addField("owning_library", scopeFacetLabel);
-						addAllOwningLocations = true;
-					}
-					if (!locallyOwned && !libraryOwned && !scopeDisplaySettings.isBaseAvailabilityToggleOnLocalHoldingsOnly()) {
-						availabilityToggleValuesForScope.updateToggleValues(false, isAvailable, false);
-						if (isAvailable) {
-							addAllOwningLocationsToAvailableAt = true;
-						}
-					}
-					if (isAvailable && curScope.getAdditionalLocationsToShowAvailabilityForPattern() != null && curItem.getLocationCode() != null) {
-						//We might include the item in the owning and availability facets if it matched the available locations
-						if (curScope.getAdditionalLocationsToShowAvailabilityForPattern().matcher(curItem.getLocationCode()).matches()) {
-							addAllOwningLocationsToAvailableAt = true;
-						}
-					}
-
-					if (!curScope.isRestrictOwningLibraryAndLocationFacets() || curScope.isConsortialCatalog()) {
-						for (String libraryOwnedName : curItem.getLibraryOwnedNames()) {
-							recordDoc.addField("owning_library", libraryOwnedName);
-						}
-						addAllOwningLocations = true;
-					}
-				}
-
-				if (addAllOwningLocations) {
-					recordDoc.addField("owning_location", curItem.getLocationOwnedNames());
-				}
-				if (addAllOwningLocationsToAvailableAt) {
-					recordDoc.addField("available_at", curItem.getLocationOwnedNames());
-				}
-
-				if (locallyOwned || libraryOwned || scopeDisplaySettings.isIncludeAllRecordsInShelvingFacets()) {
-					String collection = curItem.getCollection();
-					if (collection != null && !collection.isEmpty()) {
-						recordDoc.addField("collection", curItem.getCollection());
-					}
-					String detailedLocation = curItem.getDetailedLocation();
-					if (detailedLocation != null && !detailedLocation.isEmpty()) {
-						recordDoc.addField("detailed_location", curItem.getDetailedLocation());
-					}
-					String shelfLocation = curItem.getShelfLocation();
-					if (shelfLocation != null && !shelfLocation.isEmpty() && (scopeDisplaySettings.includeEContentInShelvingLocations() || !isEContent)) {
-						recordDoc.addField("shelf_location", curItem.getShelfLocation());
-					}
-				}
-
-				if (isEContent || locallyOwned || libraryOwned || scopeDisplaySettings.isIncludeAllRecordsInDateAddedFacets()) {
-					if (daysSinceAddedForScope == null || daysSinceAdded > daysSinceAddedForScope) {
-						daysSinceAddedForScope = daysSinceAdded;
-					}
-				}
-
-				if (locallyOwned || libraryOwned) {
-					if (isAvailable) {
-						if (libraryBoostForScope < groupedWorkIndexer.availableAtBoostValue) {
-							libraryBoostForScope = groupedWorkIndexer.availableAtBoostValue;
-						}
-					} else {
-						if (libraryBoostForScope < groupedWorkIndexer.ownedByBoostValue) {
-							libraryBoostForScope = groupedWorkIndexer.ownedByBoostValue;
-						}
-					}
-				}
-
-				if (trimmedIType != null) {
-					recordDoc.addField("itype", trimmedIType);
-				}
-
-				if (locallyOwned || libraryOwned || !scopingInfo.getScope().isRestrictOwningLibraryAndLocationFacets()) {
-					recordDoc.addField("local_callnumber", curItem.getCallNumber());
-					if (sortableCallNumberForScope == null) {
-						sortableCallNumberForScope = curItem.getSortableCallNumber();
-					}
-				}
-			} // End looping through items
-
-			if (formatsForRecordScope.contains("eAudiobook")) {
-				formatCategoriesForRecordScope.add("eBook");
-			}
-			if (formatsForRecordScope.contains("CD + Book")) {
-				formatCategoriesForRecordScope.add("Books");
-				formatCategoriesForRecordScope.add("#udio Books");
-			}
-			if (formatsForRecordScope.contains("VOX Books")) {
-				formatCategoriesForRecordScope.add("Books");
-				formatCategoriesForRecordScope.add("Audio Books");
-			}
-
-			recordDoc.setField("format", formatsForRecordScope);
-			recordDoc.setField("format_category", formatCategoriesForRecordScope);
-
-			if (targetAudiencesForScopeByItem.isEmpty()) {
-				recordDoc.setField("target_audience", filteredTargetAudiences);
-				recordDoc.setField("target_audience_full", filteredTargetAudiencesFull);
-			}else{
-				HashSet<String> cleanedAudiencesForScopeByItem = groupedWorkIndexer.cleanTargetAudiences(targetAudiencesForScopeByItem);
-				recordDoc.setField("target_audience", cleanedAudiencesForScopeByItem);
-				recordDoc.setField("target_audience_full", cleanedAudiencesForScopeByItem);
-			}
-
-			recordDoc.addField("availability_toggle", availabilityToggleValuesForScope.getValues());
-			if (curScope.getLocationsToExcludeAvailabilityForPattern() != null) {
-				//Filter available At by locationsToExcludeAvailabilityFor
-				if (recordDoc.getField("available_at") != null) {
-					ArrayList<String> availableAtFiltered = filterCollection(recordDoc.getField("available_at").getValues(), curScope.getLocationsToExcludeAvailabilityForPattern());
-					recordDoc.setField("available_at", availableAtFiltered);
-				}
-			}
-			if (daysSinceAddedForScope != null) {
-				recordDoc.addField("local_days_since_added", daysSinceAddedForScope);
-				recordDoc.addField("local_time_since_added", DateUtils.getTimeSinceAdded(daysSinceAddedForScope));
-			}
-			recordDoc.addField("lib_boost", libraryBoostForScope);
-
-			recordSolrScopeDocuments.add(recordDoc);
-		}
-
-		return recordSolrScopeDocuments;
-	}
-
-	private ArrayList<String> filterCollection(Collection<Object> collectionToFilter, Pattern valuesToSkip) {
-		ArrayList<String> filteredCollection = new ArrayList<>();
-		for (Object valueToAdd : collectionToFilter){
-			if (valueToAdd instanceof String) {
-				String valueToAddStr = (String)valueToAdd;
-				if (valuesToSkip == null || !valuesToSkip.matcher(valueToAddStr).matches()) {
-					filteredCollection.add(valueToAddStr);
-				}
+				ParentScopeData parentScopeData = parentScopeDataByName.computeIfAbsent(
+					scopeName,
+					ignored -> new ParentScopeData()
+				);
+				parentScopeData.add(itemData, scopingInfo);
 			}
 		}
-		return filteredCollection;
+
+		if (scopeDataByName.isEmpty()) {
+			return new RecordScopeBuildResult(itemSummary, new ArrayList<>());
+		}
+
+		Set<String> recordFormats = getFormats();
+		Set<String> recordFormatCategories = getFormatCategories();
+		Set<String> filteredTargetAudiences = groupedWorkIndexer.cleanTargetAudiences(targetAudience);
+		Set<String> filteredTargetAudiencesFull = groupedWorkIndexer.cleanTargetAudiences(targetAudienceFull);
+
+		if (parentWork.isDebugEnabled()) {
+			parentWork.addDebugMessage("Final target audience for " + recordIdentifier + " is " + targetAudience, 1);
+			parentWork.addDebugMessage("Final full target audience " + recordIdentifier + " is " + targetAudienceFull, 1);
+		}
+
+		Map<OptimizedScopeData, OptimizedScopeDocumentGroup> groupedDocuments =
+			new HashMap<>(mapCapacity(scopeDataByName.size()));
+
+		for (Map.Entry<String, OptimizedScopeData> scopeEntry : scopeDataByName.entrySet()) {
+			String scopeName = scopeEntry.getKey();
+			OptimizedScopeData scopeData = scopeEntry.getValue();
+			ScopeBuildContext scopeContext = scopeContextByName.get(scopeName);
+			scopeData.finish(
+				recordFormats,
+				recordFormatCategories,
+				filteredTargetAudiences,
+				filteredTargetAudiencesFull,
+				scopeContext,
+				groupedWorkIndexer
+			);
+
+			OptimizedScopeDocumentGroup group = groupedDocuments.computeIfAbsent(
+				scopeData,
+				OptimizedScopeDocumentGroup::new
+			);
+			group.addScope(scopeName);
+		}
+
+		ArrayList<OptimizedScopeDocumentGroup> sortedGroups =
+			new ArrayList<>(groupedDocuments.values());
+		sortedGroups.sort(Comparator.comparing(OptimizedScopeDocumentGroup::getPrimaryScope));
+
+		ArrayList<SolrInputDocument> documents = new ArrayList<>(sortedGroups.size());
+		for (OptimizedScopeDocumentGroup group : sortedGroups) {
+			documents.add(createOptimizedScopeDocument(
+				group,
+				recordFormats,
+				recordFormatCategories
+			));
+		}
+
+		if (parentWork.isDebugEnabled()) {
+			parentWork.addDebugMessage(
+				"Combined " + scopeDataByName.size() + " scope documents into "
+					+ documents.size() + " record_scoping documents for " + recordIdentifier,
+				1
+			);
+		}
+
+		return new RecordScopeBuildResult(itemSummary, documents);
 	}
 
+	private static void setFieldIfNotEmpty(
+		SolrInputDocument document,
+		String fieldName,
+		Collection<String> values
+	) {
+		if (!values.isEmpty()) {
+			document.setField(fieldName, values);
+		}
+	}
+
+	private SolrInputDocument createOptimizedScopeDocument(
+		OptimizedScopeDocumentGroup group,
+		Set<String> recordFormats,
+		Set<String> recordFormatCategories
+	) {
+		OptimizedScopeData data = group.scopeData;
+		SolrInputDocument document = new SolrInputDocument();
+		document.setField("id", "record_" + databaseId + "_" + group.primaryScope);
+		document.setField("recordtype", "record_scoping");
+		group.scopes.sort(String::compareTo);
+		document.setField("scope", group.scopes);
+
+		HashSet<String> finalFormats = new HashSet<>(recordFormats);
+		finalFormats.addAll(data.additionalFormats);
+		document.setField("format", finalFormats);
+		HashSet<String> finalCategories = new HashSet<>(recordFormatCategories);
+		finalCategories.addAll(data.additionalFormatCategories);
+		document.setField("format_category", finalCategories);
+
+		setFieldIfNotEmpty(document, "target_audience", data.targetAudiences);
+		setFieldIfNotEmpty(document, "target_audience_full", data.targetAudiencesFull);
+		setFieldIfNotEmpty(document, "availability_toggle", data.availabilityToggles);
+		setFieldIfNotEmpty(document, "owning_library", data.owningLibraries);
+		setFieldIfNotEmpty(document, "owning_location", data.owningLocations);
+		setFieldIfNotEmpty(document, "available_at", data.availableAt);
+		setFieldIfNotEmpty(document, "econtent_source", data.econtentSources);
+		setFieldIfNotEmpty(document, "collection", data.collections);
+		setFieldIfNotEmpty(document, "detailed_location", data.detailedLocations);
+		setFieldIfNotEmpty(document, "shelf_location", data.shelfLocations);
+		setFieldIfNotEmpty(document, "itype", data.itemTypes);
+		setFieldIfNotEmpty(document, "local_callnumber", data.localCallNumbers);
+		if (data.daysSinceAdded != null) {
+			document.setField("local_days_since_added", data.daysSinceAdded);
+			document.setField("local_time_since_added", DateUtils.getTimeSinceAdded(data.daysSinceAdded));
+		}
+		document.setField("lib_boost", data.libraryBoost);
+		return document;
+	}
+
+	private static int mapCapacity(int expectedSize) {
+		return Math.max(16, (int)Math.ceil(expectedSize / 0.75d) + 1);
+	}
+
+	private static Set<String> addValue(Set<String> values, String value) {
+		if (value == null || value.isEmpty()) {
+			return values;
+		}
+		if (values.isEmpty()) {
+			HashSet<String> result = new HashSet<>(4);
+			result.add(value);
+			return result;
+		}
+		values.add(value);
+		return values;
+	}
+
+	private static Set<String> addValues(Set<String> values, Collection<String> additions) {
+		if (additions == null || additions.isEmpty()) {
+			return values;
+		}
+		if (values.isEmpty()) {
+			HashSet<String> result = new HashSet<>(mapCapacity(additions.size()));
+			for (String addition : additions) {
+				if (addition != null && !addition.isEmpty()) {
+					result.add(addition);
+				}
+			}
+			return result.isEmpty() ? Collections.emptySet() : result;
+		}
+		for (String addition : additions) {
+			if (addition != null && !addition.isEmpty()) {
+				values.add(addition);
+			}
+		}
+		return values;
+	}
+
+	public static final class RecordScopeBuildResult {
+		private final RecordItemSummary itemSummary;
+		private final ArrayList<SolrInputDocument> documents;
+
+		private RecordScopeBuildResult(RecordItemSummary itemSummary, ArrayList<SolrInputDocument> documents) {
+			this.itemSummary = itemSummary;
+			this.documents = documents;
+		}
+
+		public RecordItemSummary getItemSummary() {
+			return itemSummary;
+		}
+
+		public ArrayList<SolrInputDocument> getDocuments() {
+			return documents;
+		}
+	}
+
+	public static final class RecordItemSummary {
+		private int itemCount;
+		private boolean allItemsOnOrder = true;
+		private boolean allItemsInProcess = true;
+		private boolean allItemsUnderConsideration = true;
+		private final HashSet<String> itemFormats = new HashSet<>();
+		private final HashSet<String> itemFormatCategories = new HashSet<>();
+		private final HashSet<String> eContentSources = new HashSet<>();
+		private final HashSet<String> callNumbers = new HashSet<>();
+
+		private void add(ItemInfo item, PreparedItemData data) {
+			itemCount++;
+			String groupedStatus = item.getGroupedStatus();
+			String detailedStatus = item.getDetailedStatus();
+			allItemsOnOrder &= item.isOrderItem()
+				|| "On Order".equals(groupedStatus)
+				|| "On Order".equals(detailedStatus)
+				|| "Coming Soon".equals(detailedStatus);
+			allItemsInProcess &= "In Processing".equals(groupedStatus)
+				|| "In-Process".equals(detailedStatus);
+			allItemsUnderConsideration &= "Under Consideration".equals(groupedStatus)
+				|| "Under Consideration".equals(detailedStatus);
+			if (data.format != null) itemFormats.add(data.format);
+			if (data.formatCategory != null) itemFormatCategories.add(data.formatCategory);
+			if (data.eContentSource != null && !data.eContentSource.isEmpty()) eContentSources.add(data.eContentSource);
+			if (data.callNumber != null && !data.callNumber.isEmpty()) callNumbers.add(data.callNumber);
+		}
+
+		public int getItemCount() { return itemCount; }
+		public boolean areAllItemsOnOrder() { return itemCount > 0 && allItemsOnOrder; }
+		public boolean areAllItemsInProcess() { return itemCount > 0 && allItemsInProcess; }
+		public boolean areAllItemsUnderConsideration() { return itemCount > 0 && allItemsUnderConsideration; }
+		public Set<String> getItemFormats() { return itemFormats; }
+		public Set<String> getItemFormatCategories() { return itemFormatCategories; }
+		public Set<String> getEContentSources() { return eContentSources; }
+		public Set<String> getCallNumbers() { return callNumbers; }
+	}
+
+	public static final class ParentScopeData {
+		private int availableCopies;
+		private String sortableCallNumber;
+		private int callNumberPriority;
+
+		private void add(PreparedItemData item, ScopingInfo scopingInfo) {
+			if (item.available) availableCopies++;
+			if (item.sortableCallNumber == null || item.sortableCallNumber.isEmpty()) return;
+			if (!(scopingInfo.isLocallyOwned() || scopingInfo.isLibraryOwned()
+				|| !scopingInfo.getScope().isRestrictOwningLibraryAndLocationFacets())) return;
+
+			int priority = 1;
+			if ("book".equals(item.primaryFormatLowercase)) priority = 3;
+			else if ("large print".equals(item.primaryFormatLowercase)) priority = 2;
+			if (sortableCallNumber == null || priority > callNumberPriority) {
+				sortableCallNumber = item.sortableCallNumber;
+				callNumberPriority = priority;
+			}
+		}
+
+		public int getAvailableCopies() { return availableCopies; }
+		public String getSortableCallNumber() { return sortableCallNumber; }
+	}
+
+	private static final class PreparedItemData {
+		private final ItemInfo item;
+		private final Long fallbackDays;
+		private final String format;
+		private final String formatCategory;
+		private final String targetAudience;
+		private final String trimmedItemType;
+		private final boolean available;
+		private final boolean eContent;
+		private final String eContentSource;
+		private final String trimmedEContentSource;
+		private final String locationCode;
+		private final Collection<String> libraryOwnedNames;
+		private final Collection<String> locationOwnedNames;
+		private final String collection;
+		private final String detailedLocation;
+		private final String shelfLocation;
+		private final String callNumber;
+		private final String sortableCallNumber;
+		private final String primaryFormatLowercase;
+		private Long daysSinceAdded;
+		private boolean daysCalculated;
+
+		private PreparedItemData(ItemInfo item, Long fallbackDays) {
+			this.item = item;
+			this.fallbackDays = fallbackDays;
+			format = item.getFormat();
+			formatCategory = item.getFormatCategory();
+			targetAudience = item.getTargetAudience();
+			trimmedItemType = item.getTrimmedIType();
+			available = item.isAvailable();
+			eContent = item.isEContent();
+			eContentSource = item.geteContentSource();
+			String source = item.getTrimmedEContentSource();
+			trimmedEContentSource = source == null ? "Unknown" : ("overdrive".equals(source) ? "Libby" : source);
+			locationCode = item.getLocationCode();
+			libraryOwnedNames = item.getLibraryOwnedNames();
+			locationOwnedNames = item.getLocationOwnedNames();
+			collection = item.getCollection();
+			detailedLocation = item.getDetailedLocation();
+			shelfLocation = item.getShelfLocation();
+			callNumber = item.getCallNumber();
+			sortableCallNumber = item.getSortableCallNumber();
+			String primaryFormat = item.getPrimaryFormat();
+			primaryFormatLowercase = primaryFormat == null ? null : primaryFormat.toLowerCase(Locale.ROOT);
+		}
+
+		private Long getDaysSinceAdded() {
+			if (!daysCalculated) {
+				daysSinceAdded = item.getDaysSinceAdded(fallbackDays);
+				daysCalculated = true;
+			}
+			return daysSinceAdded;
+		}
+	}
+
+	private static final class ScopeBuildContext {
+		private final Scope scope;
+		private final GroupedWorkDisplaySettings settings;
+		private final String facetLabel;
+		private final String libraryFacetLabel;
+		private final Pattern additionalAvailabilityPattern;
+		private final Pattern excludedAvailabilityPattern;
+
+		private ScopeBuildContext(Scope scope) {
+			this.scope = scope;
+			settings = scope.getGroupedWorkDisplaySettings();
+			facetLabel = scope.getFacetLabel();
+			Scope libraryScope = scope.getLibraryScope();
+			libraryFacetLabel = scope.isLibraryScope() || libraryScope == null
+				? facetLabel
+				: libraryScope.getFacetLabel();
+			additionalAvailabilityPattern = scope.getAdditionalLocationsToShowAvailabilityForPattern();
+			excludedAvailabilityPattern = scope.getLocationsToExcludeAvailabilityForPattern();
+		}
+	}
+
+	private static final class OptimizedScopeData {
+		private Set<String> additionalFormats = Collections.emptySet();
+		private Set<String> additionalFormatCategories = Collections.emptySet();
+		private Set<String> rawTargetAudiences = Collections.emptySet();
+		private Set<String> targetAudiences = Collections.emptySet();
+		private Set<String> targetAudiencesFull = Collections.emptySet();
+		private Set<String> availabilityToggles = Collections.emptySet();
+		private Set<String> owningLibraries = Collections.emptySet();
+		private Set<String> owningLocations = Collections.emptySet();
+		private Set<String> availableAt = Collections.emptySet();
+		private Set<String> econtentSources = Collections.emptySet();
+		private Set<String> collections = Collections.emptySet();
+		private Set<String> detailedLocations = Collections.emptySet();
+		private Set<String> shelfLocations = Collections.emptySet();
+		private Set<String> itemTypes = Collections.emptySet();
+		private Set<String> localCallNumbers = Collections.emptySet();
+		private final AvailabilityToggleInfo toggleInfo = new AvailabilityToggleInfo();
+		private Long daysSinceAdded;
+		private int libraryBoost;
+
+		private void add(PreparedItemData item, ScopingInfo info, ScopeBuildContext context,
+						 GroupedWorkIndexer indexer) {
+			additionalFormats = addValue(additionalFormats, item.format);
+			additionalFormatCategories = addValue(additionalFormatCategories, item.formatCategory);
+			rawTargetAudiences = addValue(rawTargetAudiences, item.targetAudience);
+
+			boolean locallyOwned = info.isLocallyOwned();
+			boolean libraryOwned = info.isLibraryOwned();
+			boolean addAllOwningLocations = false;
+			boolean addAllOwningLocationsToAvailableAt = false;
+
+			if (item.eContent) {
+				toggleInfo.updateToggleValues(
+					locallyOwned || libraryOwned,
+					context.settings.isIncludeOnlineMaterialsInAvailableToggle() && item.available,
+					item.available
+				);
+				owningLibraries = addValue(owningLibraries, item.trimmedEContentSource);
+				if (item.available) availableAt = addValue(availableAt, item.trimmedEContentSource);
+				econtentSources = addValue(econtentSources, item.trimmedEContentSource);
+			} else {
+				if (locallyOwned) {
+					toggleInfo.updateToggleValues(true, item.available, false);
+					if (item.available) availableAt = addValue(availableAt, context.facetLabel);
+					owningLocations = addValue(owningLocations, context.facetLabel);
+					owningLibraries = addValue(owningLibraries, context.libraryFacetLabel);
+					addAllOwningLocations = context.scope.isIncludeAllLibraryBranchesInFacets();
+				}
+				if (libraryOwned) {
+					if (context.scope.isLibraryScope() || (context.scope.isLocationScope()
+						&& !context.settings.isBaseAvailabilityToggleOnLocalHoldingsOnly())) {
+						toggleInfo.updateToggleValues(true, item.available, false);
+					}
+					if (item.available) addAllOwningLocationsToAvailableAt = true;
+					owningLibraries = addValue(owningLibraries, context.facetLabel);
+					addAllOwningLocations = true;
+				}
+				if (!locallyOwned && !libraryOwned
+					&& !context.settings.isBaseAvailabilityToggleOnLocalHoldingsOnly()) {
+					toggleInfo.updateToggleValues(false, item.available, false);
+					if (item.available) addAllOwningLocationsToAvailableAt = true;
+				}
+				if (item.available && context.additionalAvailabilityPattern != null
+					&& item.locationCode != null
+					&& context.additionalAvailabilityPattern.matcher(item.locationCode).matches()) {
+					addAllOwningLocationsToAvailableAt = true;
+				}
+				if (!context.scope.isRestrictOwningLibraryAndLocationFacets()
+					|| context.scope.isConsortialCatalog()) {
+					owningLibraries = addValues(owningLibraries, item.libraryOwnedNames);
+					addAllOwningLocations = true;
+				}
+			}
+
+			if (addAllOwningLocations) owningLocations = addValues(owningLocations, item.locationOwnedNames);
+			if (addAllOwningLocationsToAvailableAt) availableAt = addValues(availableAt, item.locationOwnedNames);
+
+			if (locallyOwned || libraryOwned || context.settings.isIncludeAllRecordsInShelvingFacets()) {
+				collections = addValue(collections, item.collection);
+				detailedLocations = addValue(detailedLocations, item.detailedLocation);
+				if (context.settings.includeEContentInShelvingLocations() || !item.eContent) {
+					shelfLocations = addValue(shelfLocations, item.shelfLocation);
+				}
+			}
+
+			if (item.eContent || locallyOwned || libraryOwned
+				|| context.settings.isIncludeAllRecordsInDateAddedFacets()) {
+				Long itemDays = item.getDaysSinceAdded();
+				if (itemDays != null && (daysSinceAdded == null || itemDays > daysSinceAdded)) {
+					daysSinceAdded = itemDays;
+				}
+			}
+
+			if (locallyOwned || libraryOwned) {
+				int boost = item.available ? indexer.availableAtBoostValue : indexer.ownedByBoostValue;
+				libraryBoost = Math.max(libraryBoost, boost);
+			}
+			itemTypes = addValue(itemTypes, item.trimmedItemType);
+			if (locallyOwned || libraryOwned || !info.getScope().isRestrictOwningLibraryAndLocationFacets()) {
+				localCallNumbers = addValue(localCallNumbers, item.callNumber);
+			}
+		}
+
+		private void finish(Set<String> recordFormats, Set<String> recordCategories,
+							Set<String> defaultAudiences, Set<String> defaultAudiencesFull,
+							ScopeBuildContext context, GroupedWorkIndexer indexer) {
+			if (!additionalFormats.isEmpty()) additionalFormats.removeAll(recordFormats);
+			if (!additionalFormatCategories.isEmpty()) additionalFormatCategories.removeAll(recordCategories);
+
+			if (recordFormats.contains("eAudiobook") || additionalFormats.contains("eAudiobook")) {
+				if (!recordCategories.contains("eBook")) additionalFormatCategories = addValue(additionalFormatCategories, "eBook");
+			}
+			if (recordFormats.contains("CD + Book") || additionalFormats.contains("CD + Book")
+				|| recordFormats.contains("VOX Books") || additionalFormats.contains("VOX Books")) {
+				if (!recordCategories.contains("Books")) additionalFormatCategories = addValue(additionalFormatCategories, "Books");
+				if (!recordCategories.contains("Audio Books")) additionalFormatCategories = addValue(additionalFormatCategories, "Audio Books");
+			}
+
+			if (rawTargetAudiences.isEmpty()) {
+				targetAudiences = addValues(targetAudiences, defaultAudiences);
+				targetAudiencesFull = addValues(targetAudiencesFull, defaultAudiencesFull);
+			} else {
+				Set<String> cleaned = indexer.cleanTargetAudiences(new HashSet<>(rawTargetAudiences));
+				targetAudiences = addValues(targetAudiences, cleaned);
+				targetAudiencesFull = addValues(targetAudiencesFull, cleaned);
+			}
+			rawTargetAudiences = Collections.emptySet();
+			availabilityToggles = addValues(availabilityToggles, toggleInfo.getValues());
+			if (context.excludedAvailabilityPattern != null && !availableAt.isEmpty()) {
+				availableAt.removeIf(value -> context.excludedAvailabilityPattern.matcher(value).matches());
+			}
+		}
+
+		@Override
+		public boolean equals(Object object) {
+			if (this == object) return true;
+			if (!(object instanceof OptimizedScopeData)) return false;
+			OptimizedScopeData other = (OptimizedScopeData)object;
+			return libraryBoost == other.libraryBoost
+				&& Objects.equals(additionalFormats, other.additionalFormats)
+				&& Objects.equals(additionalFormatCategories, other.additionalFormatCategories)
+				&& Objects.equals(targetAudiences, other.targetAudiences)
+				&& Objects.equals(targetAudiencesFull, other.targetAudiencesFull)
+				&& Objects.equals(availabilityToggles, other.availabilityToggles)
+				&& Objects.equals(owningLibraries, other.owningLibraries)
+				&& Objects.equals(owningLocations, other.owningLocations)
+				&& Objects.equals(availableAt, other.availableAt)
+				&& Objects.equals(econtentSources, other.econtentSources)
+				&& Objects.equals(collections, other.collections)
+				&& Objects.equals(detailedLocations, other.detailedLocations)
+				&& Objects.equals(shelfLocations, other.shelfLocations)
+				&& Objects.equals(itemTypes, other.itemTypes)
+				&& Objects.equals(localCallNumbers, other.localCallNumbers)
+				&& Objects.equals(daysSinceAdded, other.daysSinceAdded);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(additionalFormats, additionalFormatCategories, targetAudiences,
+				targetAudiencesFull, availabilityToggles, owningLibraries, owningLocations,
+				availableAt, econtentSources, collections, detailedLocations, shelfLocations,
+				itemTypes, localCallNumbers, daysSinceAdded, libraryBoost);
+		}
+	}
+
+	private static final class OptimizedScopeDocumentGroup {
+		private final OptimizedScopeData scopeData;
+		private final ArrayList<String> scopes = new ArrayList<>();
+		private String primaryScope;
+
+		private OptimizedScopeDocumentGroup(OptimizedScopeData scopeData) {
+			this.scopeData = scopeData;
+		}
+
+		private void addScope(String scopeName) {
+			scopes.add(scopeName);
+			if (primaryScope == null || scopeName.compareTo(primaryScope) < 0) primaryScope = scopeName;
+		}
+
+		private String getPrimaryScope() { return primaryScope; }
+	}
 
 	public void setDatabaseId(long recordId) {
 		this.databaseId = recordId;
-	}
-
-	public HashSet<String> getRelatedScopes() {
-		HashSet<String> relatedScopes = new HashSet<>();
-		for (ItemInfo itemInfo : relatedItems) {
-			relatedScopes.addAll(itemInfo.getScopingInfo().keySet());
-		}
-		return relatedScopes;
 	}
 }
