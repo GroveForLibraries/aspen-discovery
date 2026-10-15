@@ -2474,12 +2474,6 @@ class User extends DataObject {
 			} else {
 				$accountProfileSource = '';
 			}
-			//$accountProfileForSource = new AccountProfile();
-			//$accountProfileForSource->recordSource = $recordSource;
-			//$accountProfileSource = '';
-			//if ($accountProfileForSource->find(true)) {
-			//	$accountProfileSource = $accountProfileForSource->name;
-			//}
 			foreach ($linkedUsers as $linkedUser) {
 				if ($accountProfileSource == $linkedUser->source) {
 					$linkedUserLocation = new Location();

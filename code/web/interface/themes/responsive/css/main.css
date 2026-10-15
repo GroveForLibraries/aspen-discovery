@@ -11482,8 +11482,11 @@ td[data-entry-id]:has(.date-edit:focus)::after {
 .variationInfo .result-label {
   font-size: calc(var(--aspen-base-font-size) * 0.9286);
 }
+.variationInfoHoriz {
+  margin-bottom: 0.5em;
+}
 .horizDisplayShowEditionsRow {
-  margin-top: 2em;
+  margin-top: 1em;
   margin-bottom: 1em;
   text-align: center;
 }
@@ -11522,6 +11525,14 @@ td[data-entry-id]:has(.date-edit:focus)::after {
 #multiple-variations-column.formatDisplayHorizontal .horizDisplayShelfLocations .col-tn-4:first-child {
   padding-left: 0;
 }
+.formatDisplayHorizontal {
+  margin-top: 1.5em;
+  margin-bottom: 1em;
+}
+.full-record-related-manifestations {
+  margin-top: 3px;
+  margin-bottom: 5px;
+}
 .relatedRecord {
   font-size: calc(var(--aspen-base-font-size) * 0.9286);
 }
@@ -11531,7 +11542,7 @@ td[data-entry-id]:has(.date-edit:focus)::after {
 }
 .horizDisplayAllEditions {
   margin-top: 1em;
-  margin-bottom: 2em;
+  margin-bottom: 0;
 }
 .horizDisplayAllEditions .relatedRecord {
   margin-left: 0;

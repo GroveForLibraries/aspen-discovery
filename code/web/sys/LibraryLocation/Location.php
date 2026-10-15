@@ -75,6 +75,7 @@ class Location extends DataObject {
 	public $isMainBranch; // tinyint(1)
 	public $showInLocationsAndHoursList;
 	public $validHoldPickupBranch;    //'1' => 'Valid for all patrons', '0' => 'Valid for patrons of this branch only', '2' => 'Not Valid', '3' => 'Valid for patrons of this library only'
+	public $validAsPickupLocationForPTypes;
 	public $validSelfRegistrationBranch;
 	public $nearbyLocation1;        //int(11)
 	public $nearbyLocation2;        //int(11)
@@ -701,7 +702,7 @@ class Location extends DataObject {
 						'permissions' => ['Location ILS Connection'],
 						'note' => 'Sierra only',
 					],
-					[
+					'validHoldPickupBranch' => [
 						'property' => 'validHoldPickupBranch',
 						'type' => 'enum',
 						'values' => [
@@ -714,6 +715,15 @@ class Location extends DataObject {
 						'description' => 'Determines if the location can be used as a pickup location if it is not the patrons home location or the location they are in.',
 						'hideInLists' => true,
 						'default' => '1',
+						'permissions' => ['Location ILS Options'],
+					],
+					'validAsPickupLocationForPTypes' => [
+						'property' => 'validAsPickupLocationForPTypes',
+						'type' => 'regularExpression',
+						'label' => 'Valid As Pickup Location for PTypes',
+						'description' => 'A regular expression identifying the valid PTypes to use this location as a pickup location (leave blank to include all).',
+						'hideInLists' => true,
+						'default' => '',
 						'permissions' => ['Location ILS Options'],
 					],
 					'curbsidePickupInstructionsSetting' => [
@@ -1672,6 +1682,12 @@ class Location extends DataObject {
 		$physicalLocation = $this->getPhysicalLocation();
 		$locationList = [];
 		foreach ($tmpLocations as $tmpLocation) {
+			// Check to see if the location should be filtered by patron type
+			if (!empty($tmpLocation->validAsPickupLocationForPTypes)) {
+				if ($patronProfile && !preg_match_all("~$tmpLocation->validAsPickupLocationForPTypes~", $patronProfile->patronType)) {
+					continue;
+				}
+			}
 			// Add the user id to each pickup location to track multiple linked accounts having the same pick-up location.
 			if (!empty($patronProfile)) {
 				$tmpLocation->addPickupUser($patronProfile->id);

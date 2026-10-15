@@ -557,11 +557,14 @@ class Nashville extends CarlX {
 		}
 	}
 
-	public function getDatabaseConnection() : object|false|null {
+	/**
+	 * @return resource|object|false|null
+	 */
+	public function getDatabaseConnection(): mixed {
 		try {
 			$this->initDatabaseConnection();
 			return $this->dbConnection;
-		}catch (Exception $e) {
+		} catch (Throwable $e) {
 			return null;
 		}
 	}
