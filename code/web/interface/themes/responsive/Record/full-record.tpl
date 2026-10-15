@@ -81,7 +81,7 @@
                                     {include file="Record/view-title-details-horiz.tpl" hasMultipleVariations=$recordDriver->hasMultipleVariations()}
                                     {if !($recordDriver->hasMultipleVariations())}
                                         {* Detailed status information *}
-			                            <div class="full-record-property full-record-variation-info row variationInfo">
+			                            <div class="full-record-property full-record-variation-info row variationInfo variationInfoHoriz">
 				                            <div class="col-xs-12">
 					                            <div class="row">
 		                                            {if !empty($statusSummary)}

@@ -61,7 +61,6 @@
 					<a href="{if !empty($curAction.url)}{$curAction.url}{else}#{/if}" data-prompt-edition="{if count($relatedRecords) > 1 && $curAction.type == 'ils_hold' && $curAction.subtype == 'standard_ils_hold'}true{else}false{/if}" {if !empty($curAction.onclick)}onclick="{$curAction.onclick}"{/if} class="btn btn-sm {if empty($curAction.btnType)}btn-action{else}{$curAction.btnType}{/if} btn-wrap" {if !empty($curAction.target)}target="{$curAction.target}"{/if} {if !empty($curAction.id)}id="firstRecord{$curAction.id}"{/if} {if !empty($curAction.alt)}title="{$curAction.alt}"{/if} {if !empty($curAction['data-needs-refresh'])}data-needs-refresh="{$curAction['data-needs-refresh']}"{/if} {if !empty($curAction['data-record-id'])}data-record-id="{$curAction['data-record-id']}"{/if} {if !empty($curAction['data-record-source'])}data-record-source="{$curAction['data-record-source']}"{/if}>{$curAction.title}</a>
 				{/foreach}
 				{if $totalSummariesToDisplay == 0 || $showQuickCopy == 3}
-					<br/>
 					<button class="btn btn-default btn-sm btn-wrap viewAllLocationsBtnAction" onclick="return AspenDiscovery.GroupedWork.showCopyDetails('{$workId}', '{if !empty($relatedManifestation)}{$relatedManifestation->format|urlencode}{else}{$format}{/if}', '{$workId}');">{translate text="View All Locations" isPublicFacing=true}</button>
 				{/if}
 			</div>
