@@ -922,6 +922,12 @@ public class MarcRecordFormatClassifier {
 									if (formatField.getData().toUpperCase().charAt(4) == 'T') {
 										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format 4KBlu-ray based on 007", 2);}
 										resultsFrom007.add("4KBlu-ray");
+									}else if (formatField.getData().toUpperCase().charAt(4) == 'S') {
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray based on 007", 2);}
+										resultsFrom007.add("Blu-ray");
+									}else if (formatField.getData().toUpperCase().charAt(4) == 'V') {
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format DVD based on 007", 2);}
+										resultsFrom007.add("DVD");
 									}
 								} else {
 									if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoDisc based on 007", 2);}
