@@ -233,9 +233,6 @@ public class MarcRecordFormatClassifier {
 					} else if (physicalDescriptionData.contains("large type") || physicalDescriptionData.contains("large print")) {
 						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 300 Physical Description", 2);}
 						result.add("LargePrint");
-					} else if (subfield.getCode() == 'a' && (physicalDescriptionData.contains("launchpad"))) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PlayawayLaunchpad based on 300 Physical Description", 2);}
-						result.add("PlayawayLaunchpad");
 					}else if (physicalDescriptionData.contains("4k") && (physicalDescriptionData.contains("bluray") || physicalDescriptionData.contains("blu-ray"))) {
 						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format 4KBlu-ray based on 300 Physical Description", 2);}
 						result.add("4KBlu-ray");
@@ -275,25 +272,50 @@ public class MarcRecordFormatClassifier {
 								result.add("SoundDisc");
 							}
 						}
-					} else if (subfield.getCode() == 'a' && physicalDescriptionData.contains("video-enabled book")){
-						result.add("VideoEnabledBook");
-					} else if (subfield.getCode() == 'a' && physicalDescriptionData.contains("online resource") && settings instanceof IndexingProfile) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format online_resource based on 300$a Physical Description (ILS records only).", 2);}
-						result.add("online_resource");
-					} else if (subfield.getCode() == 'a' && (pagesPattern2.matcher(physicalDescriptionData).matches())){
-						Subfield subfieldE = field.getSubfield('e');
-						if (subfieldE != null && (subfieldE.getData().toLowerCase().contains("dvd") || subfieldE.getData().toLowerCase().contains("videodisc"))){
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Book+DVD based on 300 Physical Description", 2);}
-							result.add("Book+DVD");
-						}else if (subfieldE != null && subfieldE.getData().toLowerCase().contains("cd-rom")){
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Book+CD-ROM based on 300 Physical Description", 2);}
-							result.add("Book+CD-ROM");
-						}else if (subfieldE != null && (subfieldE.getData().toLowerCase().contains("cd") || subfieldE.getData().toLowerCase().contains("audio disc"))){
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Book+CD based on 300 Physical Description", 2);}
-							result.add("Book+CD");
-						}else{
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Book based on 300 Physical Description", 2);}
-							result.add("Book");
+					} else if (subfield.getCode() == 'a') {
+						if (physicalDescriptionData.contains("launchpad")) {
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {
+								groupedWork.addDebugMessage("Adding bib level format PlayawayLaunchpad based on 300 Physical Description", 2);
+							}
+							result.add("PlayawayLaunchpad");
+						} else if (physicalDescriptionData.contains("video-enabled book")) {
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {
+								groupedWork.addDebugMessage("Adding bib level format VideoEnabledBook based on 300 Physical Description", 2);
+							}
+							result.add("VideoEnabledBook");
+						} else if (physicalDescriptionData.contains("videodisc")) {
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {
+								groupedWork.addDebugMessage("Adding bib level format VideoDisc based on 300 Physical Description", 2);
+							}
+							result.add("VideoDisc");
+						} else if (physicalDescriptionData.contains("online resource") && settings instanceof IndexingProfile) {
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {
+								groupedWork.addDebugMessage("Adding bib level format online_resource based on 300$a Physical Description (ILS records only).", 2);
+							}
+							result.add("online_resource");
+						} else if (pagesPattern2.matcher(physicalDescriptionData).matches()) {
+							Subfield subfieldE = field.getSubfield('e');
+							if (subfieldE != null && (subfieldE.getData().toLowerCase().contains("dvd") || subfieldE.getData().toLowerCase().contains("videodisc"))) {
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {
+									groupedWork.addDebugMessage("Adding bib level format Book+DVD based on 300 Physical Description", 2);
+								}
+								result.add("Book+DVD");
+							} else if (subfieldE != null && subfieldE.getData().toLowerCase().contains("cd-rom")) {
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {
+									groupedWork.addDebugMessage("Adding bib level format Book+CD-ROM based on 300 Physical Description", 2);
+								}
+								result.add("Book+CD-ROM");
+							} else if (subfieldE != null && (subfieldE.getData().toLowerCase().contains("cd") || subfieldE.getData().toLowerCase().contains("audio disc"))) {
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {
+									groupedWork.addDebugMessage("Adding bib level format Book+CD based on 300 Physical Description", 2);
+								}
+								result.add("Book+CD");
+							} else {
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {
+									groupedWork.addDebugMessage("Adding bib level format Book based on 300 Physical Description", 2);
+								}
+								result.add("Book");
+							}
 						}
 					}
 					//Since this is fairly generic, only use it if we have no other formats yet
