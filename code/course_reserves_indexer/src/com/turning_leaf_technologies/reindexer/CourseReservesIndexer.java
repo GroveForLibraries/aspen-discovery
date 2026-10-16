@@ -59,7 +59,22 @@ class CourseReservesIndexer {
 			System.exit(-7);
 		}
 
+		//Get the search version from system variables
+		int searchVersion = 2;
+		try {
+			PreparedStatement searchVersionStmt = dbConn.prepareStatement("SELECT searchVersion from system_variables");
+			ResultSet searchVersionRS = searchVersionStmt.executeQuery();
+			if (searchVersionRS.next()){
+				searchVersion = searchVersionRS.getInt("searchVersion");
+			}
+			searchVersionRS.close();
+		}catch (Exception e){
+			logger.error("Error loading search version", e);
+		}
 		groupedWorkServer = new Http2SolrClient.Builder("http://" + solrHost + ":" + solrPort + "/solr/grouped_works_v2").build();
+		if (searchVersion !== 2) {
+			groupedWorkServer = new Http2SolrClient.Builder("http://" + solrHost + ":" + solrPort + "/solr/grouped_works_v3").build();
+		}
 
 		scopes = IndexingUtils.loadScopes(dbConn, logger);
 	}
