@@ -349,7 +349,7 @@ class EventAPI extends AbstractAPI {
 			$itemData['inUserEvents'] = false;
 			$itemData['registrationBody'] = $registrationInformation;
 			$itemData['bypass'] = (bool)$aspenEventDriver->getBypassSetting();
-			$itemData['cover'] = $configArray['Site']['url'] . $aspenEventDriver->getEventCoverUrl();
+			$itemData['cover'] = $aspenEventDriver->getEventCoverUrl() ? ($configArray['Site']['url'] . '/' . $aspenEventDriver->getEventCoverUrl()) : null;
 			$itemData['url'] = $configArray['Site']['url'] . $aspenEventDriver->getExternalUrl();
 			$itemData['audiences'] = $aspenEventDriver->getAudiences();
 			$itemData['categories'] = $aspenEventDriver->getCategories();
