@@ -72,7 +72,7 @@ class CourseReservesIndexer {
 			logger.error("Error loading search version", e);
 		}
 		groupedWorkServer = new Http2SolrClient.Builder("http://" + solrHost + ":" + solrPort + "/solr/grouped_works_v2").build();
-		if (searchVersion !== 2) {
+		if (searchVersion != 2) {
 			groupedWorkServer = new Http2SolrClient.Builder("http://" + solrHost + ":" + solrPort + "/solr/grouped_works_v3").build();
 		}
 
