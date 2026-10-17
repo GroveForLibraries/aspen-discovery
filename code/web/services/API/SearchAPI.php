@@ -2709,7 +2709,7 @@ class SearchAPI extends AbstractAPI {
 								} else if (str_starts_with($record['id'], 'localhop')) {
 									$eventSource = 'localhop';
 									require_once ROOT_DIR . '/RecordDrivers/LocalHopEventRecordDriver.php';
-									$localHopDriver = new LocalHopEventRecordDriver($_REQUEST['id']);
+									$eventDriver = new LocalHopEventRecordDriver($record['id']);
 								}
 
 								if ($eventDriver->isValid()) {
@@ -3348,7 +3348,7 @@ class SearchAPI extends AbstractAPI {
 					} else if (str_starts_with($record['id'], 'localhop')) {
 						$eventSource = 'localhop';
 						require_once ROOT_DIR . '/RecordDrivers/LocalHopEventRecordDriver.php';
-						$localHopDriver = new LocalHopEventRecordDriver($_REQUEST['id']);
+						$eventDriver = new LocalHopEventRecordDriver($record['id']);
 					}
 
 					if ($eventDriver->isValid()) {
