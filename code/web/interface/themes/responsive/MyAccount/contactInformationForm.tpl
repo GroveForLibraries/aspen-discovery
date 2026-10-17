@@ -137,9 +137,15 @@
 					<div class="col-xs-8">
 						{if $edit == true && $canUpdateContactInfo == true}
 							<div class="btn-group btn-group-sm" data-toggle="buttons">
-								<label for="noticesMail" class="btn btn-sm btn-default {if $profile->_notices == 'a'}active{/if}"><input type="radio" value="a" id="noticesMail" name="notices" {if $profile->_notices == 'a'}checked="checked"{/if}> {translate text="Postal Mail" isPublicFacing=true}</label>
-								<label for="noticesTel" class="btn btn-sm btn-default {if $profile->_notices == 'p'}active{/if}"><input type="radio" value="p" id="noticesTel" name="notices" {if $profile->_notices == 'p'}checked="checked"{/if}> {translate text="Telephone" isPublicFacing=true}</label>
-								<label for="noticesEmail" class="btn btn-sm btn-default {if $profile->_notices == 'z'}active{/if}"><input type="radio" value="z" id="noticesEmail" name="notices" {if $profile->_notices == 'z'}checked="checked"{/if}> {translate text="Email" isPublicFacing=true}</label>
+								{if $allowMailNotices}
+									<label for="noticesMail" class="btn btn-sm btn-default {if $profile->_notices == 'a'}active{/if}"><input type="radio" value="a" id="noticesMail" name="notices" {if $profile->_notices == 'a'}checked="checked"{/if}> {translate text="Postal Mail" isPublicFacing=true}</label>
+								{/if}
+								{if $allowPhoneNotices}
+									<label for="noticesTel" class="btn btn-sm btn-default {if $profile->_notices == 'p'}active{/if}"><input type="radio" value="p" id="noticesTel" name="notices" {if $profile->_notices == 'p'}checked="checked"{/if}> {translate text="Telephone" isPublicFacing=true}</label>
+								{/if}
+								{if $allowEmailNotices}
+									<label for="noticesEmail" class="btn btn-sm btn-default {if $profile->_notices == 'z'}active{/if}"><input type="radio" value="z" id="noticesEmail" name="notices" {if $profile->_notices == 'z'}checked="checked"{/if}> {translate text="Email" isPublicFacing=true}</label>
+								{/if}
 							</div>
 						{else}
 							{$profile->_noticePreferenceLabel|escape}
