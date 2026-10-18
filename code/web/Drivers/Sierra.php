@@ -2647,7 +2647,7 @@ class Sierra extends AbstractIlsDriver {
 		}
 	}
 
-	private function getValidNotificationOptions(?User $patron = null) : array {
+	public function getValidNotificationOptions(?User $patron = null) : array {
 		$sierraDnaConnection = $this->connectToSierraDNA();
 		$options = [];
 		if ($sierraDnaConnection) {

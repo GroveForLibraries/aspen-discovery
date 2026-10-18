@@ -1,0 +1,14 @@
+Jira: DIS-3076
+Type: Enhancement
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor: Cumberland County Library System
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: Indexing
+Description:
+  - Allow eContent to be removed from Available At and Library System Facets.
+New Settings:
+  - Grouped Work Display Settings > Search Facets > Include eContent in Available At Facet
+  - Grouped Work Display Settings > Search Facets > Include eContent in Available At Facet
+New Permissions:

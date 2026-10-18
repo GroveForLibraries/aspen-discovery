@@ -1,0 +1,12 @@
+Jira: DIS-3068
+Type: Enhancement
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor: SWAN Library Network
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: Cataloging
+Description:
+  - Use 007 position 5 to determine Blu-ray and DVDs.
+New Settings:
+New Permissions:

@@ -8,6 +8,8 @@ public class GroupedWorkDisplaySettings {
 	private boolean includeAllRecordsInShelvingFacets;
 	private boolean includeAllRecordsInDateAddedFacets;
 	private boolean includeEContentInShelvingLocations;
+	private boolean includeEContentInAvailableAt;
+	private boolean includeEContentInLibrarySystem;
 	private boolean baseAvailabilityToggleOnLocalHoldingsOnly = false;
 
 	public long getId() {
@@ -41,6 +43,23 @@ public class GroupedWorkDisplaySettings {
 	void setincludeEContentInShelvingLocations(boolean includeEContentInShelvingLocations) {
 		this.includeEContentInShelvingLocations = includeEContentInShelvingLocations;
 	}
+
+	public boolean isIncludeEContentInAvailableAt() {
+		return includeEContentInAvailableAt;
+	}
+
+	public void setIncludeEContentInAvailableAt(boolean includeEContentInAvailableAt) {
+		this.includeEContentInAvailableAt = includeEContentInAvailableAt;
+	}
+
+	public boolean isIncludeEContentInLibrarySystem() {
+		return includeEContentInLibrarySystem;
+	}
+
+	public void setIncludeEContentInLibrarySystem(boolean includeEContentInLibrarySystem) {
+		this.includeEContentInLibrarySystem = includeEContentInLibrarySystem;
+	}
+
 
 	public boolean isIncludeAllRecordsInDateAddedFacets() {
 		return includeAllRecordsInDateAddedFacets;

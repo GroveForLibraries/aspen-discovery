@@ -360,7 +360,7 @@ class GroupedWorkDriver extends IndexRecordDriver {
 			//Status rankings should be between 4 (checked out and 1 currently available), we prefer the highest but could group some
 			fn() => $b->getStatusRanking() <=> $a->getStatusRanking(),
 			fn() => GroupedWorkDriver::compareEditionsForRecords($literaryForm, $a, $b),
-			fn() => $a->format === 'Magazine' ? GroupedWorkDriver::compareMagazineEditionDates($a, $b) : 0,
+			fn() => in_array($a->format, ['Magazine', 'Serial', 'Periodical'], true) ? GroupedWorkDriver::compareMagazineEditionDates($a, $b) : 0,
 			fn() => $a->getHoldRatio() <=> $b->getHoldRatio(),
 			fn() => $b->getCopies() <=> $a->getCopies(),
 		];
