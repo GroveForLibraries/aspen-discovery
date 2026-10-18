@@ -40,6 +40,22 @@ function getUpdates26_10_00(): array {
 				"ALTER TABLE location ADD COLUMN validAsPickupLocationForPTypes TINYTEXT DEFAULT ''"
 			]
 		], //filterPickupLocationsByPType
+		'includeEContentInAvailableAt' => [
+			'title' => 'Add Include eContent in Available at option',
+			'description' => 'Add Include eContent in Available at option to Grouped Work Display Settings',
+			'continueOnError' => false,
+			'sql' =>[
+				'ALTER TABLE grouped_work_display_settings ADD COLUMN includeEContentInAvailableAt TINYINT(1) DEFAULT 1'
+			]
+		], //includeEContentInAvailableAt
+		'includeEContentInLibrarySystem' => [
+			'title' => 'Add Include eContent in Library System option',
+			'description' => 'Add Include eContent in Library System option to Grouped Work Display Settings',
+			'continueOnError' => false,
+			'sql' =>[
+				'ALTER TABLE grouped_work_display_settings ADD COLUMN includeEContentInLibrarySystem TINYINT(1) DEFAULT 1'
+			]
+		], //includeEContentInLibrarySystem
 
 		//kirstien
 		'add_oauth2_user_consents_table' => [

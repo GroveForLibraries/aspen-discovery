@@ -908,8 +908,12 @@ public class RecordInfo {
 					context.settings.isIncludeOnlineMaterialsInAvailableToggle() && item.available,
 					item.available
 				);
-				owningLibraries = addValue(owningLibraries, item.trimmedEContentSource);
-				if (item.available) availableAt = addValue(availableAt, item.trimmedEContentSource);
+				if (context.settings.isIncludeEContentInLibrarySystem()) {
+					owningLibraries = addValue(owningLibraries, item.trimmedEContentSource);
+				}
+				if (item.available && context.settings.isIncludeEContentInAvailableAt()) {
+					availableAt = addValue(availableAt, item.trimmedEContentSource);
+				}
 				econtentSources = addValue(econtentSources, item.trimmedEContentSource);
 			} else {
 				if (locallyOwned) {
