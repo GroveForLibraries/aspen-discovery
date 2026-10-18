@@ -55,6 +55,8 @@ public class IndexingUtils {
 				setting.setIncludeAllRecordsInDateAddedFacets(groupedWorkDisplaySettingsRS.getBoolean("includeAllRecordsInDateAddedFacets"));
 				setting.setBaseAvailabilityToggleOnLocalHoldingsOnly(groupedWorkDisplaySettingsRS.getBoolean("baseAvailabilityToggleOnLocalHoldingsOnly"));
 				setting.setincludeEContentInShelvingLocations(groupedWorkDisplaySettingsRS.getBoolean("includeEContentInShelvingLocations"));
+				setting.setIncludeEContentInAvailableAt(groupedWorkDisplaySettingsRS.getBoolean("includeEContentInAvailableAt"));
+				setting.setIncludeEContentInLibrarySystem(groupedWorkDisplaySettingsRS.getBoolean("includeEContentInLibrarySystem"));
 
 				groupedWorkSettings.put(setting.getId(), setting);
 			}

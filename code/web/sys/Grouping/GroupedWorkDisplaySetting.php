@@ -51,6 +51,10 @@ class GroupedWorkDisplaySetting extends DataObject {
 	public $includeAllRecordsInShelvingFacets;
 	/** @noinspection PhpUnused */
 	public $includeEContentInShelvingLocations;
+	/** @noinspection PhpUnused */
+	public $includeEContentInAvailableAt;
+	/** @noinspection PhpUnused */
+	public $includeEContentInLibrarySystem;
 	public $includeAllRecordsInDateAddedFacets;
 	public $facetCountsToShow;
 	public $facetGroupId;
@@ -668,6 +672,24 @@ class GroupedWorkDisplaySetting extends DataObject {
 						'property' => 'includeEContentInShelvingLocations',
 						'label' => 'Include eContent in Shelf Locations Facet',
 						'description' => 'Define whether all or only physical materials are included in the Shelf Location facet.',
+						'type' => 'checkbox',
+						'hideInLists' => true,
+						'default' => 1,
+						'forcesReindex' => true,
+					],
+					'includeEContentInAvailableAt' => [
+						'property' => 'includeEContentInAvailableAt',
+						'label' => 'Include eContent in Available At Facet',
+						'description' => 'Define whether all or only physical materials are included in the Available At facet.',
+						'type' => 'checkbox',
+						'hideInLists' => true,
+						'default' => 1,
+						'forcesReindex' => true,
+					],
+					'includeEContentInLibrarySystem' => [
+						'property' => 'includeEContentInLibrarySystem',
+						'label' => 'Include eContent in Library System Facet',
+						'description' => 'Define whether all or only physical materials are included in the Library System facet.',
 						'type' => 'checkbox',
 						'hideInLists' => true,
 						'default' => 1,
