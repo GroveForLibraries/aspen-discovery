@@ -140,7 +140,7 @@ class InclusionRuleDetails {
 
 	//TODO: We can potentially just pass in the ItemInfo object instead of all or most of these parameters
 	//		This would likely require creating an interface for ItemInfo under java_shared_libraries.
-	boolean isItemIncluded(String itemIdentifier, String subLocationCode, String iType, HashSet<String> audiences, String audiencesAsString, String format, String shelfLocation, String collectionCode, org.marc4j.marc.Record marcRecord, DebugLogger debugLogger){
+	boolean isItemIncluded(String itemIdentifier, String subLocationCode, String iType, String audience, String format, String shelfLocation, String collectionCode, org.marc4j.marc.Record marcRecord, DebugLogger debugLogger){
 		if (lastIdentifier != null && lastIdentifier.equals(itemIdentifier)){
 			return lastIdentifierResult;
 		}
@@ -152,7 +152,7 @@ class InclusionRuleDetails {
 		if (matchAlliTypes){
 			iType = "any";
 		}
-		String audienceKey = audiencesAsString;
+		String audienceKey = audience;
 		if (matchAllAudiences){
 			audienceKey = "all";
 		}
@@ -262,20 +262,14 @@ class InclusionRuleDetails {
 			//Check audiences to include & exclude
 			if (isIncluded && !matchAllAudiences){
 				boolean audienceMatched = false;
-				for (String audience : audiences) {
-					//As soon as something is either matched or excluded we can stop checking.
-					if (audiencePattern.matcher(audience).matches()) {
-						audienceMatched = true;
-						break;
-					}
+				//As soon as something is either matched or excluded we can stop checking.
+				if (audiencePattern.matcher(audience).matches()) {
+					audienceMatched = true;
 				}
 				if (audienceMatched){
-					for (String audience : audiences) {
-						//As soon as something is either matched or excluded we can stop checking.
-						if (audiencesToExcludePattern != null && audiencesToExcludePattern.matcher(audience).matches()) {
-							audienceMatched = false;
-							break;
-						}
+					//As soon as something is either matched or excluded we can stop checking.
+					if (audiencesToExcludePattern != null && audiencesToExcludePattern.matcher(audience).matches()) {
+						audienceMatched = false;
 					}
 				}
 				isIncluded = audienceMatched;
