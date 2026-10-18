@@ -744,6 +744,14 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			if (count($data) == 0) {
 				continue;
 			}
+			if (!empty($this->facetSearchField) && $this->facetSearchField == $field && in_array($field, $this->childDocFields)) {
+				$facetSearchTermLower = strtolower($this->facetSearchTerm);
+				foreach ($data as $index => $facetData) {
+					if (!str_contains(strtolower($facetData['val']), $facetSearchTermLower)) {
+						unset($data[$index]);
+					}
+				}
+			}
 			// Initialize the settings for the current field
 			$list[$field] = [];
 			$list[$field]['field_name'] = $field;
