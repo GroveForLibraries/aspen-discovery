@@ -1060,4 +1060,8 @@ public class RecordInfo {
 	public void setDatabaseId(long recordId) {
 		this.databaseId = recordId;
 	}
+
+	public String getFirstTargetAudience() {
+		return this.targetAudience.iterator().next();
+	}
 }
