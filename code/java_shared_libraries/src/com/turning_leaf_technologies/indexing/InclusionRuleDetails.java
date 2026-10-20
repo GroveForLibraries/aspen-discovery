@@ -152,6 +152,9 @@ class InclusionRuleDetails {
 		if (matchAlliTypes){
 			iType = "any";
 		}
+		if (audience == null) {
+			audience = "";
+		}
 		String audienceKey = audience;
 		if (matchAllAudiences){
 			audienceKey = "all";
