@@ -1062,6 +1062,10 @@ public class RecordInfo {
 	}
 
 	public String getFirstTargetAudience() {
-		return this.targetAudience.iterator().next();
+		if (!this.targetAudience.isEmpty()) {
+			return this.targetAudience.iterator().next();
+		}else{
+			return "";
+		}
 	}
 }
