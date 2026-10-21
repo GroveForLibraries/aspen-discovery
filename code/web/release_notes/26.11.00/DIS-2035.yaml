@@ -1,0 +1,13 @@
+Jira: DIS-2035
+Type: Bug
+Developer: Kodi Lein (KL)
+Contributing Org: Grove For Libraries
+Sponsor:
+GroveRelease: 26.11.00
+CommunityRelease: 26.11.00
+Component: User Lists
+Description:
+  - Add option for libraries and users to hide deleted, withdrawn, or no longer owned items from lists as long as the list only has grouped works on it.
+New Settings:
+  - Library Systems > Catalog Enrichment > Hide List Items No Longer in Catalog
+New Permissions:
