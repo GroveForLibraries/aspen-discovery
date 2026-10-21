@@ -243,12 +243,13 @@ class SearchObject_CloudSourceSearcher extends SearchObject_BaseSearcher{
 
 	//Retreive a specific record - used to retreive bookcovers
 	public function retrieveRecord($id, $index = null) {
+		$sessionCookie = $_COOKIE['aspen_session'] ?? null;
 		$settings = $this->getSettings();
 		//CloudSource uses access tokens for authorization, no other auth process
 		$headers = [
 			'Content-Type: application/vnd.sirsidynix.roa.roaobject.v2+json',
 			'BCWS-Access-Token: ' . $settings->accessToken,
-			'SD-Stats-Session-ID: ' . $_COOKIE['aspen_session']
+			'SD-Stats-Session-ID: ' . $sessionCookie
 		];
 
 		$baseUrl = $settings->apiUrl . '/api/cloudsourcesearch/search/id/' . $index . '/' . $id;
