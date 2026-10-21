@@ -4781,6 +4781,7 @@ class MyAccount_AJAX extends JSON_Action {
 		$interface->assign('library', $patronHomeLibrary);
 		$result['showCostSavings'] = $patronHomeLibrary->enableCostSavings && $patron->enableCostSavings;
 		$result['costSavingsMessage'] = $user->getTotalCostSavingsMessage(true);
+		$interface->assign('disallowReturnDateEdits', $patronHomeLibrary->disallowReturnDateEdits);
 
 		$result['success'] = true;
 		$result['message'] = "";

@@ -184,38 +184,50 @@
 														{$detail.checkOutDate|escape}
 													{/if}
 												</td>
-												<td data-entry-id="{$detail.id}" data-original-date="{$detail.checkInDate}" data-edited-date="{$detail.editedCheckInDate}">
-													{assign var="displayDate" value=$detail.checkInDate}
-													{if !empty($detail.editedCheckInDate)}
-														{assign var="displayDate" value=$detail.editedCheckInDate}
-													{/if}
-													{if empty($detail.checkInDate) && empty($detail.editedCheckInDate)}
-														<div class="editable-return-date-inline">
-															<span class="date-display label label-success">{translate text="Currently Checked Out" isPublicFacing=true}</span>
-															<input type="text" class="date-edit form-control" style="display:none;" value="" placeholder="YYYY-MM-DD">
-														</div>
-													{elseif $detail.checkInDate == -1 && empty($detail.editedCheckInDate)}
-														<div class="editable-return-date">
-															<div class="date-display-wrapper">
-																<span class="date-display text-muted">{translate text="Unknown" isPublicFacing=true}</span>
+												{if empty($disallowReturnDateEdits)}
+													{* Editable version *}
+													<td data-entry-id="{$detail.id}" data-original-date="{$detail.checkInDate}" data-edited-date="{$detail.editedCheckInDate}">
+														{if empty($detail.checkInDate) && empty($detail.editedCheckInDate)}
+															<div class="editable-return-date-inline">
+																<span class="date-display label label-success">{translate text="Currently Checked Out" isPublicFacing=true}</span>
 																<input type="text" class="date-edit form-control" style="display:none;" value="" placeholder="YYYY-MM-DD">
 															</div>
-														</div>
-													{else}
-														<div class="editable-return-date">
-															<div class="date-display-wrapper">
-																<span class="date-display">
-																	{if is_numeric($displayDate)}
-																		{$displayDate|date_format:"%b %d, %Y"}
-																	{else}
-																		{$displayDate|escape}
-																	{/if}
-																</span>
-																<input type="text" class="date-edit form-control" style="display:none;" value="{if is_numeric($displayDate)}{$displayDate|date_format:"%Y-%m-%d"}{else}{/if}" placeholder="YYYY-MM-DD">
+														{elseif $detail.checkInDate == -1 && empty($detail.editedCheckInDate)}
+															<div class="editable-return-date">
+																<div class="date-display-wrapper">
+																	<span class="date-display text-muted">{translate text="Unknown" isPublicFacing=true}</span>
+																	<input type="text" class="date-edit form-control" style="display:none;" value="" placeholder="YYYY-MM-DD">
+																</div>
 															</div>
-														</div>
-													{/if}
-												</td>
+														{else}
+															<div class="editable-return-date">
+																<div class="date-display-wrapper">
+																	<span class="date-display">
+																		{if is_numeric($displayDate)}
+																			{$displayDate|date_format:"%b %d, %Y"}
+																		{else}
+																			{$displayDate|escape}
+																		{/if}
+																	</span>
+																	<input type="text" class="date-edit form-control" style="display:none;" value="{if is_numeric($displayDate)}{$displayDate|date_format:"%Y-%m-%d"}{else}{/if}" placeholder="YYYY-MM-DD">
+																</div>
+															</div>
+														{/if}
+													</td>
+												{else}
+													{* Read-only version *}
+													<td>
+														{if empty($detail.checkInDate) && empty($detail.editedCheckInDate)}
+															<span class="label label-success">{translate text="Currently Checked Out" isPublicFacing=true}</span>
+														{elseif $detail.checkInDate == -1 && empty($detail.editedCheckInDate)}
+															<span class="text-muted">{translate text="Unknown" isPublicFacing=true}</span>
+														{elseif is_numeric($displayDate)}
+															{$displayDate|date_format:"%b %d, %Y"}
+														{else}
+															{$displayDate|escape}
+														{/if}
+													</td>
+												{/if}
 												<td>
 													{if !empty($detail.format)}
 														{$detail.format|replace:',':', '}
