@@ -20,6 +20,7 @@ class SierraSelfRegistrationForm extends DataObject {
 	public $selfRegPcode3;
 	public $selfRegPcode4;
 	public $selfRegPatronMessage;
+	public $selfRegStaffMessage;
 	public $selfRegNoticePref;
 	public $selfRegAgency;
 	public $selfRegGuardianField;
@@ -184,6 +185,13 @@ class SierraSelfRegistrationForm extends DataObject {
 				'label' => 'Patron Message',
 				'description' => 'Patron message to display to self registered patrons',
 				'maxLength' => 35,
+			],
+			'selfRegStaffMessage' => [
+				'property' => 'selfRegStaffMessage',
+				'type' => 'text',
+				'label' => 'Staff Message',
+				'description' => 'Message to display to staff ',
+				'maxLength' => 250,
 			],
 			'selfRegNoticePref' => [
 				'property' => 'selfRegNoticePref',
