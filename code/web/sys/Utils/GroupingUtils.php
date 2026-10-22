@@ -282,3 +282,53 @@ function getSortableDate(?string $str) : ?DateTime {
 	$sortableDateCache[$str] = null;
 	return null;
 }
+
+function getReplacementCost(GroupedWorkSubDriver $recordDriver, String $format, ?String $itemId = null, ?String $barcode = null) : float {
+	require_once ROOT_DIR . '/sys/ReplacementCost.php';
+	$replacementCosts = ReplacementCost::getReplacementCostsByFormat();
+
+	$replacementCostForCheckout = 0;
+	$useDefaultReplacementCost = true;
+	//Check to see if the title has a replacement cost in the record
+	if ($recordDriver instanceof MarcRecordDriver) {
+		$indexingProfile = $recordDriver->getIndexingProfile();
+		if (!empty($indexingProfile->replacementCostSubfield) && $indexingProfile->replacementCostSubfield != ' ' && ((!empty($indexingProfile->itemRecordNumber) && $indexingProfile->itemRecordNumber != ' ') || (!empty($indexingProfile->barcode) && $indexingProfile->barcode != ' '))){
+			//We need the full MARC record to get all the data
+			$marcRecord = $recordDriver->getMarcRecord();
+			if ($marcRecord) {
+				$itemFields = $marcRecord->getFields($indexingProfile->itemTag);
+				/** @var File_MARC_Data_Field $itemField */
+				foreach ($itemFields as $itemField) {
+					$recordNumberMatches = false;
+					if (!empty($indexingProfile->itemRecordNumber) && !empty($itemId)) {
+						$itemRecordNumber = $itemField->getSubfield($indexingProfile->itemRecordNumber);
+						$recordNumberMatches = (!empty($itemRecordNumber) && ($itemRecordNumber->getData() == $itemId));
+					}
+					$barcodeMatches = false;
+					if (!empty($indexingProfile->barcode) && !empty($barcode)) {
+						$itemBarcode = $itemField->getSubfield($indexingProfile->barcode);
+						$barcodeMatches = (!empty($itemBarcode) && ($itemBarcode->getData() == $barcode));
+					}
+					$replacementCost = $itemField->getSubfield($indexingProfile->replacementCostSubfield);
+					if (!empty($replacementCost) && ($recordNumberMatches || $barcodeMatches)) {
+						$replacementCost = $replacementCost->getData();
+						//Remove dollar signs if they are in the field.
+						require_once ROOT_DIR . '/sys/Utils/StringUtils.php';
+						$replacementCost = str_replace(StringUtils::getCurrencySymbol(), '', $replacementCost);
+						if ($replacementCost > 0 && is_numeric($replacementCost)) {
+							$replacementCostForCheckout = $replacementCost;
+							$useDefaultReplacementCost = false;
+						}
+						break;
+					}
+				}
+			}
+			$marcRecord = null;
+		}
+	}
+	$lowerFormat = strtolower($format);
+	if ($useDefaultReplacementCost && array_key_exists($lowerFormat, $replacementCosts)) {
+		$replacementCostForCheckout = $replacementCosts[$lowerFormat];
+	}
+	return $replacementCostForCheckout;
+}

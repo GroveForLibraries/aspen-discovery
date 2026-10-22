@@ -192,4 +192,12 @@ class RecordDriverFactory {
 		// If we got here, something went very wrong:
 		return new AspenError("Problem loading record driver: {$driver}");
 	}
+
+	public static function clearCachedDrivers() {
+		foreach (RecordDriverFactory::$recordDrivers as $recordDriver) {
+			$recordDriver->__destruct();
+			$recordDriver = null;
+		}
+		RecordDriverFactory::$recordDrivers = [];
+	}
 }

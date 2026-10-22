@@ -33,6 +33,7 @@ class GroupedWorkDisplaySetting extends DataObject {
 	public $showRelatedRecordLabels;
 	public $showEditionCovers;
 	public $showEarliestPublicationDateSearchResults;
+	public $showDescriptionInSearchResults;
 
 	// Contents of search
 	public $includeOutOfSystemExternalLinks;
@@ -50,6 +51,10 @@ class GroupedWorkDisplaySetting extends DataObject {
 	public $includeAllRecordsInShelvingFacets;
 	/** @noinspection PhpUnused */
 	public $includeEContentInShelvingLocations;
+	/** @noinspection PhpUnused */
+	public $includeEContentInAvailableAt;
+	/** @noinspection PhpUnused */
+	public $includeEContentInLibrarySystem;
 	public $includeAllRecordsInDateAddedFacets;
 	public $facetCountsToShow;
 	public $facetGroupId;
@@ -672,6 +677,24 @@ class GroupedWorkDisplaySetting extends DataObject {
 						'default' => 1,
 						'forcesReindex' => true,
 					],
+					'includeEContentInAvailableAt' => [
+						'property' => 'includeEContentInAvailableAt',
+						'label' => 'Include eContent in Available At Facet',
+						'description' => 'Define whether all or only physical materials are included in the Available At facet.',
+						'type' => 'checkbox',
+						'hideInLists' => true,
+						'default' => 1,
+						'forcesReindex' => true,
+					],
+					'includeEContentInLibrarySystem' => [
+						'property' => 'includeEContentInLibrarySystem',
+						'label' => 'Include eContent in Library System Facet',
+						'description' => 'Define whether all or only physical materials are included in the Library System facet.',
+						'type' => 'checkbox',
+						'hideInLists' => true,
+						'default' => 1,
+						'forcesReindex' => true,
+					],
 					'includeAllRecordsInDateAddedFacets' => [
 						'property' => 'includeAllRecordsInDateAddedFacets',
 						'type' => 'checkbox',
@@ -783,6 +806,13 @@ class GroupedWorkDisplaySetting extends DataObject {
 						'type' => 'checkbox',
 						'label' => 'Show Earliest Publication Date in Search Results',
 						'description' => 'Show Earliest Publication Date in Search Results when publication dates vary for the work',
+						'default' => true,
+					],
+					'showDescriptionInSearchResults' => [
+						'property' => 'showDescriptionInSearchResults',
+						'type' => 'checkbox',
+						'label' => 'Show Description in Search Results',
+						'description' => 'Show Description in Search Results',
 						'default' => true,
 					],
 					'showIndexedSeriesWithNoveList' => [

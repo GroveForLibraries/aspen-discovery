@@ -6,6 +6,16 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../java_shared_libraries" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/../java_shared_libraries" recursive="false" />
+      </library>
+    </orderEntry>
     <orderEntry type="module" module-name="java_shared_libraries" />
     <orderEntry type="module-library">
       <library>

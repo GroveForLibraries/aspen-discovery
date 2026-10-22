@@ -1,0 +1,14 @@
+Jira: GRV-3
+Type: Enhancement
+Developer: Mark Noble (MDN)
+ContributingOrg: Grove For Libraries
+Sponsor:
+GroveRelease: 26.10.00
+CommunityRelease:
+Component: Administration
+Description:
+  - Update searching of release notes to include Grove Advance functionality.
+  - Update searching of release notes to include the line(s) where the search term was found.
+  - After searching within release notes, highlight the term when clicking on the link to the full release notes.
+NewSettings:
+NewPermissions:

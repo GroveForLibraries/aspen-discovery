@@ -72,6 +72,11 @@ class IlsRecord extends DataObject {
 			self::$preloadedIlsRecords[$type] = [];
 		}
 		if (!array_key_exists($identifier, self::$preloadedIlsRecords[$type])) {
+			while (count(self::$preloadedIlsRecords[$type]) >= 50) {
+				$firstKey = array_key_first(self::$preloadedIlsRecords[$type]);
+				unset(self::$preloadedIlsRecords[$type][$firstKey]);
+			}
+
 			$ilsRecord = new IlsRecord();
 			$ilsRecord->source = $type;
 			$ilsRecord->ilsId = $identifier;

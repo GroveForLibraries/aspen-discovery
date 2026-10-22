@@ -9,8 +9,8 @@ class Throttler {
 	private array $lastRequest = [];
 	//constants for shifting between microseconds and milliseconds for utime
 	// and between seconds and milliseconds for microtime
-	private const int MICRO_PER_MILLI = 1000;
-	private const int MILLI_PER_SEC = 1000;
+	private const MICRO_PER_MILLI = 1000;
+	private const MILLI_PER_SEC = 1000;
 
 	public function __construct(int $requestInterval = -1)
 	{

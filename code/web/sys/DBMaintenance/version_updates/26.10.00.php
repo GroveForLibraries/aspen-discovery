@@ -16,6 +16,46 @@ function getUpdates26_10_00(): array {
 		 ], //name*/
 
 		//mark n
+		'add_validSierraNotificationOptions' => [
+			'title' => 'Add Valid Notification Options to Library Systems',
+			'description' => 'Add Valid Notification Options to Library Systems',
+			'continueOnError' => false,
+			'sql' =>[
+				"ALTER TABLE library ADD COLUMN validSierraNotificationOptions VARCHAR(25) DEFAULT ''"
+			]
+		], //add_validSierraNotificationOptions
+		'showDescriptionInSearchResults' => [
+			'title' => 'Show Description In Search Results',
+			'description' => 'Show Description In Search Results',
+			'continueOnError' => false,
+			'sql' =>[
+				'ALTER TABLE grouped_work_display_settings ADD COLUMN showDescriptionInSearchResults TINYINT(1) DEFAULT 1'
+			]
+		], //showDescriptionInSearchResults
+		'filterPickupLocationsByPType' => [
+			'title' => 'Filter Pickup Locations By PType',
+			'description' => 'Filter Pickup Locations By PType',
+			'continueOnError' => false,
+			'sql' =>[
+				"ALTER TABLE location ADD COLUMN validAsPickupLocationForPTypes TINYTEXT DEFAULT ''"
+			]
+		], //filterPickupLocationsByPType
+		'includeEContentInAvailableAt' => [
+			'title' => 'Add Include eContent in Available at option',
+			'description' => 'Add Include eContent in Available at option to Grouped Work Display Settings',
+			'continueOnError' => false,
+			'sql' =>[
+				'ALTER TABLE grouped_work_display_settings ADD COLUMN includeEContentInAvailableAt TINYINT(1) DEFAULT 1'
+			]
+		], //includeEContentInAvailableAt
+		'includeEContentInLibrarySystem' => [
+			'title' => 'Add Include eContent in Library System option',
+			'description' => 'Add Include eContent in Library System option to Grouped Work Display Settings',
+			'continueOnError' => false,
+			'sql' =>[
+				'ALTER TABLE grouped_work_display_settings ADD COLUMN includeEContentInLibrarySystem TINYINT(1) DEFAULT 1'
+			]
+		], //includeEContentInLibrarySystem
 
 		//kirstien
 		'add_oauth2_user_consents_table' => [
@@ -41,6 +81,15 @@ function getUpdates26_10_00(): array {
 		//add_oauth2_user_consents_table
 
 		//kodi
+		'series_member_user_defined_volume' => [
+			'title' => 'User Defined Volumes for Series Members (V2 Series)',
+			'description' => 'Add column for storing if a series member has a user-defined volume value.',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE series_member ADD COLUMN userDefinedVolume TINYINT(1) NOT NULL DEFAULT 0",
+			],
+		],
+		//series_member_user_defined_volume
 
 		//yanjun
 
@@ -55,6 +104,14 @@ function getUpdates26_10_00(): array {
 		//mark j
 
 		//lucas
+		'reload_generated_covers' => [
+			'title' => 'Reload generated covers',
+			'description' => 'Regenerate generated placeholder covers cached with the previous layout, which could clip title and author text',
+			'continueOnError' => true,
+			'sql' => [
+				"UPDATE bookcover_info SET thumbnailLoaded = 0, mediumLoaded = 0, largeLoaded = 0 WHERE imageSource IN ('default', 'default_cloudsource', 'default_ebscohost')",
+			],
+		], //reload_generated_covers
 
 		//tomas
 
