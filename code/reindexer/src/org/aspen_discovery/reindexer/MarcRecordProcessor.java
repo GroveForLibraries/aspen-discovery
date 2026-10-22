@@ -493,8 +493,21 @@ abstract class MarcRecordProcessor {
 		loadFountasPinnell(groupedWork, record);
 		loadLexileScore(groupedWork, record);
 		groupedWork.addContentRating(getContentRating(record));
-		// set.of() creates an immutable set. If keywordExclusions needs to be modified by using .add() in the future, this will need to be changed
-		Set<String> keywordExclusions = (settings != null && settings.excludePublisherFromKeywordIndex()) ? Set.of("260b", "264b") : Set.of();
+		Set<String> keywordExclusions = new HashSet<>();
+		if (settings != null && settings.excludePublisherFromKeywordIndex()) {
+			keywordExclusions.add("260b");
+			keywordExclusions.add("264b");
+		}
+		String fieldsToSuppress = settings !=null ? settings.getFieldsToSuppress() : null;
+
+		if (fieldsToSuppress != null && !fieldsToSuppress.isEmpty()) {
+			for (String field : fieldsToSuppress.split("\\|")) {
+				String trimmed = field.trim();
+				if (!trimmed.isEmpty()) {
+					keywordExclusions.add(trimmed);
+				}
+			}
+		}
 		groupedWork.addKeywords(MarcUtil.getAllSearchableFields(record, 100, 900, keywordExclusions));
 		groupedWork.addKeywords(MarcUtil.getAllSubfields(record, "010:028", ""));
 		//Settings are nullable for eContent that is in MARC format (i.e. cloudLibrary)
