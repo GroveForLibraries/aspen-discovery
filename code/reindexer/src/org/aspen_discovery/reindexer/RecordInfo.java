@@ -1061,6 +1061,22 @@ public class RecordInfo {
 		this.databaseId = recordId;
 	}
 
+	public HashSet<String> getTargetAudiences() {
+		return targetAudience;
+	}
+
+	private String targetAudiencesAsString = null;
+	public String getTargetAudiencesAsString() {
+		if (targetAudiencesAsString == null) {
+			if (targetAudience.isEmpty()) {
+				targetAudiencesAsString = "";
+			} else {
+				targetAudiencesAsString = String.join(", ", targetAudience);
+			}
+		}
+		return targetAudiencesAsString;
+	}
+
 	public String getFirstTargetAudience() {
 		if (!this.targetAudience.isEmpty()) {
 			return this.targetAudience.iterator().next();
