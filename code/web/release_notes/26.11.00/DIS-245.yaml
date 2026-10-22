@@ -1,0 +1,13 @@
+Jira: DIS-245
+Type: Enhancement
+Developer: Kodi Lein (KL)
+Contributing Org: Grove For Libraries
+Sponsor: Nashville
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Indexing
+Description:
+  - Add ability to suppress MARC fields in the indexing profile.
+New Settings:
+  - ILS Integration > Indexing Profiles > Indexing Options > Field Suppression
+New Permissions:
