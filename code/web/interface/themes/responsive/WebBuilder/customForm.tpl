@@ -8,10 +8,17 @@
 			</div>
 		</div>
 	{/if}
-	{if !empty($introText)}
+	{if !empty($homeLibraryMessage)}
+		<div class="alert alert-info">
+			<p>{$homeLibraryMessage}</p>
+			<a href="{$homeLibraryUrl|escape}">{translate text="Select your home library's catalog" isPublicFacing=true}</a>
+		</div>
+	{elseif !empty($introText)}
 		<div class="alert alert-info">
 			{$introText}
 		</div>
+		{$contents}
+	{else}
+		{$contents}
 	{/if}
-	{$contents}
 </div>

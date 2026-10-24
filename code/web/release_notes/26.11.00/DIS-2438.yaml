@@ -1,0 +1,14 @@
+Jira: DIS-2438
+Type: Enhancement
+Developer: Stephen Wicks (SW)
+Contributing Org: Grove For Libraries
+Sponsor: CLAMS
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Web Builder
+Description:
+  - Add a setting to redirect users to submit a custom form from their home catalog
+New Settings:
+  - Custom form "Require submission from home library interface"
+  - Custom form "Require home library message"
+New Permissions:
