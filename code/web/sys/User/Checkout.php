@@ -159,7 +159,7 @@ class Checkout extends CircEntry {
 		}
 		$checkout['id'] = $checkout['sourceId'];
 		$checkout['ratingData'] = $this->getRatingData();
-		$checkout['coverUrl'] = $this->getCoverUrl();
+		$checkout['coverUrl'] = html_entity_decode($this->getCoverUrl());
 		$checkout['link'] = $this->getLinkUrl();
 		$checkout['linkUrl'] = $this->getLinkUrl();
 		$checkout['title_sort'] = $this->getSortTitle();
@@ -211,53 +211,12 @@ class Checkout extends CircEntry {
 	}
 
 	public function getReplacementCost() : float {
-		require_once ROOT_DIR . '/sys/ReplacementCost.php';
-		$replacementCosts = ReplacementCost::getReplacementCostsByFormat();
-
-		$replacementCostForCheckout = 0;
-		$useDefaultReplacementCost = true;
-		//Check to see if the title has a replacement cost in the record
+		require_once ROOT_DIR . '/sys/Utils/GroupingUtils.php';
 		$recordDriver = $this->getRecordDriver();
-		if ($recordDriver instanceof MarcRecordDriver) {
-			$indexingProfile = $recordDriver->getIndexingProfile();
-			if (!empty($indexingProfile->replacementCostSubfield) && $indexingProfile->replacementCostSubfield != ' ' && !empty($indexingProfile->itemRecordNumber) && $indexingProfile->itemRecordNumber != ' '){
-				//We need the full MARC record to get all the data
-				$marcRecord = $recordDriver->getMarcRecord();
-				if ($marcRecord) {
-					$itemFields = $marcRecord->getFields($indexingProfile->itemTag);
-					/** @var File_MARC_Data_Field $itemField */
-					foreach ($itemFields as $itemField) {
-						$recordNumberMatches = false;
-						if (!empty($indexingProfile->itemRecordNumber)) {
-							$itemRecordNumber = $itemField->getSubfield($indexingProfile->itemRecordNumber);
-							$recordNumberMatches = (!empty($itemRecordNumber) && ($itemRecordNumber->getData() == $this->itemId));
-						}
-						$barcodeMatches = false;
-						if (!empty($indexingProfile->barcode)) {
-							$itemBarcode = $itemField->getSubfield($indexingProfile->barcode);
-							$barcodeMatches = (!empty($itemBarcode) && ($itemBarcode->getData() == $this->barcode));
-						}
-						$replacementCost = $itemField->getSubfield($indexingProfile->replacementCostSubfield);
-						if (!empty($replacementCost) && ($recordNumberMatches || $barcodeMatches)) {
-							$replacementCost = $replacementCost->getData();
-							//Remove dollar signs if they are in the field.
-							require_once ROOT_DIR . '/sys/Utils/StringUtils.php';
-							$replacementCost = str_replace(StringUtils::getCurrencySymbol(), '', $replacementCost);
-							if ($replacementCost > 0 && is_numeric($replacementCost)) {
-								$replacementCostForCheckout = $replacementCost;
-								$useDefaultReplacementCost = false;
-							}
-							break;
-						}
-					}
-				}
-				$marcRecord = null;
-			}
+		if ($recordDriver instanceof GroupedWorkSubDriver) {
+			return getReplacementCost($this->getRecordDriver(), $this->format, $this->itemId, $this->barcode);
+		}else{
+			return 0;
 		}
-		$lowerFormat = strtolower($this->format);
-		if ($useDefaultReplacementCost && array_key_exists($lowerFormat, $replacementCosts)) {
-			$replacementCostForCheckout = $replacementCosts[$lowerFormat];
-		}
-		return $replacementCostForCheckout;
 	}
 }

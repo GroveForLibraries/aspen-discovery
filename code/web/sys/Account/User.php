@@ -677,7 +677,9 @@ class User extends DataObject {
 				$administrationLocation->userId = $this->id;
 				$administrationLocation->find();
 				while ($administrationLocation->fetch()) {
-					$this->_additionalAdministrationLocations[$administrationLocation->locationId] = $locationsList[$administrationLocation->locationId];
+					if (array_key_exists($administrationLocation->locationId, $locationsList)) {
+						$this->_additionalAdministrationLocations[$administrationLocation->locationId] = $locationsList[$administrationLocation->locationId];
+					}
 				}
 			}
 		}
@@ -2474,12 +2476,6 @@ class User extends DataObject {
 			} else {
 				$accountProfileSource = '';
 			}
-			//$accountProfileForSource = new AccountProfile();
-			//$accountProfileForSource->recordSource = $recordSource;
-			//$accountProfileSource = '';
-			//if ($accountProfileForSource->find(true)) {
-			//	$accountProfileSource = $accountProfileForSource->name;
-			//}
 			foreach ($linkedUsers as $linkedUser) {
 				if ($accountProfileSource == $linkedUser->source) {
 					$linkedUserLocation = new Location();
@@ -4780,31 +4776,6 @@ class User extends DataObject {
 		$sections['circulation_reports']->addAction(new AdminAction('Barcode Generator - Disc', 'Create hub EAN-8 barcodes for CDs and DVDs.', '/Report/DiscBarcodeGenerator'), [
 			'Barcode Generators',
 		]);
-		if ($circulationReports) {
-			$sections['circulation_reports']->addAction(new AdminAction('Collection Report', 'View a report of all items for a branch.', '/Report/CollectionReport'), [
-				'View Location Collection Reports',
-				'View All Collection Reports',
-			]);
-			$sections['circulation_reports']->addAction(new AdminAction('Holds Report', 'View a report of holds to be pulled from the shelf for patrons.', '/Report/HoldsReport'), [
-				'View Location Holds Reports',
-				'View All Holds Reports',
-			]);
-			$sections['circulation_reports']->addAction(new AdminAction('Librarian Facebook', 'View images and basic information about MNPS School Librarians', '/Report/LibrarianFacebook'), [
-				'View Librarian Facebook',
-			]);
-			$sections['circulation_reports']->addAction(new AdminAction('Student Barcodes', 'View/print a report of all barcodes for a class.', '/Report/StudentBarcodes'), [
-				'View Location Student Reports',
-				'View All Student Reports',
-			]);
-			$sections['circulation_reports']->addAction(new AdminAction('Student Checkout Report', 'View a report of all checkouts for a given class with filtering to only show overdue items and lost items.', '/Report/StudentReport'), [
-				'View Location Student Reports',
-				'View All Student Reports',
-			]);
-			$sections['circulation_reports']->addAction(new AdminAction('Weeding Report', 'View a collection weeding report for all items for a branch.', '/Report/WeedingReport'), [
-				'View Location Collection Reports',
-				'View All Collection Reports',
-			]);
-		}
 
 		if (array_key_exists('Axis 360', $enabledModules)) {
 			$sections['boundless'] = new AdminSection('Boundless');
@@ -5144,7 +5115,18 @@ class User extends DataObject {
 
 		global $plugins;
 		foreach ($plugins as $plugin) {
-			$sections = array_merge($sections, $plugin->getAdminActions());
+			$pluginSections = $plugin->getAdminActions();
+			if (!empty($pluginSections) && is_array($pluginSections)) {
+				foreach ($pluginSections as $sectionKey => $pluginSection) {
+					if ($pluginSection instanceof AdminSection) {
+						if (isset($sections[$sectionKey])) {
+							$sections[$sectionKey]->actions = array_merge($sections[$sectionKey]->actions, $pluginSection->actions);
+						} else {
+							$sections[$sectionKey] = $pluginSection;
+						}
+					}
+				}
+			}
 		}
 
 		$sorter = function (AdminSection $a, AdminSection $b) {
@@ -5898,7 +5880,7 @@ class User extends DataObject {
 				$this->_twoFactorAuthenticationSetting = null;
 			}else{
 				require_once ROOT_DIR . '/sys/TwoFactorAuthSetting.php';
-				$this->_twoFactorAuthenticationSetting = new TwoFactorAuthSetting();
+				$this->_twoFactorAuthenticationSetting = null;
 
 				// First we should check if they are required by role and have a role that requires 2FA. If so, we will return that setting.
 				$permissionRoles = $this->getRoles();
@@ -5908,43 +5890,56 @@ class User extends DataObject {
 							continue;
 						}
 						$roleSetting = new TwoFactorAuthSetting();
+						$roleSetting->accountProfileId = $this->getAccountProfile()->id;
+						$roleSetting->whereAdd("isEnabled <> 'notAvailable'");
+						$roleSetting->assignToUsersBy = "role";
 						$roleSetting->id = $role->twoFactorAuthSettingId;
-						if ($roleSetting->find(true) && $roleSetting->assignToUsersBy == "role") {
+						if ($roleSetting->find(true)) {
 							$this->_twoFactorAuthenticationSetting = $roleSetting;
 							return $this->_twoFactorAuthenticationSetting;
 						}
 					}
 				}
 
-				// As a backup, we will check if the user is required to use 2FA based on their patron type or account profile.
+				//Next check by patron type and library
+				$twoFaByPatronTypeAndLibrarySettings = new TwoFactorAuthSetting();
+				$twoFaByPatronTypeAndLibrarySettings->accountProfileId = $this->getAccountProfile()->id;
+				$twoFaByPatronTypeAndLibrarySettings->whereAdd("isEnabled <> 'notAvailable'");
+				$twoFaByPatronTypeAndLibrarySettings->assignToUsersBy = 'patronType';
+				$twoFaByPatronTypeAndLibrarySettings->find();
 				$patronType = $this->getPTypeObj();
-				$fallbackSetting = new TwoFactorAuthSetting();
-				if (!empty($patronType) && !empty($patronType->twoFactorAuthSettingId) && $patronType->twoFactorAuthSettingId != -1) {
-					$fallbackSetting->id = $patronType->twoFactorAuthSettingId;
-				} else {
-					$accountProfile = $this->getAccountProfile();
-					if (!empty($accountProfile)) {
-						$fallbackSetting->accountProfileId = $accountProfile->id;
+				while ($twoFaByPatronTypeAndLibrarySettings->fetch()) {
+					/** @noinspection PhpUndefinedFieldInspection */
+					$ptypesForSetting = $twoFaByPatronTypeAndLibrarySettings->ptypes;
+					if (!empty($ptypesForSetting)) {
+						$isPTypeValid = array_key_exists($patronType->id, $ptypesForSetting);
+					}else{
+						$isPTypeValid = true;
+					}
+					/** @noinspection PhpUndefinedFieldInspection */
+					$librariesForSetting = $twoFaByPatronTypeAndLibrarySettings->libraries;
+					if (!empty($librariesForSetting)) {
+						$isLibraryValid = array_key_exists($this->getHomeLibrary()->libraryId, $librariesForSetting);
+					}else{
+						$isLibraryValid = true;
+					}
+					if ($isPTypeValid && $isLibraryValid) {
+						$this->_twoFactorAuthenticationSetting = $twoFaByPatronTypeAndLibrarySettings;
+						return $this->_twoFactorAuthenticationSetting;
 					}
 				}
 
-				if ($fallbackSetting->find(true)) {
-					$this->_twoFactorAuthenticationSetting = $fallbackSetting;
-				} else {
-					$this->_twoFactorAuthenticationSetting = null;
+				// Finally check based on the account profile.
+				$accountProfileSetting = new TwoFactorAuthSetting();
+				$accountProfileSetting->whereAdd("isEnabled <> 'notAvailable'");
+				$accountProfileSetting->assignToUsersBy = 'accountProfile';
+				$accountProfileSetting->accountProfileId = $this->getAccountProfile()->id;
+				if ($accountProfileSetting->find(true)) {
+					$this->_twoFactorAuthenticationSetting = $accountProfileSetting;
 				}
 			}
 		}
 		return $this->_twoFactorAuthenticationSetting;
-	}
-
-	public function get2FAStatusForPType() : bool {
-		$twoFactorAuthSetting = $this->getTwoFactorAuthenticationSetting();
-		if ($twoFactorAuthSetting == null) {
-			return false;
-		}else{
-			return $twoFactorAuthSetting->isEnabled != 'notAvailable';
-		}
 	}
 
 	public function is2FARequired() : bool {
@@ -5959,9 +5954,9 @@ class User extends DataObject {
 	public function get2FAStatus() : bool {
 		$status = $this->twoFactorStatus;
 		if ($status == '1') {
-			//Make sure that 2-factor authentication has not been disabled by ptype even though the user previously opted in
-			$twoFactorAuthByPType = $this->get2FAStatusForPType();
-			if ($twoFactorAuthByPType) {
+			//Make sure that 2-factor authentication has not been disabled even though the user previously opted in
+			$twoFactorAuthSettings = $this->getTwoFactorAuthenticationSetting();
+			if ($twoFactorAuthSettings != null) {
 				return true;
 			}
 		}

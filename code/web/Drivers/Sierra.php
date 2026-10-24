@@ -321,7 +321,6 @@ class Sierra extends AbstractIlsDriver {
 				} else {
 					// inn-reach status
 					$isInnReach = true;
-					$curHold->source = $library->interLibraryLoanName;
 					$recordStatus = $recordItemStatus;
 				}
 			}
@@ -436,14 +435,13 @@ class Sierra extends AbstractIlsDriver {
 				if ($titleAuthor !== false) {
 					$curHold->title = $titleAuthor['title'];
 					$curHold->author = $titleAuthor['author'];
-					$curHold->format = 'Unknown';
 				} else {
 					$curHold->title = 'Unknown';
 					$curHold->author = 'Unknown';
 				}
+				$curHold->format = 'Unknown';
 				$curHold->sourceId = '';
 				$curHold->recordId = '';
-				$curHold->source = $library->interLibraryLoanName;
 			} else {
 				///////////////
 				// ILS HOLD
@@ -845,7 +843,6 @@ class Sierra extends AbstractIlsDriver {
 					$curCheckout->barcode = $entry->barcode;
 				}
 				if (str_contains($entry->item, "@")) {
-					$curCheckout->source = $library->interLibraryLoanName;
 					$curCheckout->sourceId = '';
 					$curCheckout->recordId = '';
 					$titleAuthor = $this->getTitleAndAuthorForInnReachCheckout($checkoutId);
@@ -2650,32 +2647,60 @@ class Sierra extends AbstractIlsDriver {
 		}
 	}
 
-	private function getValidNotificationOptions($patron = null) : array {
+	public function getValidNotificationOptions(?User $patron = null) : array {
 		$sierraDnaConnection = $this->connectToSierraDNA();
-		if ($patron != null) {
-			$patronId = $patron->unique_ils_id;
-			$getNotificationOptionsStmt = "SELECT nm.code, nm.name, (pv.notification_medium_code IS NOT NULL) AS selected 
-			FROM sierra_view.notification_medium_property_myuser AS nm
-			LEFT JOIN sierra_view.patron_view AS pv ON pv.notification_medium_code = nm.code AND pv.record_num = $1 ORDER BY nm.display_order;";
-			$getNotificationOptionsRS = pg_query_params($sierraDnaConnection, $getNotificationOptionsStmt, [$patronId]);
-		} else {
-			$getNotificationOptionsStmt = "SELECT code, name FROM sierra_view.notification_medium_property_myuser ORDER BY display_order;";
-			$getNotificationOptionsRS = pg_query($sierraDnaConnection, $getNotificationOptionsStmt);
-		}
-		if ($getNotificationOptionsRS === false) {
-			return [];
-		} else {
-			$options = [];
-			while ($curRow = pg_fetch_array($getNotificationOptionsRS, NULL, PGSQL_ASSOC)) {
-				if ($patron != null) {
-					$options[$curRow['code']]['name'] = $curRow['name'];
-					$options[$curRow['code']]['selected'] = $curRow['selected'] == 't';
-				} else {
-					$options[$curRow['code']] = $curRow['name'];
+		$options = [];
+		if ($sierraDnaConnection) {
+			if ($patron != null) {
+				$patronId = $patron->unique_ils_id;
+				$getNotificationOptionsStmt = "SELECT nm.code, nm.name, (pv.notification_medium_code IS NOT NULL) AS selected 
+				FROM sierra_view.notification_medium_property_myuser AS nm
+				LEFT JOIN sierra_view.patron_view AS pv ON pv.notification_medium_code = nm.code AND pv.record_num = $1 ORDER BY nm.display_order;";
+				$getNotificationOptionsRS = pg_query_params($sierraDnaConnection, $getNotificationOptionsStmt, [$patronId]);
+			} else {
+				$getNotificationOptionsStmt = "SELECT code, name FROM sierra_view.notification_medium_property_myuser ORDER BY display_order;";
+				$getNotificationOptionsRS = pg_query($sierraDnaConnection, $getNotificationOptionsStmt);
+			}
+			if ($getNotificationOptionsRS !== false) {
+				while ($curRow = pg_fetch_array($getNotificationOptionsRS, NULL, PGSQL_ASSOC)) {
+					if ($patron != null) {
+						$options[$curRow['code']]['name'] = $curRow['name'];
+						$options[$curRow['code']]['selected'] = $curRow['selected'] == 't';
+					} else {
+						$options[$curRow['code']] = $curRow['name'];
+					}
 				}
 			}
-			return $options;
+		}else{
+			$options = [
+				'-' => [
+					'name' => '---',
+					'selected' => false
+				],
+				'z' => [
+					'name' => 'Email',
+					'selected' => true
+				],
+				'a' => [
+					'name' => 'Print',
+					'selected' => false
+				],
+				'p' => [
+					'name' => 'Phone',
+					'selected' => false
+				],
+			];
 		}
+		if ($patron) {
+			$optionFilter = $patron->getHomeLibrary() == null ? '' : $patron->getHomeLibrary()->validSierraNotificationOptions;
+			if (!empty($optionFilter)) {
+				$optionFilter = explode('|', $optionFilter);
+				$options = array_filter($options, function ($optionCode) use ($optionFilter) {
+					return in_array($optionCode, $optionFilter);
+				}, ARRAY_FILTER_USE_KEY);
+			}
+		}
+		return $options;
 	}
 
 	/**

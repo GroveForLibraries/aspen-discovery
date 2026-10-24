@@ -773,11 +773,18 @@ public class SymphonyExportMain {
 		File[] exportedMarcFiles = marcExportPath.listFiles((dir, name) -> name.endsWith("mrc") || name.endsWith("marc"));
 		ArrayList<File> filesToProcess = new ArrayList<>();
 		File latestFile = null;
+		File ordersFile = null;
 		long latestMarcFile = 0;
 		boolean hasFullExportFile = false;
 		File fullExportFile = null;
 		if (exportedMarcFiles != null){
 			for (File exportedMarcFile : exportedMarcFiles) {
+				//orders.mrc handling, don't delete
+				if (exportedMarcFile.getName().equals("orders.mrc")){
+					ordersFile = exportedMarcFile;
+					continue;
+				}
+				//Full export file handling
 				//Remove any files that are older than the last time we processed files.
 				if (exportedMarcFile.lastModified() / 1000 < lastUpdateFromMarc){
 					if (exportedMarcFile.delete()){
@@ -788,7 +795,7 @@ public class SymphonyExportMain {
 						logEntry.saveResults();
 					}
 				}else{
-					if (exportedMarcFile.lastModified() / 1000 > latestMarcFile){
+					if (exportedMarcFile.lastModified() > latestMarcFile){
 						latestMarcFile = exportedMarcFile.lastModified();
 						latestFile = exportedMarcFile;
 					}
@@ -802,6 +809,11 @@ public class SymphonyExportMain {
 			fullExportFile = latestFile;
 		}
 
+		//Add orders.mrc to filesToProcess if we have a full export file
+		if (hasFullExportFile && ordersFile != null && ordersFile.length() > 0){
+			filesToProcess.add(ordersFile);
+		}
+
 		//Get a list of marc deltas since the last marc record
 		File marcDeltaPath = new File(marcExportPath.getParentFile() + "/marc_delta");
 
@@ -811,6 +823,8 @@ public class SymphonyExportMain {
 		//process unzipped files(marcExportPath)
 		File[] exportedMarcDeltaFiles = marcDeltaPath.listFiles((dir, name) -> name.endsWith("mrc") || name.endsWith("marc"));
 		if (exportedMarcDeltaFiles != null && exportedMarcDeltaFiles.length > 0){
+			//Sort the files to process by date
+			Arrays.sort(exportedMarcDeltaFiles, Comparator.comparingLong(File::lastModified));
 			for (File exportedMarcDeltaFile : exportedMarcDeltaFiles) {
 				if (exportedMarcDeltaFile.lastModified() / 1000 < lastUpdateFromMarc){
 					if (exportedMarcDeltaFile.delete()){
@@ -826,8 +840,6 @@ public class SymphonyExportMain {
 					}
 				}
 			}
-			//Sort the files to process by date
-			Arrays.sort(exportedMarcDeltaFiles, Comparator.comparingLong(File::lastModified));
 		}
 
 		if (!filesToProcess.isEmpty()){
@@ -1014,7 +1026,8 @@ public class SymphonyExportMain {
 			logEntry.saveResults();
 
 			String lastRecordProcessed = "";
-			if (hasFullExportFile && curBibFile.equals(fullExportFile) && indexingProfile.getLastChangeProcessed() > 0){
+			boolean isFullExportFile = hasFullExportFile && curBibFile.equals(fullExportFile);
+			if (isFullExportFile && indexingProfile.getLastChangeProcessed() > 0){
 				logEntry.addNote("Skipping the first " + indexingProfile.getLastChangeProcessed() + " records because they were processed previously see (Last Record ID Processed for the Indexing Profile).");
 				logEntry.saveResults();
 			}
@@ -1034,7 +1047,7 @@ public class SymphonyExportMain {
 						DataField marc245 = curBib.getDataField(245);
 						boolean has245 = marc245 != null;
 						RecordIdentifier recordIdentifier = recordGroupingProcessor.getPrimaryIdentifierFromMarcRecord(curBib, indexingProfile);
-						if (hasFullExportFile && curBibFile.equals(fullExportFile) && has245 && (numRecordsRead < indexingProfile.getLastChangeProcessed())) {
+						if (isFullExportFile && has245 && (numRecordsRead < indexingProfile.getLastChangeProcessed())) {
 							//We're skipping this record because we are doing a full export that got paused part way through
 							if (recordIdentifier != null) {
 								recordGroupingProcessor.removeExistingRecord(recordIdentifier.getIdentifier());
@@ -1100,7 +1113,9 @@ public class SymphonyExportMain {
 								deleteRecord = true;
 							}
 							lastIdentifier = recordIdentifier;
-							indexingProfile.setLastChangeProcessed(numRecordsRead);
+							if (isFullExportFile){
+								indexingProfile.setLastChangeProcessed(numRecordsRead);
+							}
 							if (deleteRecord) {
 								RemoveRecordFromWorkResult result = recordGroupingProcessor.removeRecordFromGroupedWork(indexingProfile.getName(), recordIdentifier.getIdentifier());
 								if (result.reindexWork) {
@@ -1118,19 +1133,21 @@ public class SymphonyExportMain {
 					}
 					if (numRecordsRead % 250 == 0) {
 						logEntry.saveResults();
-						indexingProfile.updateLastChangeProcessed(dbConn, logEntry);
+						if (isFullExportFile) {
+							indexingProfile.updateLastChangeProcessed(dbConn, logEntry);
+						}
 					}
 				}
 				marcFileStream.close();
 
-				if (hasFullExportFile){
+				if (isFullExportFile){
 					indexingProfile.setLastChangeProcessed(0);
 					indexingProfile.updateLastChangeProcessed(dbConn, logEntry);
 					logEntry.addNote("Updated " + numRecordsRead + " records");
 					logEntry.saveResults();
 				}
 
-				if (!logEntry.hasErrors()) {
+				if (!logEntry.hasErrors() && !curBibFile.getName().equals("orders.mrc")) {
 					// Delete the file if we did not have errors processing the file.
 					if (!curBibFile.delete()) {
 						logEntry.addNote("Could not delete " + curBibFile + " after processing");

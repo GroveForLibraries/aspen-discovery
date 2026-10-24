@@ -291,6 +291,7 @@ class Library extends DataObject {
 	public $workPhoneField;
 	public $showCellphoneInProfile;
 	public $showNoticeTypeInProfile;
+	public $validSierraNotificationOptions;
 	public $symphonyDefaultPhoneField;
 	public $symphonyNoticeCategoryNumber;
 	public $symphonyNoticeCategoryOptions;
@@ -2114,6 +2115,17 @@ class Library extends DataObject {
 								'default' => 0,
 								'permissions' => ['Library ILS Connection'],
 								'relatedIls' => ['carlx', 'polaris', 'sierra', 'symphony'],
+							],
+							'validSierraNotificationOptions' => [
+								'property' => 'validSierraNotificationOptions',
+								'type' => 'text',
+								'maxLength' => 25,
+								'label' => 'Valid Sierra Notification Options',
+								'description' => 'A pipe delimited list of valid notification codes to show to the patron (must also be active in Sierra).',
+								'note' => 'Separate valid codes with pipes, blank will include all values',
+								'hideInLists' => true,
+								'permissions' => ['Library ILS Connection'],
+								'relatedIls' => ['sierra'],
 							],
 							'symphonyDefaultPhoneField' => [
 								'property' => 'symphonyDefaultPhoneField',
@@ -7118,6 +7130,8 @@ class Library extends DataObject {
 			foreach ($allAccountProfiles as $accountProfileInfo) {
 				if ($accountProfileInfo['accountProfile']->id == $this->accountProfileId) {
 					$activeIls = $accountProfileInfo['accountProfile']->ils;
+					global $interface;
+					$interface->assign('activeIls', $activeIls);
 					$structure = $this->filterPropertiesByILS($activeIls, $structure);
 					break;
 				}
