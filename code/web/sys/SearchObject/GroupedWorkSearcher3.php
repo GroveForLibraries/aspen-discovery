@@ -25,7 +25,8 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		'owning_location',
 		'shelf_location',
 		'target_audience',
-		'target_audience_full'
+		'target_audience_full',
+		'itype'
 	];
 
 	public function getSolrConnector($indexUrl) : GroupedWorksSolrConnector3 {
