@@ -9,6 +9,8 @@ class WebResourcesSetting extends DataObject
 	public $id;
 	public $name;
 	public $indexAtoZ;
+	public $showFilterOptionsListing;
+	public $showFilterOptionsAtoZ;
 
 	private $_libraries;
 	private $_customWebResourcesList;
@@ -52,6 +54,13 @@ class WebResourcesSetting extends DataObject
 						'label' => 'The Resource Listing Page can be found at',
 						'readOnly' => true,
 					],
+					'showFilterOptionsListing' => [
+						'property' => 'showFilterOptionsListing',
+						'type' => 'checkbox',
+						'label' => 'Show Filter Options',
+						'description' => 'Whether to show filter options on the resource listing page.',
+						'defaultValue' => true,
+					],
 				]
 			],
 			'aToZSection' => [
@@ -65,6 +74,13 @@ class WebResourcesSetting extends DataObject
 						'type' => 'url',
 						'label' => 'The A-Z Resources Page can be found at',
 						'readOnly' => true,
+					],
+					'showFilterOptionsAtoZ' => [
+						'property' => 'showFilterOptionsAtoZ',
+						'type' => 'checkbox',
+						'label' => 'Show Filter Options',
+						'description' => 'Whether to show filter options on the resource A to Z page.',
+						'defaultValue' => true,
 					],
 					'descriptionAtoZ' => [
 						'property' => 'descriptionAtoZ',
@@ -250,20 +266,21 @@ class WebResourcesSetting extends DataObject
 	}
 
 	public function saveLibraries(): void {
-		if (isset($this->_libraries) && is_array($this->_libraries)) {
-			$this->clearLibraries();
+		// Treat an unset value as "no libraries selected" when saving from the form
+		$selected = (isset($this->_libraries) && is_array($this->_libraries)) ? $this->_libraries : [];
 
-			foreach ($this->_libraries as $libraryId) {
-				$library = new Library();
-				$library->libraryId = $libraryId;
-				$library->find();
-				while ($library->fetch()){
-					$library->webResourcesSettingId = $this->id;
-					$library->update();
-				}
+		$this->clearLibraries();
+
+		foreach ($selected as $libraryId) {
+			$library = new Library();
+			$library->libraryId = $libraryId;
+			$library->find();
+			while ($library->fetch()) {
+				$library->webResourcesSettingId = $this->id;
+				$library->update();
 			}
-			unset($this->_libraries);
 		}
+		unset($this->_libraries);
 	}
 
 	public function saveAtoZIndexOption(): void {
@@ -340,10 +357,11 @@ class WebResourcesSetting extends DataObject
 	}
 
 	private function clearLibraries(): void {
-		//Delete links to the libraries
+		//Reset links to the libraries
 		$library = new Library();
 		$library->webResourcesSettingId = $this->id;
-		while ($library->fetch()){
+		$library->find();
+		while ($library->fetch()) {
 			$library->webResourcesSettingId = "-1";
 			$library->update();
 		}

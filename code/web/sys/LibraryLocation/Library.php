@@ -7432,4 +7432,12 @@ class Library extends DataObject {
 		}
 		return $config;
 	}
+
+	public function getLibraryWebResourceSettings() {
+		require_once ROOT_DIR . '/sys/WebBuilder/WebResourcesSetting.php';
+		$libraryResourceSettings = new WebResourcesSetting();
+		$libraryResourceSettings->id = $this->webResourcesSettingId;
+		$libraryResourceSettings->find(true);
+		return $libraryResourceSettings;
+	}
 }
