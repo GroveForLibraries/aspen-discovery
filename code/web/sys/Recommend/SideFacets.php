@@ -263,6 +263,28 @@ class SideFacets implements RecommendationInterface {
 				$sideFacets[$facetKey]['locked'] = array_key_exists($facetKey, $lockedFacets);
 				$sideFacets[$facetKey]['canLock'] = $facetSetting->canLock;
 			}
+		} elseif ($_REQUEST['action'] == 'ResourcesList' || $_REQUEST['action'] == 'ResourcesAtoZ') {
+			//Process other searchers to add more facet popup
+			foreach ($sideFacets as $facetKey => $facet) {
+				/** @var FacetSetting $facetSetting */
+				$facetSetting = $this->facetSettings[$facetKey];
+
+				if ($facet['field_name'] == "search_category" || $facet['field_name'] == "website_name") {
+					unset($sideFacets[$facetKey]);
+					continue;
+				}
+				if ($facet['field_name'] == 'scope_has_related_records') {
+					foreach ($facet['list'] as $facetItem) {
+						if ($this->isConsortialCatalog($facetItem['value'])) {
+							unset($sideFacets[$facetKey]['list'][$facetItem['value']]);
+						} else {
+							$sideFacets[$facetKey]['list'][$facetItem['value']]['display'] = $this->getLibraryNameFromScopeValue($facetItem['value']);
+						}
+					}
+				}
+
+				$sideFacets = $this->applyFacetSettings($facetKey, $sideFacets, $facetSetting, $lockedFacets);
+			}
 		} else {
 			//Process other searchers to add more facet popup
 			foreach ($sideFacets as $facetKey => $facet) {
@@ -488,5 +510,23 @@ class SideFacets implements RecommendationInterface {
 		}
 		return $applied + $other;
 
+	}
+
+	private function getLibraryNameFromScopeValue($librarySubdomain) {
+		$library = new Library();
+		$library->subdomain = $librarySubdomain;
+		if ($library->find(true)) {
+			return $library->displayName;
+		}
+		return $librarySubdomain;
+	}
+
+	private function isConsortialCatalog($librarySubdomain): bool {
+		$library = new Library();
+		$library->subdomain = $librarySubdomain;
+		if ($library->find(true)) {
+			return $library->isConsortialCatalog;
+		}
+		return 0;
 	}
 }

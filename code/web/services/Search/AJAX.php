@@ -563,14 +563,30 @@ class AJAX extends JSON_Action {
 			]),
 		];
 
-		$searchObject = SearchObjectFactory::initSearchObject();
-		/** @var SearchObject_BaseSearcher|null $activeSearch */
-		$activeSearch = $searchObject->loadLastSearch();
-		if ($activeSearch === null) {
-			$response['message'] = 'Could not load search for which to clear locked filters.';
-			return $response;
+		//Allowlist of sources that can be cleared without a saved search
+		$allowedSources = ['WebResources'];
+		$searchSource = $_REQUEST['searchSourceSpecial'] ?? '';
+
+		if (!empty($searchSource)) {
+			if (!in_array($searchSource, $allowedSources, true)) {
+				$response['message'] = 'Invalid search source.';
+				return $response;
+			}
+			//Build the searcher directly. No saved search needed
+			$searchObject = SearchObjectFactory::initSearchObject($searchSource);
+			$lockSection = $searchObject->getSearchName();
+		} else {
+			//Existing behavior for normal searches
+			$searchObject = SearchObjectFactory::initSearchObject();
+			/** @var SearchObject_BaseSearcher|null $activeSearch */
+			$activeSearch = $searchObject->loadLastSearch();
+			if ($activeSearch === null) {
+				$response['message'] = 'Could not load search for which to clear locked filters.';
+				return $response;
+			}
+			$lockSection = $activeSearch->getSearchName();
 		}
-		$lockSection = $activeSearch->getSearchName();
+
 		$isLoggedIn = UserAccount::isLoggedIn();
 		$user = $isLoggedIn ? UserAccount::getActiveUserObj() : null;
 
@@ -580,7 +596,6 @@ class AJAX extends JSON_Action {
 			$lockedFacets = $_SESSION['lockedFilters'] ?? [];
 		}
 
-		// Nothing to clear for this search type.
 		if (!isset($lockedFacets[$lockSection])) {
 			$response['success'] = true;
 			$response['message'] = '';

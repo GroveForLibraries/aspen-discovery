@@ -403,10 +403,13 @@ AspenDiscovery.Searches = (function(){
 			return false;
 		},
 
-		clearAllFiltersAndUnlock: function (removeAllFiltersUrl) {
+		clearAllFiltersAndUnlock: function (removeAllFiltersUrl, searchSourceSpecial) {
 			event.stopPropagation();
 			var url = Globals.path + "/Search/AJAX";
 			var params = "method=clearAllLockedFacets";
+			if (searchSource) {
+				params += "&searchSourceSpecial=" + encodeURIComponent(searchSourceSpecial);
+			}
 			var fullUrl = url + "?" + params;
 			$.getJSON(fullUrl,
 				function(data) {

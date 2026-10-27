@@ -92,6 +92,14 @@ class WebResourceRecordDriver extends IndexRecordDriver {
 		return $bookCoverUrl;
 	}
 
+	public function opensInNewTab(): bool {
+		return $this->webResource->openInNewTab;
+	}
+
+	public function isFeatured(): bool {
+		return $this->webResource->featured;
+	}
+
 	public function getModule(): string {
 		return 'WebBuilder';
 	}
