@@ -1,0 +1,14 @@
+Jira: DIS-2984
+Type: Enhancement
+Developer: Kirstien Kroeger (KK)
+Contributing Org: Grove For Libraries
+Sponsor: Grove For Libraries
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: APIs, Aspen LiDA
+Description:
+  - In the System API, update getLocations to include all locations instead of just the branches for the specific library system.
+  - In General Settings, add a new setting to allow users to see all locations in the system or only the branches for their specific library system.
+New Settings:
+  - Aspen LiDA > General Settings > Show only local system branches on All Locations screen
+New Permissions:
