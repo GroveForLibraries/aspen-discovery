@@ -531,7 +531,7 @@ public class MarcRecordFormatClassifier {
 			}else if (titleMedium.contains("large print")){
 				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 245h", 2);}
 				printFormats.add("LargePrint");
-			}else if (titleMedium.contains("book club kit")){
+			}else if (titleMedium.contains("book club kit") || (titleMedium.contains("book discussion") && titleMedium.contains("kit"))){
 				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BookClubKit based on 245h", 2);}
 				printFormats.add("BookClubKit");
 			}else if (titleMedium.contains("ebook")){
