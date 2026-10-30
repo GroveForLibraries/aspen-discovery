@@ -124,27 +124,42 @@ class SystemAPI extends AbstractAPI {
 		$return = [
 			'success' => true,
 			'locations' => [],
+			'all' => [],
 		];
-		$location = new Location();
+		$systemLocation = new Location();
 		if($library) {
-			$location->libraryId = $library->libraryId;
+			$systemLocation->libraryId = $library->libraryId;
 		}
-		$location->showInLocationsAndHoursList = 1;
-		$location->orderBy('isMainBranch DESC, displayName');
-		$location->find();
-		while ($location->fetch()) {
-			$return['locations'][$location->locationId] = $location->getApiInfo();
+		$systemLocation->showInLocationsAndHoursList = 1;
+		$systemLocation->orderBy('isMainBranch DESC, displayName');
+		$systemLocation->find();
+		while ($systemLocation->fetch()) {
+			$return['locations'][$systemLocation->locationId] = $systemLocation->getApiInfo();
+		}
+
+		$allLocations = new Location();
+		$allLocations->showInLocationsAndHoursList = 1;
+		$allLocations->orderBy('isMainBranch DESC, displayName');
+		$allLocations->find();
+		while ($allLocations->fetch()) {
+			$return['all'][$allLocations->locationId] = $allLocations->getApiInfo();
 		}
 
 		$userLatitude = $_GET['latitude'] ?? null;
 		$userLongitude = $_GET['longitude'] ?? null;
 		require_once ROOT_DIR . '/services/API/GreenhouseAPI.php';
 		$greenhouseApi = new GreenhouseAPI();
-		foreach ($return['locations'] as $location) {
-			$return['locations'][$location['locationId']]['distance'] = null;
-			if($userLongitude && $userLatitude && $location['longitude'] !== 0 && $location['latitude'] !== 0) {
-				$return['locations'][$location['locationId']]['distance'] = $greenhouseApi->findDistance($userLongitude, $userLatitude, $location['longitude'], $location['latitude'], $location['unit']);
+		foreach ([
+					 'locations',
+					 'all'
+				 ] as $locationGroup) {
+			foreach ($return[$locationGroup] as &$location) {
+				$location['distance'] = null;
+				if ($userLongitude && $userLatitude && $location['longitude'] !== 0 && $location['latitude'] !== 0) {
+					$location['distance'] = $greenhouseApi->findDistance($userLongitude, $userLatitude, $location['longitude'], $location['latitude'], $location['unit']);
+				}
 			}
+			unset($location);
 		}
 
 		return $return;

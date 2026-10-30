@@ -7055,10 +7055,13 @@ class Library extends DataObject {
 			$apiInfo['generalSettings']['autoRotateCard'] = 0;
 			$apiInfo['enableSelfRegistrationInApp'] = 0;
 			$apiInfo['showMoreInfoBtn'] = 0;
+			$apiInfo['showLocalBranchesOnly'] = 1;
 		} else {
 			$apiInfo['generalSettings']['autoRotateCard'] = $generalSettings->autoRotateCard ?? 0;
 			$apiInfo['enableSelfRegistrationInApp'] = $generalSettings->enableSelfRegistration ?? 0;
 			$apiInfo['showMoreInfoBtn'] = (int)$generalSettings->showMoreInfoBtn ?? 0;
+			$apiInfo['showLocalBranchesOnly'] = (int)$generalSettings->showOnlyLocalBranches ?? 1;
+
 		}
 
 		$apiInfo['hasEventSettings'] = $this->hasEventSettings();
