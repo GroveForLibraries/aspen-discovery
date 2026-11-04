@@ -18,6 +18,14 @@ function getUpdates26_11_00(): array {
 		//mark n
 
 		//kirstien
+		'add_enable_location_change_lida' => [
+			'title' => 'Add setting to allow users to change their active location in Aspen LiDA',
+			'description' => 'Add setting to allow users to change their active location in Aspen LiDA.',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE aspen_lida_general_settings ADD COLUMN enableLocationChange TINYINT(1) NOT NULL DEFAULT 0"
+			]
+		], //add_enable_location_change_lida
 		'add_show_all_locations_lida' => [
 			'title' => 'Add setting to show all locations in Aspen LiDA',
 			'description' => 'Add setting to show all locations in Aspen LiDA instead of just the branches for the users library system.',
@@ -69,7 +77,7 @@ function getUpdates26_11_00(): array {
 		//galen
 
 		//chloe
-	
+
 		//pedro
 
 		//mark j

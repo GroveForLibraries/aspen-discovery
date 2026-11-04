@@ -7,6 +7,7 @@ class GeneralSetting extends DataObject {
 	public $autoRotateCard;
 	public $enableSelfRegistration;
 	public $showMoreInfoBtn;
+	public $enableLocationChange;
 	public $showOnlyLocalBranches;
 
 	private $_libraries;
@@ -55,6 +56,12 @@ class GeneralSetting extends DataObject {
 				'note' => 'This button opens up an in-app Aspen Discovery session to see additional record information.',
 				'description' => 'Whether or not to display a More Info button in Aspen LiDA on the Grouped Work screen.',
 				'hideInLists' => true,
+			],
+			'enableLocationChange' => [
+				'property' => 'enableLocationChange',
+				'type' => 'checkbox',
+				'label' => 'Enable changing the location a user is active in on the Location screen',
+				'description' => 'Whether or not to allow users to change the location a user is active in on the Location screen.',
 			],
 			'showOnlyLocalBranches' => [
 				'property' => 'showOnlyLocalBranches',
