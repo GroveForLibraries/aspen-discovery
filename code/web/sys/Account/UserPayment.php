@@ -397,37 +397,55 @@ class UserPayment extends DataObject {
 		$error = '';
 		$message = '';
 		if (empty($queryParams['INVNUM'])) {
-			$error = 'No Payment ID was provided, could not complete the payment';
+			$error = translate([
+				'text' => 'No Payment ID was provided, could not complete the payment',
+				'isPublicFacing' => true,
+			]);
 		} else {
-			$paymentId = $queryParams['INVNUM'];
 			$userPayment = new UserPayment();
-			$userPayment->id = $paymentId;
+			$userPayment->id = $queryParams['INVNUM'];
 			if ($userPayment->find(true)) {
-				if ($userPayment->error || $userPayment->completed || $userPayment->cancelled) {
-					if ($userPayment->error) {
-						$userPayment->message .= "This payment had an error. ";
-					}else if ($userPayment->completed) {
-						$userPayment->message .= "This payment was already marked completed. ";
-					}else if ($userPayment->cancelled) {
-						$userPayment->message .= "This payment was already marked cancelled. ";
-					}
-					$userPayment->error = true;
+				if ($userPayment->completed) {
+					$success = true;
+					$message = translate([
+						'text' => 'This payment was already marked completed. ',
+						'isPublicFacing' => true,
+					]);
 				} else {
-					$result = $queryParams['RESULT'];
-					$message = $queryParams['RESPMSG'];
-					$amountPaid = $queryParams['AMT'];
-					$troutD = $queryParams['TROUTD'];
-					$authCode = $queryParams['AUTHCODE'];
-					$ccNumber = $queryParams['CCNUMBER'];
-					$userPayment->transactionId = $troutD;
-					if ($amountPaid != $userPayment->totalPaid) {
-						$userPayment->message = "Payment amount did not match, was $userPayment->totalPaid, paid $amountPaid. ";
-						$userPayment->totalPaid = $amountPaid;
-					}
+					$chargeResult = $queryParams['RESULT'] ?? null;
+					$respMsg = $queryParams['RESPMSG'] ?? '';
+					$amountPaid = $queryParams['AMT'] ?? '';
+					$troutD = $queryParams['TROUTD'] ?? '';
+					$authCode = $queryParams['AUTHCODE'] ?? '';
+					$ccNumber = $queryParams['CCNUMBER'] ?? '';
 
-					if ($result == 0) {
-						if($userPayment->transactionType == 'donation') {
-							//Check to see if we have a donation for this payment
+					if ($chargeResult === null || (string)$chargeResult !== '0') {
+						$userPayment->error = true;
+						$error = translate([
+							'text' => 'Comprise did not report a successful charge. Response: %1% ',
+							'isPublicFacing' => true,
+							1 => $respMsg,
+						]);
+						$userPayment->message .= "Comprise did not report a successful charge (RESULT = $chargeResult, RESPMSG = $respMsg). ";
+					} elseif (!is_numeric($amountPaid) || abs((float)$amountPaid - (float)$userPayment->totalPaid) > 0.005) {
+						// Money was taken but the amount is wrong: don't apply it, flag for staff
+						$userPayment->error = true;
+						$error = translate([
+							'text' => 'Payment amount did not match, was %1%, paid %2%. Not applied; staff review needed.',
+							'isPublicFacing' => true,
+							1 => $userPayment->totalPaid,
+							2 => $amountPaid,
+						]);
+						$userPayment->message .= "Payment amount did not match, was $userPayment->totalPaid, paid $amountPaid. Not applied; staff review needed. TROUTD = $troutD, AUTHCODE = $authCode. ";
+					} else {
+						if ($userPayment->cancelled) {
+							$userPayment->cancelled = false;
+							$userPayment->message .= "Payment was marked cancelled when Comprise reported a successful charge; the charge was applied. ";
+						}
+						$userPayment->error = false;
+						$userPayment->transactionId = $troutD;
+
+						if ($userPayment->transactionType == 'donation') {
 							require_once ROOT_DIR . '/sys/Donations/Donation.php';
 							$donation = new Donation();
 							$donation->paymentId = $userPayment->id;
@@ -443,11 +461,13 @@ class UserPayment extends DataObject {
 
 								$donation->sendReceiptEmail();
 							} else {
-								$message = translate([
+								$userPayment->error = true;
+								$error = translate([
 									'text' => 'Unable to locate donation with given payment id %1%',
 									'isPublicFacing' => true,
 									1 => $userPayment->id,
 								]);
+								$userPayment->message .= "Unable to locate donation with payment id $userPayment->id. ";
 							}
 						} else {
 							$user = new User();
@@ -464,26 +484,26 @@ class UserPayment extends DataObject {
 								} else {
 									$userPayment->error = true;
 									$userPayment->message .= $finePaymentCompleted['message'];
+									$error = $finePaymentCompleted['message'];
 								}
 							} else {
 								$userPayment->error = true;
 								$userPayment->message .= "Could not find user to mark the fine paid in the ILS. ";
+								$error = translate([
+									'text' => 'Could not find user to mark the fine paid in the ILS. ',
+									'isPublicFacing' => true,
+								]);
 							}
 						}
 						$userPayment->completed = true;
-					} else {
-						$userPayment->error = true;
 					}
-				}
-
-				$userPayment->update();
-				if ($userPayment->error) {
-					$error = $userPayment->message;
-				} else {
-					$message = $userPayment->message;
+					$userPayment->update();
 				}
 			} else {
-				$error = 'Incorrect Payment ID provided';
+				$error = translate([
+					'text' => 'Incorrect Payment ID provided',
+					'isPublicFacing' => true,
+				]);
 				global $logger;
 				$logger->log('Incorrect Payment ID provided', Logger::LOG_ERROR);
 			}

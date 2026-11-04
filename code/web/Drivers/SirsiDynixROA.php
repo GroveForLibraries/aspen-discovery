@@ -83,7 +83,7 @@ class SirsiDynixROA extends AbstractIlsDriver {
 			curl_close($ch);
 			return json_decode($json);
 		} else {
-			$logger->log('Curl problem in getWebServiceResponse ' . curl_error($ch), Logger::LOG_ERROR);
+			$logger->log('Curl problem in getWebServiceResponse - Request Type :' . $requestType . ' Error: ' . curl_error($ch), Logger::LOG_ERROR);
 			curl_close($ch);
 			return false;
 		}
@@ -3528,6 +3528,7 @@ class SirsiDynixROA extends AbstractIlsDriver {
 	}
 
 	public function completeFinePayment(User $patron, UserPayment $payment) : array {
+		global $logger;
 		$result = [
 			'success' => false,
 			'message' => '',
@@ -3535,7 +3536,6 @@ class SirsiDynixROA extends AbstractIlsDriver {
 
 		$currencyCode = 'USD';
 		$systemVariables = SystemVariables::getSystemVariables();
-
 		if (!empty($systemVariables->currencyCode)) {
 			$currencyCode = $systemVariables->currencyCode;
 		}
@@ -3546,6 +3546,7 @@ class SirsiDynixROA extends AbstractIlsDriver {
 		if ($sessionToken) {
 			$finePayments = explode(',', $payment->finesPaid);
 			$allPaymentsSucceed = true;
+			$messages = [];
 			foreach ($finePayments as $finePayment) {
 				[
 					$fineId,
@@ -3569,22 +3570,34 @@ class SirsiDynixROA extends AbstractIlsDriver {
 					],
 				];
 				$postCreditResponse = $this->getWebServiceResponse('addPayment', $this->getWebServiceURL() . '/circulation/block/addPayment', $creditRequestBody, $sessionToken, 'POST');
-				if (isset($postCreditResponse->messageList)) {
-					$messages = [];
+
+				if ($postCreditResponse === false) {
+					$logger->log("addPayment returned no response for fine $fineId (amount $paymentAmount), user {$patron->id}, payment {$payment->id}. Status in Symphony unknown.", Logger::LOG_ERROR);
+					$messages[] = translate([
+						'text' => 'We did not receive a response from the library system when applying your payment to your fine. Your payment was received, but please contact library staff to confirm the status of your fine. Fine ID: %1% Payment ID: %2%',
+						1 => $fineId,
+						2 => $payment->id,
+						'isPublicFacing' => true,
+					]);
+					$allPaymentsSucceed = false;
+				} elseif (isset($postCreditResponse->messageList)) {
 					foreach ($postCreditResponse->messageList as $message) {
 						$messages[] = $message->message;
 					}
-					$result['message'] = implode("<br/>", $messages);
 					$allPaymentsSucceed = false;
 				}
 			}
+			$result['message'] = implode("<br/>", $messages);
 			$result['success'] = $allPaymentsSucceed;
 		} else {
 			$result['message'] = 'Could not connect to Symphony APIs';
 		}
 
-		global $logger;
-		$logger->log("Marked fines as paid within Symphony for user {$patron->id}, {$result['message']}", Logger::LOG_ERROR);
+		if ($result['success']) {
+			$logger->log("Marked fines as paid within Symphony for user {$patron->id}", Logger::LOG_NOTICE);
+		} else {
+			$logger->log("Error marking fines as paid within Symphony for user {$patron->id}, {$result['message']}", Logger::LOG_ERROR);
+		}
 
 		return $result;
 	}

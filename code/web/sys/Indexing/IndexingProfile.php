@@ -241,6 +241,9 @@ class IndexingProfile extends DataObject {
 	public /** @noinspection PhpUnused */
 		$loadLibrariesAndLocationsFromIls;
 
+	public /** @noinspection PhpUnused */
+		$fieldsToSuppress;
+
 	private $_translationMaps;
 	private $_timeToReshelve;
 	private $_sierraFieldMappings;
@@ -833,14 +836,6 @@ class IndexingProfile extends DataObject {
 						'default' => 0,
 						'forcesReindex' => true,
 					],
-					'excludePublisherFromKeywordIndex' => [
-						'property' => 'excludePublisherFromKeywordIndex',
-						'type' => 'checkbox',
-						'label' => 'Exclude Publisher from Keyword Index',
-						'description' => 'When checked, publisher information gathered from the notes field will be excluded from the keyword index for searching.',
-						'default' => 0,
-						'forcesReindex' => true,
-					],
 					'audienceOptionsSection' => [
 						'property' => 'audienceOptionsSection',
 						'type' => 'section',
@@ -1006,6 +1001,29 @@ class IndexingProfile extends DataObject {
 								'description' => 'A regular expression containing the iCode2 values to suppress (Sierra Only).',
 								'forcesReindex' => true,
 								'relatedIls' => ['sierra']
+							],
+						],
+					],
+					'fieldSuppressionSection' => [
+						'property' => 'fieldSuppressionSection',
+						'type' => 'section',
+						'label' => 'Field Suppression',
+						'properties' => [
+							'fieldsToSuppress' => [
+								'property' => 'fieldsToSuppress',
+								'type' => 'text',
+								'label' => 'Fields To Suppress',
+								'maxLength' => 600,
+								'description' => 'A list of fields that should be suppressed, separated by |. Data in these fields will not be used for Keyword index or shown in Staff View.',
+								'forcesReindex' => true,
+							],
+							'excludePublisherFromKeywordIndex' => [
+								'property' => 'excludePublisherFromKeywordIndex',
+								'type' => 'checkbox',
+								'label' => 'Exclude Publisher from Keyword Index',
+								'description' => 'When checked, publisher information gathered from the notes field will be excluded from the keyword index for searching.',
+								'default' => 0,
+								'forcesReindex' => true,
 							],
 						],
 					],
