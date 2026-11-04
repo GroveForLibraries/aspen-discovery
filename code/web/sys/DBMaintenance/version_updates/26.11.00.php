@@ -20,6 +20,14 @@ function getUpdates26_11_00(): array {
 		//kirstien
 
 		//kodi
+		'fields_to_suppress' => [
+			'title' => 'Field Suppression',
+			'description' => 'Adds column to indexing profile table for field suppression value.',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE indexing_profiles ADD COLUMN fieldsToSuppress VARCHAR(600) NOT NULL DEFAULT ''"
+			]
+		], //fields_to_suppress
 		'sierra_self_reg_staff_message' => [
 			'title' => 'Self Registration Staff Message',
 			'description' => 'Message to display to staff in Sierra ILS for self-registered patrons.',
