@@ -98,6 +98,7 @@
 
 {literal}
 <script>
+var currencySymbol = {/literal}{$currencySymbol|json_encode}{literal};
 var monthlySavingsCtx = document.getElementById('monthlySavingsChart');
 var monthlySavingsChart = new Chart(monthlySavingsCtx, {
 	type: 'line',
@@ -129,10 +130,22 @@ var monthlySavingsChart = new Chart(monthlySavingsCtx, {
 		]
 	},
 	options: {
+		tooltips: {
+			callbacks: {
+				label: function (tooltipItem, data) {
+					var label = data.datasets[tooltipItem.datasetIndex].label || '';
+					var amount = currencySymbol + Number(tooltipItem.yLabel).toLocaleString();
+					return label ? label + ': ' + amount : amount;
+				}
+			}
+		},
 		scales: {
 			yAxes: [{
 				ticks: {
-					beginAtZero: true
+					beginAtZero: true,
+					callback: function (value) {
+						return currencySymbol + Number(value).toLocaleString();
+					}
 				}
 			}],
 			xAxes: [{
@@ -178,10 +191,22 @@ var yearlySavingsChart = new Chart(yearlySavingsCtx, {
 		]
 	},
 	options: {
+		tooltips: {
+			callbacks: {
+				label: function (tooltipItem, data) {
+					var label = data.datasets[tooltipItem.datasetIndex].label || '';
+					var amount = currencySymbol + Number(tooltipItem.yLabel).toLocaleString();
+					return label ? label + ': ' + amount : amount;
+				}
+			}
+		},
 		scales: {
 			yAxes: [{
 				ticks: {
-					beginAtZero: true
+					beginAtZero: true,
+					callback: function (value) {
+						return currencySymbol + Number(value).toLocaleString();
+					}
 				}
 			}],
 			xAxes: [{
