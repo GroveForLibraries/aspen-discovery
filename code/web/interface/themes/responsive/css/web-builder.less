@@ -71,3 +71,56 @@ input[type="radio"][name="colorScheme"]:checked + label::after {
 .webResourceRow{
 	margin-bottom: 4px;
 }
+
+#filterAtoZ-list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  gap: 2px;
+}
+
+/* every li, including View All, whether or not it has the item class */
+#filterAtoZ-list > li {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+}
+
+#filterAtoZ-list > li > .btn {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
+  overflow: hidden;
+}
+
+/* View All keeps its natural width, pushed right */
+#filterAtoZ-list > li:last-child {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+#filterAtoZ-list > li:last-child > .btn {
+  width: auto;
+  padding-left: 8px;
+  padding-right: 8px;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  #filterAtoZ-list { flex-wrap: wrap; }
+  #filterAtoZ-list > li { flex: 0 0 auto; }
+  #filterAtoZ-list > li > .btn {
+    width: auto;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
