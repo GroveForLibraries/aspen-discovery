@@ -1,0 +1,12 @@
+Jira: DIS-2565
+Type: Enhancement
+Developer: Kodi Lein (KL)
+Contributing Org: Grove For Libraries
+Sponsor: SWAN Library Network
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Indexing
+Description:
+  - Add logic to marc record indexing to assign a format of Early Reader if "readers (publications)" is in the 655$a field.
+New Settings:
+New Permissions:

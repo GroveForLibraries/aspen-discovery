@@ -2392,7 +2392,7 @@ class MarcRecordDriver extends GroupedWorkSubDriver {
 		if ($this->marcRecord == null) {
 			disableErrorHandler();
 			try {
-				$this->marcRecord = MarcLoader::loadMarcRecordByILSId("{$this->profileType}:{$this->id}");
+				$this->marcRecord = MarcLoader::loadMarcRecordByILSId("{$this->profileType}:{$this->id}", omitFields:$this->indexingProfile->fieldsToSuppress);
 				if ($this->marcRecord instanceof AspenError || $this->marcRecord == false) {
 					$this->valid = false;
 					$this->marcRecord = false;
@@ -2560,7 +2560,21 @@ class MarcRecordDriver extends GroupedWorkSubDriver {
 	function getNotes() {
 		$agrNotes = $this->get880Notes();
 		$notes = [];
+		$suppressedTags = [];
+		if (!empty($this->indexingProfile->fieldsToSuppress)) {
+			foreach (explode('|', trim($this->indexingProfile->fieldsToSuppress, " []")) as $suppressedField) {
+				$suppressedField = trim($suppressedField);
+				if ($suppressedField !== '') {
+					$suppressedTags[substr($suppressedField, 0, 3)] = true;
+				}
+			}
+		}
+
 		foreach (self::$additionalNotesFields as $tag => $label) {
+			if (isset($suppressedTags[$tag])) {
+				// this tag is suppressed
+				continue;
+			}
 			/** @var File_MARC_Data_Field[] $marcFields */
 			$marcFields = $this->getMarcRecord()->getFields($tag);
 			foreach ($marcFields as $marcField) {

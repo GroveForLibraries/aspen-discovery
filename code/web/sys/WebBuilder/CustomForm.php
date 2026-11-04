@@ -11,6 +11,8 @@ class CustomForm extends DB_LibraryLinkedObject {
 	public $emailResultsTo;
 	public $includeIntroductoryTextInEmail;
 	public $requireLogin;
+	public $requireHomeLibraryInterface;
+	public $requireHomeLibraryInterfaceMessage;
 	public $introText;
 	public $submissionResultText;
 	public $deleted;
@@ -73,6 +75,20 @@ class CustomForm extends DB_LibraryLinkedObject {
 				'label' => 'Require Login',
 				'description' => 'Whether or not the user must be logged in to view the form',
 				'default' => 0,
+			],
+			'requireHomeLibraryInterface' => [
+				'property' => 'requireHomeLibraryInterface',
+				'type' => 'checkbox',
+				'label' => 'Require submission from home library interface',
+				'description' => 'Send form results to user\'s home library instead of active catalog',
+				'default' => 0,
+			],
+			'requireHomeLibraryInterfaceMessage' => [
+				'property' => 'requireHomeLibraryInterfaceMessage',
+				'type' => 'text',
+				'label' => 'Require home library message',
+				'description' => 'Optional message to display when the user is asked to select their home library',
+				'maxLength' => 500,
 			],
 			'introText' => [
 				'property' => 'introText',
