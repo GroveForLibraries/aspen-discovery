@@ -62,7 +62,7 @@ class GeneralSetting extends DataObject {
 				'type' => 'checkbox',
 				'label' => 'Enable changing the location a user is active in on the Location screen',
 				'description' => 'Whether or not to allow users to change the location a user is active in on the Location screen.',
-      ],
+			],
 			'showOnlyLocalBranches' => [
 				'property' => 'showOnlyLocalBranches',
 				'type' => 'checkbox',
