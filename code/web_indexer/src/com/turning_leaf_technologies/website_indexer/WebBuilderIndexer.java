@@ -138,8 +138,8 @@ class WebBuilderIndexer {
 				solrDocument.addField("id", "WebResource:" + id);
 				solrDocument.addField("recordtype", "WebResource");
 				solrDocument.addField("settingId", -1);
-				solrDocument.addField("website_name", "Library Website");
-				solrDocument.addField("search_category", "Website");
+				solrDocument.addField("website_name", "Library Resource");
+				solrDocument.addField("search_category", "Web Resource");
 				String url = "/WebBuilder/WebResource?id=" + id;
 				solrDocument.addField("source_url", url);
 				String title = getResourcesRS.getString("name");
@@ -467,7 +467,7 @@ class WebBuilderIndexer {
 				SolrInputDocument solrDocument = new SolrInputDocument();
 				String type = getWebResourcePagesToIndexRS.getString("webResourcePageType");
 				String settingId = getWebResourcePagesToIndexRS.getString("webResourcesSettingId");
-				
+
 				getLibrariesForPageStmt.setString(1, settingId);
 				ResultSet getLibrariesForPageRS = getLibrariesForPageStmt.executeQuery();
 				boolean hasEnabledLibrary = false;

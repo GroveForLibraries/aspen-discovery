@@ -20,6 +20,15 @@ function getUpdates26_11_00(): array {
 		//kirstien
 
 		//kodi
+		'web_resource_filter_settings' => [
+			'title' => 'Web Resource Page Filters',
+			'description' => 'Add column for storing if a web resource page has filter options.',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE web_builder_web_resources_settings ADD COLUMN showFilterOptionsListing TINYINT(1) NOT NULL DEFAULT 0",
+				"ALTER TABLE web_builder_web_resources_settings ADD COLUMN showFilterOptionsAtoZ TINYINT(1) NOT NULL DEFAULT 0",
+			],
+		], //web_resource_filter_settings
 		'fields_to_suppress' => [
 			'title' => 'Field Suppression',
 			'description' => 'Adds column to indexing profile table for field suppression value.',
