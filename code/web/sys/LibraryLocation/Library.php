@@ -124,6 +124,7 @@ class Library extends DataObject {
 	public $enableListDescriptions;
 	public $allowableListNames;
 	public $hideSoftDeleteListUI;
+	public $hideListItemsNoLongerInCatalog;
 	public $showConvertListsFromClassic;
 	public $showUserCirculationModules;
 	public $showUserPreferences;
@@ -291,6 +292,7 @@ class Library extends DataObject {
 	public $workPhoneField;
 	public $showCellphoneInProfile;
 	public $showNoticeTypeInProfile;
+	public $validSierraNotificationOptions;
 	public $symphonyDefaultPhoneField;
 	public $symphonyNoticeCategoryNumber;
 	public $symphonyNoticeCategoryOptions;
@@ -2115,6 +2117,17 @@ class Library extends DataObject {
 								'permissions' => ['Library ILS Connection'],
 								'relatedIls' => ['carlx', 'polaris', 'sierra', 'symphony'],
 							],
+							'validSierraNotificationOptions' => [
+								'property' => 'validSierraNotificationOptions',
+								'type' => 'text',
+								'maxLength' => 25,
+								'label' => 'Valid Sierra Notification Options',
+								'description' => 'A pipe delimited list of valid notification codes to show to the patron (must also be active in Sierra).',
+								'note' => 'Separate valid codes with pipes, blank will include all values',
+								'hideInLists' => true,
+								'permissions' => ['Library ILS Connection'],
+								'relatedIls' => ['sierra'],
+							],
 							'symphonyDefaultPhoneField' => [
 								'property' => 'symphonyDefaultPhoneField',
 								'type' => 'text',
@@ -3790,6 +3803,14 @@ class Library extends DataObject {
 						'type' => 'checkbox',
 						'label' => 'Hide Soft Delete UI for Lists',
 						'description' => 'When enabled, the soft delete messaging and checkbox will not be shown to patrons when deleting lists. Lists will still be soft-deleted in the background.',
+						'hideInLists' => true,
+						'default' => 0,
+					],
+					'hideListItemsNoLongerInCatalog' => [
+						'property' => 'hideListItemsNoLongerInCatalog',
+						'type' => 'checkbox',
+						'label' => 'Hide List Items No Longer in Catalog',
+						'description' => 'When enabled, users will no longer see list items that no longer exist in the catalog.',
 						'hideInLists' => true,
 						'default' => 0,
 					],
@@ -7118,6 +7139,8 @@ class Library extends DataObject {
 			foreach ($allAccountProfiles as $accountProfileInfo) {
 				if ($accountProfileInfo['accountProfile']->id == $this->accountProfileId) {
 					$activeIls = $accountProfileInfo['accountProfile']->ils;
+					global $interface;
+					$interface->assign('activeIls', $activeIls);
 					$structure = $this->filterPropertiesByILS($activeIls, $structure);
 					break;
 				}

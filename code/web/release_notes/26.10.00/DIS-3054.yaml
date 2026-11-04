@@ -1,0 +1,13 @@
+Jira: DIS-3054
+Type: Enhancement
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor: Grove For Libraries
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: Holds
+Description:
+  - Allow pickup locations to be filtered by patron type.
+New Settings:
+  - Primary Configuration > Locations > ILS/Account Integration > Valid As Pickup Location for PTypes
+New Permissions:

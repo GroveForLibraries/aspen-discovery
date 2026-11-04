@@ -59,8 +59,9 @@ class MarcLoader {
 		}
 		//Make sure not to use too much memory
 		global $memoryWatcher;
-		if (count(MarcLoader::$loadedMarcRecords) > 50) {
-			array_shift(MarcLoader::$loadedMarcRecords);
+		while (count(MarcLoader::$loadedMarcRecords) >= 50) {
+			$firstKey = array_key_first(MarcLoader::$loadedMarcRecords);
+			unset(MarcLoader::$loadedMarcRecords[$firstKey]);
 			$memoryWatcher->logMemory("Removed Cached MARC");
 		}
 		$memoryWatcher->logMemory("Loaded MARC for $id");

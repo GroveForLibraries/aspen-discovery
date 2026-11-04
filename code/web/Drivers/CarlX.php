@@ -27,9 +27,14 @@ class CarlX extends AbstractIlsDriver {
 		if (!isset($this->dbConnection)) {
 			$port = empty($this->accountProfile->databasePort) ? '1521' : $this->accountProfile->databasePort;
 			$ociConnection = $this->accountProfile->databaseHost . ':' . $port . '/' . $this->accountProfile->databaseName;
+			global $logger;
+			$this->dbConnection = null;
+			if (!function_exists('oci_connect')) {
+				$logger->log("PHP does not support oci_connect", Logger::LOG_ERROR);
+				return;
+			}
 			$this->dbConnection = oci_connect($this->accountProfile->databaseUser, $this->accountProfile->databasePassword, $ociConnection, 'AL32UTF8');
 			if (!$this->dbConnection || oci_error($this->dbConnection) != 0) {
-				global $logger;
 				$logger->log("Error connecting to CARL.X database " . oci_error($this->dbConnection), Logger::LOG_ERROR);
 				$this->dbConnection = null;
 			}
@@ -70,6 +75,7 @@ class CarlX extends AbstractIlsDriver {
 				$request->Modifiers = new stdClass();
 			}
 			if (empty($this->accountProfile->staffUsername)) {
+				global $logger;
 				$logger->log('No Staff Username configured in Account Profile', Logger::LOG_ERROR);
 				$result['message'] = 'No Staff Username configured in Account Profile';
 				return $result;
@@ -2344,7 +2350,7 @@ class CarlX extends AbstractIlsDriver {
 	 * @param $BID
 	 * @return string CARL ID
 	 */
-	protected function fullCarlIDfromBID($BID) {
+	public function fullCarlIDfromBID($BID) {
 		return 'CARL' . str_pad($BID, 10, '0', STR_PAD_LEFT);
 	}
 
@@ -2425,23 +2431,6 @@ class CarlX extends AbstractIlsDriver {
 	public function showMessagingSettings(): bool {
 		return false;
 	}
-
-	public function getHoldsReportData($location) {
-		return false;
-	}
-
-	public function getStudentBarcodeData($location, $homeroom) {
-		return false;
-	}
-
-	public function getStudentBarcodeDataHomerooms($location) {
-		return false;
-	}
-
-	public function getStudentReportData($location, $showOverdueOnly, $date): ?array {
-		return null;
-	}
-
 
 	//Defaults are correct for this
 //	function getPasswordPinValidationRules() : array {

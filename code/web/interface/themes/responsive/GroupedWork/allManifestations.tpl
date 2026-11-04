@@ -85,7 +85,7 @@
 				</div>
 			</div>
 			</div>
-			<div class="row variationInfo">
+			<div class="row variationInfo variationInfoHoriz">
 				<div class="col-xs-12">
 					<div id="variationInfo_{$summId|escape}">
 					</div>
