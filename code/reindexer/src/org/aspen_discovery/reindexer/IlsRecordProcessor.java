@@ -1131,7 +1131,14 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 		String originalUrl = itemInfo.geteContentUrl();
 		String primaryFormat = recordInfo.getPrimaryFormat();
 		String itemIdentifier = itemInfo.getItemIdentifier();
-		String targetAudience = itemInfo.getTargetAudience() == null ? recordInfo.getFirstTargetAudience() : itemInfo.getTargetAudience();
+		String targetAudience = "";
+		if (itemInfo.getTargetAudience() != null) {
+			targetAudience = itemInfo.getTargetAudience();
+		}else if (!recordInfo.getTargetAudiences().isEmpty()) {
+			targetAudience = recordInfo.getTargetAudiencesAsString();
+		}else{
+			targetAudience = groupedWork.getTargetAudiencesAsString();
+		}
 		for (Scope curScope : indexer.getScopes().values()) {
 			Scope.InclusionResult result = curScope.isItemPartOfScope(itemIdentifier, profileType, itemLocation, itemSublocation, itemInfo.getITypeCode(), targetAudience, primaryFormat, shelfLocation, collectionCode, isHoldableUnscoped, false, false, record, originalUrl, groupedWork);
 			if (result.isIncluded){
