@@ -36,6 +36,14 @@ function getUpdates26_11_00(): array {
 		], //add_show_all_locations_lida
 
 		//kodi
+		'disallow_reading_history_return_date_edits' => [
+			'title' => 'Disallow reading history return date edits',
+			'description' => 'Add setting to library table for disallowing editing of return dates in reading history.',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE library ADD COLUMN disallowReturnDateEdits TINYINT(1) NOT NULL DEFAULT 0"
+			]
+		], //disallow_reading_history_return_date_edits
 		'web_resource_filter_settings' => [
 			'title' => 'Web Resource Page Filters',
 			'description' => 'Add column for storing if a web resource page has filter options.',
@@ -77,6 +85,7 @@ function getUpdates26_11_00(): array {
 		//galen
 
 		//chloe
+	
 
 		//pedro
 
