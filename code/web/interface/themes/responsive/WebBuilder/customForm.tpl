@@ -11,7 +11,7 @@
 	{if !empty($homeLibraryMessage)}
 		<div class="alert alert-info">
 			<p>{$homeLibraryMessage}</p>
-			<a href="{$homeLibraryUrl|escape}">{translate text="Select your home library's catalog" isPublicFacing=true}</a>
+			<a href="{$homeLibraryUrl|escape}">{translate text="Go to your home library's catalog" isPublicFacing=true}</a>
 		</div>
 	{elseif !empty($introText)}
 		<div class="alert alert-info">
