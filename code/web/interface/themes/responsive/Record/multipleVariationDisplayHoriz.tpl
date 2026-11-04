@@ -1,7 +1,7 @@
 {strip}
     {* These are all of the grouping records for the given MARC record*}
     {foreach from=$recordDriver->getRecordVariations() item=record}
-		<div class="row variationInfo"><div class="col-xs-12">
+		<div class="row variationInfo variationInfoHoriz"><div class="col-xs-12">
 				<div class="row">
 					<div class="col-tn-8">
                         {* Display Format Button (does nothing) *}

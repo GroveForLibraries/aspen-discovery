@@ -1,0 +1,12 @@
+Jira: DIS-2528
+Type: Enhancement
+Developer: Mark Noble (MDN), James Staub (JStaub)
+Contributing Org: Nashville Public Library
+Sponsor: Nashville Public Library
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: Reports and Statistics
+Description:
+  - Move MNPS Custom Reports to new Nashville Plugin and remove functionality from core Aspen.
+New Settings:
+New Permissions:

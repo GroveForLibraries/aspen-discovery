@@ -17,7 +17,6 @@ class MyAccount_ContactInformation extends MyAccount {
 				$user->loadContactInformation();
 			}
 
-			global $librarySingleton;
 			// Get Library Settings from the home library of the current user-account being displayed
 			$patronHomeLibrary = $user->getHomeLibrary(true);
 			if ($patronHomeLibrary == null) {
@@ -69,6 +68,26 @@ class MyAccount_ContactInformation extends MyAccount {
 			$interface->assign('passwordLabel', $passwordLabel);
 			$interface->assign('showPreferredNameInProfile', $user->showPreferredNameInProfile());
 			$interface->assign('allowUpdatesOfPreferredName', $user->allowUpdatesOfPreferredName());
+			$allowMailNotices = true;
+			$allowPhoneNotices = true;
+			$allowEmailNotices = true;
+			if ($user->getAccountProfile()->ils == 'sierra') {
+				/** @var Sierra $sierraDriver */
+				$sierraDriver = $user->getCatalogDriver();
+				$validNotificationOptions = $sierraDriver->getValidNotificationOptions($user);
+				if (!array_key_exists('a', $validNotificationOptions)) {
+					$allowMailNotices = false;
+				}
+				if (!array_key_exists('p', $validNotificationOptions)) {
+					$allowPhoneNotices = false;
+				}
+				if (!array_key_exists('z', $validNotificationOptions)) {
+					$allowEmailNotices = false;
+				}
+			}
+			$interface->assign('allowMailNotices', $allowMailNotices);
+			$interface->assign('allowPhoneNotices', $allowPhoneNotices);
+			$interface->assign('allowEmailNotices', $allowEmailNotices);
 
 			// Determine Pickup Locations
 			$pickupLocations = $user->getValidPickupBranches($user->getAccountProfile()->recordSource);

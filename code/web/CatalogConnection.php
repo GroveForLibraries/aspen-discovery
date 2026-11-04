@@ -132,7 +132,7 @@ class CatalogConnection {
 					$doPatronLogin = true;
 				} else {
 					//If the password is the same, we're still ok
-					if ($user->cat_password == $password) {
+					if ($user->ils_password == $password) {
 						$doPatronLogin = false;
 					} else {
 						$doPatronLogin = true;
@@ -1880,22 +1880,6 @@ class CatalogConnection {
 		$this->driver->logout($user);
 		$user->lastLoginValidation = 0;
 		$user->update();
-	}
-
-	public function getHoldsReportData($location) {
-		return $this->driver->getHoldsReportData($location);
-	}
-
-	public function getStudentReportData($location, $showOverdueOnly, $date) {
-		return $this->driver->getStudentReportData($location, $showOverdueOnly, $date);
-	}
-
-	public function getWeedingReportData($location) {
-		return $this->driver->getWeedingReportData($location);
-	}
-	
-	public function getLibrarianFacebookData() {
-		return $this->driver->getLibrarianFacebookData();
 	}
 
 	/**

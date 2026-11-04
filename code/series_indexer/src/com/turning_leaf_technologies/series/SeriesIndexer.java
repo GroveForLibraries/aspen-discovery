@@ -71,9 +71,10 @@ class SeriesIndexer {
 			logger.error("Error loading search version", e);
 		}
 		Http2SolrClient.Builder groupedWorkHttpBuilder;
-		//if (searchVersion == 2) {
-			groupedWorkHttpBuilder = new Http2SolrClient.Builder("http://" + solrHost + ":" + solrPort + "/solr/grouped_works_v2");
-		//}
+		groupedWorkHttpBuilder = new Http2SolrClient.Builder("http://" + solrHost + ":" + solrPort + "/solr/grouped_works_v2");
+		if (searchVersion != 2) {
+			groupedWorkHttpBuilder = new Http2SolrClient.Builder("http://" + solrHost + ":" + solrPort + "/solr/grouped_works_v3");
+		}
 		groupedWorkServer = groupedWorkHttpBuilder.build();
 
 		scopes = IndexingUtils.loadScopes(dbConn, logger);

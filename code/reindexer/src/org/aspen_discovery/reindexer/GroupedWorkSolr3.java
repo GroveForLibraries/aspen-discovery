@@ -55,10 +55,64 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 	@SuppressWarnings("DuplicatedCode")
 	SolrInputDocument getSolrDocument(BaseIndexingLogEntry logEntry) {
 		SolrInputDocument groupedWorkDoc = new SolrInputDocument();
+		Date indexingDate = new Date();
+
+		Long daysAddedSincePubDate = null;
+		if (earliestPublicationDate != null) {
+			Calendar publicationDate = GregorianCalendar.getInstance();
+			publicationDate.set(earliestPublicationDate.intValue(), Calendar.JANUARY, 1);
+			daysAddedSincePubDate = DateUtils.getDaysSinceAddedForDate(publicationDate.getTime());
+		}
+
+		int numItems = 0;
+		boolean allItemsOnOrder = true;
+		boolean allItemsInProcess = true;
+		boolean allItemsUnderConsideration = true;
+		HashSet<String> uniqueFormatCategories = new HashSet<>();
+		HashSet<String> uniqueFormats = new HashSet<>();
+		HashSet<String> eContentSources = new HashSet<>();
+		HashSet<String> callNumbers = new HashSet<>();
+		ArrayList<SolrInputDocument> allScopingDocuments = new ArrayList<>();
+		Map<String, RecordInfo.ParentScopeData> parentScopeDataByName = new HashMap<>();
+
+		// Build all item-derived parent values and child documents together. This
+		// prevents the parent builder and each helper from rescanning every item.
+		for (RecordInfo record : relatedRecords.values()) {
+			try {
+				RecordInfo.RecordScopeBuildResult buildResult = record.buildRecordScopeDocuments(
+					groupedWorkIndexer,
+					this,
+					daysAddedSincePubDate,
+					parentScopeDataByName
+				);
+				RecordInfo.RecordItemSummary summary = buildResult.getItemSummary();
+				if (summary.getItemCount() > 0) {
+					numItems += summary.getItemCount();
+					allItemsOnOrder &= summary.areAllItemsOnOrder();
+					allItemsInProcess &= summary.areAllItemsInProcess();
+					allItemsUnderConsideration &= summary.areAllItemsUnderConsideration();
+				}
+				uniqueFormats.addAll(summary.getItemFormats());
+				uniqueFormatCategories.addAll(summary.getItemFormatCategories());
+				uniqueFormats.addAll(record.getFormats());
+				uniqueFormatCategories.addAll(record.getFormatCategories());
+				eContentSources.addAll(summary.getEContentSources());
+				callNumbers.addAll(summary.getCallNumbers());
+				allScopingDocuments.addAll(buildResult.getDocuments());
+			} catch (Exception e) {
+				logEntry.incErrors("Error building scoped documents for grouped work " + id, e);
+			}
+		}
+
+		if (numItems == 0) {
+			allItemsOnOrder = false;
+			allItemsInProcess = false;
+			allItemsUnderConsideration = false;
+		}
 		//Main identification
 
 		groupedWorkDoc.addField("id", id);
-		groupedWorkDoc.addField("last_indexed", new Date());
+		groupedWorkDoc.addField("last_indexed", indexingDate);
 		groupedWorkDoc.addField("alternate_ids", alternateIds);
 		groupedWorkDoc.addField("recordtype", "grouped_work");
 		try {
@@ -89,8 +143,7 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			groupedWorkDoc.addField("auth_author", authAuthor);
 			groupedWorkDoc.addField("author", primaryAuthor);
 			if (primaryAuthor != null && !primaryAuthor.isEmpty()){ //skip if empty so titles with no author are sorted last
-				primaryAuthor = primaryAuthor.toLowerCase();
-				groupedWorkDoc.addField("author_sort", primaryAuthor);
+				groupedWorkDoc.addField("author_sort", primaryAuthor.toLowerCase(Locale.ROOT));
 			}
 
 			groupedWorkDoc.addField("auth_author2", authAuthor2);
@@ -101,7 +154,7 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 
 			//title auth
 			HashSet<String> titleAuthors = new HashSet<>();
-			titleAuthors.add(fullTitle + " " + getPrimaryAuthor());
+			titleAuthors.add(fullTitle + " " + primaryAuthor);
 			groupedWorkDoc.addField("title_author", titleAuthors);
 
 			//format related items at grouped work level
@@ -110,13 +163,14 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 
 			//language related fields
 			//Check to see if we have Unknown plus a valid value
-			if (languages.size() > 1 || !groupedWorkIndexer.getTreatUnknownLanguageAs().isEmpty()) {
-				languages.remove("Unknown");
+			HashSet<String> languagesForIndex = new HashSet<>(languages);
+			if (languagesForIndex.size() > 1 || !groupedWorkIndexer.getTreatUnknownLanguageAs().isEmpty()) {
+				languagesForIndex.remove("Unknown");
 			}
-			if (languages.isEmpty()) {
-				languages.add(groupedWorkIndexer.getTreatUnknownLanguageAs());
+			if (languagesForIndex.isEmpty() && !groupedWorkIndexer.getTreatUnknownLanguageAs().isEmpty()) {
+				languagesForIndex.add(groupedWorkIndexer.getTreatUnknownLanguageAs());
 			}
-			groupedWorkDoc.addField("all_languages", languages);
+			groupedWorkDoc.addField("all_languages", languagesForIndex);
 			groupedWorkDoc.addField("language", primaryLanguage);
 			groupedWorkDoc.addField("translation", translations);
 			groupedWorkDoc.addField("language_boost", languageBoost);
@@ -134,9 +188,10 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			groupedWorkDoc.addField("edition", editions);
 
 			//Series fields
-			SeriesInfo[] sortedSeriesWithVolume = series.values().stream()
-				.sorted(Comparator.comparingInt(SeriesInfo::getPriorityScore).reversed())
-				.toArray(SeriesInfo[]::new);
+			ArrayList<SeriesInfo> sortedSeriesWithVolume = new ArrayList<>(series.values());
+			sortedSeriesWithVolume.sort(
+				Comparator.comparingInt(SeriesInfo::getPriorityScore).reversed()
+			);
 			if (isDebugEnabled() && !series.isEmpty()) {
 				addDebugMessage("Series Priority Values", 1);
 			}
@@ -151,31 +206,24 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 					groupedWorkDoc.addField("series_with_volume", seriesInfo.getSeriesName() + "|" + volume);
 				}
 				if (isFirstSeries) {
-					groupedWorkDoc.addField("series_author", seriesInfo.getSeriesName() + " " + getPrimaryAuthor());
+					groupedWorkDoc.addField("series_author", seriesInfo.getSeriesName() + " " + primaryAuthor);
 					isFirstSeries = false;
 				}
 			}
 
 			//Subject related fields
 			groupedWorkDoc.addField("topic", topics);
-			topicFacets.removeAll(groupedWorkIndexer.hideSubjects);
-			groupedWorkDoc.addField("topic_facet", topicFacets);
-			subjects.removeAll(groupedWorkIndexer.hideSubjects);
-			groupedWorkDoc.addField("subject_facet", subjects);
+			groupedWorkDoc.addField("topic_facet", withoutHiddenSubjects(topicFacets));
+			groupedWorkDoc.addField("subject_facet", withoutHiddenSubjects(subjects));
 			groupedWorkDoc.addField("lc_subject", lcSubjects);
 			groupedWorkDoc.addField("bisac_subject", bisacSubjects);
 			groupedWorkDoc.addField("genre", genres);
-			genreFacets.removeAll(groupedWorkIndexer.hideSubjects);
-			groupedWorkDoc.addField("genre_facet", genreFacets);
+			groupedWorkDoc.addField("genre_facet", withoutHiddenSubjects(genreFacets));
 			groupedWorkDoc.addField("geographic", geographic);
-			geographicFacets.removeAll(groupedWorkIndexer.hideSubjects);
-			groupedWorkDoc.addField("geographic_facet", geographicFacets);
-			personalNameSubjects.removeAll(groupedWorkIndexer.hideSubjects);
-			groupedWorkDoc.addField("personal_name_facet", personalNameSubjects);
-			corporateNameSubjects.removeAll(groupedWorkIndexer.hideSubjects);
-			groupedWorkDoc.addField("corporate_name_facet", corporateNameSubjects);
-			eras.removeAll(groupedWorkIndexer.hideSubjects);
-			groupedWorkDoc.addField("era", eras);
+			groupedWorkDoc.addField("geographic_facet", withoutHiddenSubjects(geographicFacets));
+			groupedWorkDoc.addField("personal_name_facet", withoutHiddenSubjects(personalNameSubjects));
+			groupedWorkDoc.addField("corporate_name_facet", withoutHiddenSubjects(corporateNameSubjects));
+			groupedWorkDoc.addField("era", withoutHiddenSubjects(eras));
 
 			//Literary Forms
 			checkDefaultValue(literaryFormFull, "Not Coded");
@@ -209,46 +257,8 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			Date dateAdded = getDateAdded();
 			groupedWorkDoc.addField("date_added", dateAdded);
 
-			//Check to see if all items are on order.  If so, add on order keywords
-			boolean allItemsOnOrder = true;
-			boolean allItemsUnderConsideration = true;
-			boolean allItemsInProcess = true;
-			int numItems = 0;
-			HashSet<String> uniqueFormatCategories = new HashSet<>();
-			HashSet<String> uniqueFormats = new HashSet<>();
-			for (RecordInfo record : relatedRecords.values()) {
-				for (ItemInfo item : record.getRelatedItems()) {
-					numItems++;
-					if (!item.isOrderItem()) {
-						if (item.getDetailedStatus() != null) {
-							if (!(item.getGroupedStatus().equals("On Order") || item.getDetailedStatus().equals("On Order") || item.getDetailedStatus().equals("Coming Soon"))) {
-								allItemsOnOrder = false;
-							}
-							if (!(item.getGroupedStatus().equals("In Processing") || item.getDetailedStatus().equals("In-Process"))) {
-								allItemsInProcess = false;
-							}
-							if (!(item.getGroupedStatus().equals("Under Consideration") || item.getDetailedStatus().equals("Under Consideration"))) {
-								allItemsUnderConsideration = false;
-							}
-						}else{
-							allItemsOnOrder = false;
-							allItemsUnderConsideration = false;
-						}
-					}else{
-						allItemsUnderConsideration = false;
-					}
-				}
-				if (!record.getFormatCategories().isEmpty()) {
-					uniqueFormatCategories.addAll(record.getFormatCategories());
-				}
-				if (record.hasItemFormats()) {
-					uniqueFormats.addAll(record.getUniqueItemFormats());
-					uniqueFormats.addAll(record.getUniqueItemFormatsCategories());
-				}
-				if (!record.getFormats().isEmpty()) {
-					uniqueFormats.addAll(record.getFormats());
-				}
-			}
+			// Item status and formats were collected while the scoped child
+			// documents were built above.
 			if (!uniqueFormatCategories.isEmpty()) {
 				fullTitles.add(fullTitle + " " + StringUtils.join(uniqueFormatCategories, ", "));
 				addKeywords(uniqueFormatCategories);
@@ -259,9 +269,6 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			}
 			groupedWorkDoc.addField("title_full", fullTitles);
 
-			if (numItems == 0) {
-				allItemsOnOrder = false;
-			}
 			if (allItemsOnOrder) {
 				addKeywords("On Order");
 				addKeywords("Coming Soon");
@@ -284,7 +291,7 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 						Calendar publicationDate = GregorianCalendar.getInstance();
 						publicationDate.set(earliestPublicationDate.intValue(), Calendar.JANUARY, 1);
 
-						long indexTime = new Date().getTime();
+						long indexTime = indexingDate.getTime();
 						long publicationTime = publicationDate.getTime().getTime();
 						long bibDaysSinceAdded = (indexTime - publicationTime) / (long) (1000 * 60 * 60 * 24);
 						groupedWorkDoc.addField("days_since_added", Long.toString(bibDaysSinceAdded));
@@ -321,7 +328,6 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			}
 
 			// Add some special values to keywords
-			HashSet<String> eContentSources = getAllEContentSources();
 			keywords.addAll(eContentSources);
 
 			keywords.addAll(isbns.keySet());
@@ -330,7 +336,6 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			keywords.addAll(lccns);
 			keywords.addAll(upcs.keySet());
 
-			HashSet<String> callNumbers = getAllCallNumbers();
 			keywords.addAll(callNumbers);
 			groupedWorkDoc.addField("keywords", Util.getCRSeparatedStringFromSet(keywords));
 
@@ -387,71 +392,35 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 			logEntry.incErrors("Error adding scoped fields to grouped work " + id, e);
 		}
 
-		Long daysAddedSincePubDate = null;
-		if (earliestPublicationDate != null) {
-			//Return number of days since the given year
-			Calendar publicationDate = GregorianCalendar.getInstance();
-			//We don't know when in the year it is published, so assume January 1st which could be wrong
-			publicationDate.set(earliestPublicationDate.intValue(), Calendar.JANUARY, 1);
-			daysAddedSincePubDate = DateUtils.getDaysSinceAddedForDate(publicationDate.getTime());
-		}
-
 		groupedWorkDoc.addField("related_scopes", relatedScopes.keySet());
 
-		//Determine sortable call numbers and available copies for each scope
+		// These values were accumulated during the same traversal that created the
+		// child scope documents. In particular, no early break is used after a Book
+		// call number is found, so available-copy counts include every item.
 		try {
-			for (String scopeName : relatedScopes.keySet()) {
-				String sortableCallNumberForScope = null;
-				boolean hasBookCallNumber = false;
-				boolean hasLargePrintCallNumber = false;
-				ArrayList<ScopingInfo> itemsWithScopingInfoForActiveScope = relatedScopes.get(scopeName);
-				int numAvailableCopies = 0;
-				for (ScopingInfo scopingInfo : itemsWithScopingInfoForActiveScope) {
-					ItemInfo curItem = scopingInfo.getItem();
-					if (curItem.isAvailable()) {
-						numAvailableCopies++;
-					}
-					if (curItem.getSortableCallNumber() == null || curItem.getSortableCallNumber().isEmpty()) {
-						continue;
-					}
-					if (!hasBookCallNumber && (scopingInfo.isLocallyOwned() || scopingInfo.isLibraryOwned() || !scopingInfo.getScope().isRestrictOwningLibraryAndLocationFacets())) {
-						String itemFormat = curItem.getPrimaryFormat().toLowerCase(Locale.ROOT);
-						if (itemFormat.equals("book")) {
-							sortableCallNumberForScope = curItem.getSortableCallNumber();
-							break;
-						} else if (itemFormat.equals("large print")) {
-							//Use the first large print call number
-							if (!hasLargePrintCallNumber) {
-								sortableCallNumberForScope = curItem.getSortableCallNumber();
-								hasLargePrintCallNumber = true;
-							}
-						} else {
-							if (sortableCallNumberForScope == null) {
-								sortableCallNumberForScope = curItem.getSortableCallNumber();
-							}
-						}
-					}
-				}
+			for (Map.Entry<String, RecordInfo.ParentScopeData> entry : parentScopeDataByName.entrySet()) {
+				String scopeName = entry.getKey();
+				RecordInfo.ParentScopeData scopeData = entry.getValue();
+				String sortableCallNumberForScope = scopeData.getSortableCallNumber();
 				if (sortableCallNumberForScope != null) {
 					groupedWorkDoc.addField("callnumber_sort_" + scopeName, sortableCallNumberForScope);
 					groupedWorkDoc.addField("callnumber_sort_lowercase_" + scopeName, sortableCallNumberForScope.toLowerCase(Locale.ROOT));
 				}
-				groupedWorkDoc.addField("available_copies_" + scopeName, numAvailableCopies);
+				groupedWorkDoc.addField("available_copies_" + scopeName, scopeData.getAvailableCopies());
 			}
 		}catch (Exception e) {
 			logEntry.incErrors("Error determining call number sort", e);
 		}
 
-		ArrayList<SolrInputDocument> allScopingDocuments = new ArrayList<>();
-		for (RecordInfo recordInfo : relatedRecords.values()) {
-			ArrayList<SolrInputDocument> recordDocuments = recordInfo.getRecordScopeSolrDocuments(groupedWorkIndexer, this, daysAddedSincePubDate);
-			if (recordDocuments != null) {
-				allScopingDocuments.addAll(recordDocuments);
-			}
-		}
 		groupedWorkDoc.setField("record_scoping", allScopingDocuments);
 
 		return groupedWorkDoc;
+	}
+
+	private HashSet<String> withoutHiddenSubjects(Collection<String> values) {
+		HashSet<String> filteredValues = new HashSet<>(values);
+		filteredValues.removeAll(groupedWorkIndexer.hideSubjects);
+		return filteredValues;
 	}
 
 	@Override

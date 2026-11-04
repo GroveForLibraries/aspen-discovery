@@ -1,0 +1,13 @@
+Jira: DIS-3030
+Type: Enhancement
+Developer: Mark Noble (MDN)
+ContributingOrg: Grove For Libraries
+Sponsor: Cumberland County Library System
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: User Account
+Description:
+  - Allow Sierra Notifications options to be filtered within Library Settings.
+NewSettings:
+  - Library Systems > ILS/Account Integration > User Profile > Valid Sierra Notification Options
+NewPermissions:
