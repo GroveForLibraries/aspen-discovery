@@ -1,6 +1,31 @@
 <?php
 
 class MyAccount_SelectInterface extends Action {
+	public $selectInterfaceMessage;
+
+	public static function getLibraryBaseUrl(Library $selectedLibrary): string {
+		if (!empty($selectedLibrary->baseUrl)) {
+			return rtrim($selectedLibrary->baseUrl, '/');
+		}
+
+		global $configArray;
+		$baseUrl = $configArray['Site']['url'];
+		$urlPortions = explode('://', $baseUrl);
+		$subdomain = $selectedLibrary->subdomain;
+		// Site.url can be scoped to the catalog currently being viewed. Remove
+		// that catalog's subdomain before adding the selected library's one.
+		$activeLibrary = Library::getActiveLibrary();
+		if ($activeLibrary && !empty($activeLibrary->subdomain)) {
+			$urlPortions[1] = preg_replace('/^' . preg_quote($activeLibrary->subdomain, '/') . '\\./', '', $urlPortions[1]);
+		}
+		if (strpos($urlPortions[1], 'opac2') !== false) {
+			$urlPortions[1] = str_replace('opac2.', '', $urlPortions[1]);
+			$subdomain .= '2';
+		}
+		$urlPortions[1] = str_replace('opac.', '', $urlPortions[1]);
+		return rtrim($urlPortions[0] . '://' . $subdomain . '.' . $urlPortions[1], '/');
+	}
+
 	function launch() {
 		global $interface;
 		global $logger;
@@ -45,6 +70,17 @@ class MyAccount_SelectInterface extends Action {
 		/** @var Location $locationSingleton */ //global $locationSingleton;
 		//$physicalLocation = $locationSingleton->getIPLocation();
 
+		$goToPath = null;
+		$gotoModule = null;
+		$gotoAction = null;
+		if (isset($_REQUEST['goToPath']) && is_string($_REQUEST['goToPath'])) {
+			// Only allow internal paths as destinations.
+			$requestedPath = $_REQUEST['goToPath'];
+			if (str_starts_with($requestedPath, '/') && !str_starts_with($requestedPath, '//')) {
+				$goToPath = $requestedPath;
+				$interface->assign('goToPath', $goToPath);
+			}
+		}
 		if (isset($_REQUEST['gotoModule'])) {
 			$gotoModule = $_REQUEST['gotoModule'];
 			$interface->assign('gotoModule', $gotoModule);
@@ -77,22 +113,10 @@ class MyAccount_SelectInterface extends Action {
 			if ($libraries[$redirectLibrary]['isLibrary']) {
 				/** @var Library $selectedLibrary */
 				$selectedLibrary = $libraries[$redirectLibrary]['library'];
-				if (!empty($selectedLibrary->baseUrl)) {
-					$baseUrl = $selectedLibrary->baseUrl;
-				} else {
-					global $configArray;
-					$baseUrl = $configArray['Site']['url'];
-					$urlPortions = explode('://', $baseUrl);
-					//Get rid of extra portions of the url
-					$subdomain = $selectedLibrary->subdomain;
-					if (strpos($urlPortions[1], 'opac2') !== false) {
-						$urlPortions[1] = str_replace('opac2.', '', $urlPortions[1]);
-						$subdomain .= '2';
-					}
-					$urlPortions[1] = str_replace('opac.', '', $urlPortions[1]);
-					$baseUrl = $urlPortions[0] . '://' . $subdomain . '.' . $urlPortions[1];
+				$baseUrl = self::getLibraryBaseUrl($selectedLibrary);
+				if (empty($goToPath)) {
+					$baseUrl .= '?branch=';
 				}
-				$baseUrl .= '?branch=';
 			} else {
 				/** @var Location $selectedLocation */
 				$selectedLocation = $libraries[$redirectLibrary]['location'];
@@ -122,17 +146,21 @@ class MyAccount_SelectInterface extends Action {
 					$urlPortions[1] = str_replace('opac.', '', $urlPortions[1]);
 					$baseUrl = $urlPortions[0] . '://' . $subdomain . '.' . $urlPortions[1];
 				}
-				if (!empty($branch)) {
+				if (!empty($branch) && empty($goToPath)) {
 					$baseUrl .= '?branch=' . $branch;
-				} else {
+				} elseif (empty($goToPath)) {
 					$baseUrl .= '?branch=';
 				}
 			}
-			if ($gotoModule) {
-				$baseUrl .= '/' . $gotoModule;
-			}
-			if ($gotoAction) {
-				$baseUrl .= '/' . $gotoAction;
+			if (!empty($goToPath)) {
+				$baseUrl = rtrim($baseUrl, '/') . $goToPath;
+			} else {
+				if (!empty($gotoModule)) {
+					$baseUrl .= '/' . $gotoModule;
+				}
+				if (!empty($gotoAction)) {
+					$baseUrl .= '/' . $gotoAction;
+				}
 			}
 			if (isset($_REQUEST['rememberThis']) && isset($_REQUEST['submit'])) {
 				if ($user) {
@@ -148,6 +176,10 @@ class MyAccount_SelectInterface extends Action {
 			header('Location:' . $baseUrl);
 			die();
 		}
+
+        if (!empty($this->selectInterfaceMessage)) {
+            $interface->assign('selectInterfaceMessage', $this->selectInterfaceMessage);
+        }
 
 		// Display Page
 		$this->display('selectInterface.tpl', 'Select Library Catalog', '');
