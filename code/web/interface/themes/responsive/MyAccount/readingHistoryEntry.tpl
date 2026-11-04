@@ -184,6 +184,10 @@
 														{$detail.checkOutDate|escape}
 													{/if}
 												</td>
+												{assign var="displayDate" value=$detail.checkInDate}
+												{if !empty($detail.editedCheckInDate)}
+													{assign var="displayDate" value=$detail.editedCheckInDate}
+												{/if}
 												{if empty($disallowReturnDateEdits)}
 													{* Editable version *}
 													<td data-entry-id="{$detail.id}" data-original-date="{$detail.checkInDate}" data-edited-date="{$detail.editedCheckInDate}">
