@@ -18,6 +18,14 @@ function getUpdates26_11_00(): array {
 		//mark n
 
 		//kirstien
+		'add_show_all_locations_lida' => [
+			'title' => 'Add setting to show all locations in Aspen LiDA',
+			'description' => 'Add setting to show all locations in Aspen LiDA instead of just the branches for the users library system.',
+			'continueOnError' => false,
+			'sql' => [
+				"ALTER TABLE aspen_lida_general_settings ADD COLUMN showOnlyLocalBranches TINYINT(1) NOT NULL DEFAULT 1"
+			]
+		], //add_show_all_locations_lida
 
 		//kodi
 		'web_resource_filter_settings' => [
