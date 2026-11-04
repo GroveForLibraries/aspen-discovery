@@ -116,6 +116,10 @@ class WebResourceRecordDriver extends IndexRecordDriver {
 		}
 	}
 
+	public function getTeaser() : string {
+		return !empty($this->webResource->teaser) ? $this->webResource->teaser : $this->getDescription();
+	}
+
 	/**
 	 * Return the unique identifier of this record within the Solr index;
 	 * useful for retrieving additional information (like tags and user

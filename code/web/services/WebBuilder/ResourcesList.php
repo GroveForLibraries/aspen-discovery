@@ -96,7 +96,7 @@ class WebBuilder_ResourcesList extends Action {
 				$resourceData = [
 					'id' => $recordDriver->getNumericId(),
 					'title' => $recordDriver->getTitle(),
-					'description' => $recordDriver->getDescription(),
+					'description' => $recordDriver->getTeaser(),
 					'url' => $recordDriver->getLinkUrl(),
 					'bookCoverUrl' => $recordDriver->getBookCoverUrl('medium'),
 					'openInNewTab' => $recordDriver->opensInNewTab(),
