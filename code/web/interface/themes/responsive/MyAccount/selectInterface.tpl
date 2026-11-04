@@ -1,9 +1,14 @@
 <div id="page-content" class="content">
 	<br/>
-	<div class="alert alert-info">{translate text='Select the Library Catalog you wish to use' isPublicFacing=true}</div>
+	{if !empty($selectInterfaceMessage)}
+		{$selectInterfaceMessage}
+	{else}
+		{translate text='Select the Library Catalog you wish to use' isPublicFacing=true}
+	{/if}
 	<div id="selectLibraryMenu">
 		<form id="selectLibrary" method="get" action="/MyAccount/SelectInterface" class="form">
 			<div id="selectLibraryOptions" class="row">
+				<input type="hidden" name="goToPath" value="{if !empty($goToPath)}{$goToPath}{/if}"/>
 				<input type="hidden" name="gotoModule" value="{if !empty($gotoModule)}{$gotoModule}{/if}"/>
 				<input type="hidden" name="gotoAction" value="{if !empty($gotoAction)}{$gotoAction}{/if}"/>
 				{foreach from=$libraries key=libraryKey item=libraryInfo}

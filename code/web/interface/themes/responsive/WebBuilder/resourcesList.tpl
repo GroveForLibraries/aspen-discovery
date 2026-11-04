@@ -6,11 +6,11 @@
 			<div class="row">
 				{foreach from=$featuredResources item=resource}
 					<div class="col-xs-4 col-md-3 col-lg-2 featuredResource">
-						<a href="/WebBuilder/WebResource?id={$resource->id}">
-						{if !empty($resource->logo)}
-							<img src='/files/thumbnail/{$resource->logo}' alt="{$resource->name}" class="img-responsive img-thumbnail">
+						<a href="/WebBuilder/WebResource?id={$resource.id}">
+						{if !empty($resource.bookCoverUrl)}
+							<img src='/files/thumbnail/{$resource.bookCoverUrl}' alt="{$resource.title}" class="img-responsive img-thumbnail">
 						{else}
-							{$resource->name}
+							{$resource.title}
 						{/if}
 						</a>
 					</div>
@@ -38,22 +38,22 @@
 					<div class="panel-body">
 						{foreach from=$resources item=resource}
 							<div class="row webResourceRow">
-								{if !empty($resource->logo)}
+								{if !empty($resource.bookCoverUrl)}
 								<div class="coversColumn col-xs-3 col-sm-3 col-md-3 col-lg-2 text-center" aria-hidden="true" role="presentation">
-										<a href="/WebBuilder/WebResource?id={$resource->id}" tabindex="-1">
-											<img src='/files/thumbnail/{$resource->logo}' alt="{$resource->name}" class="img-responsive img-thumbnail">
+										<a href="/WebBuilder/WebResource?id={$resource.id}" tabindex="-1">
+											<img src='/files/thumbnail/{$resource.bookCoverUrl}' alt="{$resource.title}" class="img-responsive img-thumbnail">
 										</a>
 
 								</div>
 								{/if}
-								<div class="{if !empty($resource->logo)}col-xs-9 col-sm-9 col-md-9 col-lg-10{else}col-xs-12 col-sm-12 col-md-12 col-lg-12{/if}">
+								<div class="{if !empty($resource.bookCoverUrl)}col-xs-9 col-sm-9 col-md-9 col-lg-10{else}col-xs-12 col-sm-12 col-md-12 col-lg-12{/if}">
 									<div>
-										<a href="/WebBuilder/WebResource?id={$resource->id}" class="result-title">
-											{$resource->name}
+										<a href="/WebBuilder/WebResource?id={$resource.id}" class="result-title">
+											{$resource.title}
 										</a>
 									</div>
 									<div>
-										{$resource->teaser}
+										{$resource.description}
 									</div>
 								</div>
 							</div>

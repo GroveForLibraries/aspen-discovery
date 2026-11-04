@@ -10,23 +10,23 @@
 			<ul id="filterAtoZ-list" class="navbar-horizontal-items" >
 				{foreach from=$filterArray item=filter}
 					<li id="filterAtoZ-listItem" class="navbar-horizontal-item">
-					{if in_array($filter, $validLetters)}
+						{if in_array($filter, $validLetters)}
 							{if $filter == 'num'}
-								<a  class="btn btn-primary btn-sm" href="/WebBuilder/ResourcesAtoZ?startsWith={$filter}">#</a>
+								<a class="btn btn-primary btn-sm" href="/WebBuilder/ResourcesAtoZ?{$atozQuery}startsWith={$filter}">#</a>
 							{else}
-								<a  class="btn btn-primary btn-sm" href="/WebBuilder/ResourcesAtoZ?startsWith={$filter}">{$filter}</a>
+								<a class="btn btn-primary btn-sm" href="/WebBuilder/ResourcesAtoZ?{$atozQuery}startsWith={$filter}">{$filter}</a>
 							{/if}
-					{else}
-						{if $filter == 'num'}
-							<a  class="btn btn-primary btn-sm" disabled="true">#</a>
 						{else}
-							<a  class="btn btn-primary btn-sm" disabled="true">{$filter}</a>
+							{if $filter == 'num'}
+								<a  class="btn btn-primary btn-sm" disabled="true">#</a>
+							{else}
+								<a  class="btn btn-primary btn-sm" disabled="true">{$filter}</a>
+							{/if}
 						{/if}
-					{/if}
 					</li>
 				{/foreach}
 				<li class=""  style="margin-left: auto;">
-					<a  class="btn btn-primary btn-sm" href="/WebBuilder/ResourcesAtoZ?startsWith=All">View All</a>
+					<a class="btn btn-primary btn-sm" href="/WebBuilder/ResourcesAtoZ?{$atozQuery}startsWith=All">View All</a>
 				</li>
 			</ul>
 		</div>

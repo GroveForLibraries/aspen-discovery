@@ -8,6 +8,7 @@ class GeneralSetting extends DataObject {
 	public $enableSelfRegistration;
 	public $showMoreInfoBtn;
 	public $enableLocationChange;
+	public $showOnlyLocalBranches;
 
 	private $_libraries;
 
@@ -61,6 +62,12 @@ class GeneralSetting extends DataObject {
 				'type' => 'checkbox',
 				'label' => 'Enable changing the location a user is active in on the Location screen',
 				'description' => 'Whether or not to allow users to change the location a user is active in on the Location screen.',
+      ],
+			'showOnlyLocalBranches' => [
+				'property' => 'showOnlyLocalBranches',
+				'type' => 'checkbox',
+				'label' => 'Show only local system branches on All Locations screen',
+				'description' => 'Whether or not to show all locations in the Aspen instance on the All Locations screen or just the local system branches.',
 				'hideInLists' => true,
 			],
 			'libraries' => [

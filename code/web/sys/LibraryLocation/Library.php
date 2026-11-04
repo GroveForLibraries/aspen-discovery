@@ -124,6 +124,7 @@ class Library extends DataObject {
 	public $enableListDescriptions;
 	public $allowableListNames;
 	public $hideSoftDeleteListUI;
+	public $hideListItemsNoLongerInCatalog;
 	public $showConvertListsFromClassic;
 	public $showUserCirculationModules;
 	public $showUserPreferences;
@@ -3805,6 +3806,14 @@ class Library extends DataObject {
 						'hideInLists' => true,
 						'default' => 0,
 					],
+					'hideListItemsNoLongerInCatalog' => [
+						'property' => 'hideListItemsNoLongerInCatalog',
+						'type' => 'checkbox',
+						'label' => 'Hide List Items No Longer in Catalog',
+						'description' => 'When enabled, users will no longer see list items that no longer exist in the catalog.',
+						'hideInLists' => true,
+						'default' => 0,
+					],
 					'showConvertListsFromClassic' => [
 						'property' => 'showConvertListsFromClassic',
 						'type' => 'checkbox',
@@ -7056,11 +7065,14 @@ class Library extends DataObject {
 			$apiInfo['enableSelfRegistrationInApp'] = 0;
 			$apiInfo['showMoreInfoBtn'] = 0;
 			$apiInfo['enableLocationChange'] = 0;
+			$apiInfo['showLocalBranchesOnly'] = 1;
 		} else {
 			$apiInfo['generalSettings']['autoRotateCard'] = $generalSettings->autoRotateCard ?? 0;
 			$apiInfo['enableSelfRegistrationInApp'] = $generalSettings->enableSelfRegistration ?? 0;
 			$apiInfo['showMoreInfoBtn'] = (int)$generalSettings->showMoreInfoBtn ?? 0;
 			$apiInfo['enableLocationChange'] = (int)$generalSettings->enableLocationChange ?? 0;
+			$apiInfo['showLocalBranchesOnly'] = (int)$generalSettings->showOnlyLocalBranches ?? 1;
+
 		}
 
 		$apiInfo['hasEventSettings'] = $this->hasEventSettings();
@@ -7433,5 +7445,13 @@ class Library extends DataObject {
 			}
 		}
 		return $config;
+	}
+
+	public function getLibraryWebResourceSettings() {
+		require_once ROOT_DIR . '/sys/WebBuilder/WebResourcesSetting.php';
+		$libraryResourceSettings = new WebResourcesSetting();
+		$libraryResourceSettings->id = $this->webResourcesSettingId;
+		$libraryResourceSettings->find(true);
+		return $libraryResourceSettings;
 	}
 }
