@@ -185,11 +185,9 @@ class Events_Calendar extends Action {
 
 		if ($selectedLocation === 'all') {
 			if ($library->aspenEventsToInclude == 2) {
-				$libraryBranches = $locations;
-				unset($libraryBranches['all']);
-				$branchNames = array_values($libraryBranches);
+				$branchNames = array_values(array_diff($locations, ['All Locations'])); // adjust to your 'all' label
 				if (!empty($branchNames)) {
-					$searchObject->addHiddenFilter('branch', '("' . implode('" OR "', $branchNames) . '")');
+					$searchObject->addHiddenFilter('branch', '("' . implode('" OR "', $branchNames) . '" OR "")');
 				}
 			}
 		} else {
