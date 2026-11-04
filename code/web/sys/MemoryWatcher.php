@@ -53,6 +53,14 @@ class MemoryWatcher {
 		}
 	}
 
+	public function getCurrentMemoryAllocation() {
+		$curMemory = memory_get_usage(false);
+		$memoryInUse = number_format(($curMemory) / 1024 /1024);
+		$curMemory = memory_get_usage(true);
+		$memoryReserved = number_format($curMemory / 1024 /1024);
+		return " $memoryInUse MB in use, $memoryReserved MB reserved";
+	}
+
 	function __destruct() {
 		if ($this->memoryLoggingEnabled) {
 			global $logger;

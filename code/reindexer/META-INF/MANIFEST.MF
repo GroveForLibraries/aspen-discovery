@@ -1,48 +1,41 @@
 Manifest-Version: 1.0
-Class-Path: ../java_shared_libraries/commons-beanutils-1.9.3.jar ../java
- _shared_libraries/commons-codec-1.12.jar ../java_shared_libraries/commo
- ns-collections4-4.3.jar ../java_shared_libraries/commons-lang3-3.8.1.ja
- r ../java_shared_libraries/commons-text-1.6.jar ../java_shared_librarie
- s/ini4j-0.5.5-SNAPSHOT.jar ../java_shared_libraries/jsch-0.1.55.jar ../
- java_shared_libraries/log4j-api-2.11.2.jar ../java_shared_libraries/log
- 4j-core-2.11.2.jar ../java_shared_libraries/mysql-connector-java-8.0.29
- .jar ../java_shared_libraries/opencsv-4.5.jar ../java_shared_libraries/
- commons-net-3.6.jar ../java_shared_libraries/jsch-0.1.55.jar ../java_sh
- ared_libraries/commons-lang3-3.8.1.jar ../../sites/default/solr-8.11.2/
- dist/solrj-lib/commons-io-2.8.0.jar ../../sites/default/solr-8.11.2/dis
- t/solrj-lib/commons-math3-3.6.1.jar ../../sites/default/solr-8.11.2/dis
- t/solrj-lib/httpclient-4.5.13.jar ../../sites/default/solr-8.11.2/dist/
- solrj-lib/httpcore-4.4.14.jar ../../sites/default/solr-8.11.2/dist/solr
- j-lib/httpmime-4.5.13.jar ../../sites/default/solr-8.11.2/dist/solrj-li
- b/jcl-over-slf4j-1.7.24.jar ../../sites/default/solr-8.11.2/dist/solrj-
- lib/slf4j-api-1.7.24.jar ../../sites/default/solr-8.11.2/dist/solrj-lib
- /stax2-api-4.2.1.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/woo
- dstox-core-6.2.4.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/zoo
- keeper-3.6.2.jar ../../sites/default/solr-8.11.2/dist/solr-solrj-8.11.2
- .jar ../../sites/default/solr-8.11.2/dist/solr-core-8.11.2.jar ../../si
- tes/default/solr-8.11.2/dist/solrj-lib/jetty-client-9.4.44.v20210927.ja
- r ../../sites/default/solr-8.11.2/dist/solrj-lib/jetty-util-9.4.44.v202
- 10927.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/jetty-http-9.4
- .44.v20210927.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/jetty-
- io-9.4.44.v20210927.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/
- commons-lang-2.6.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/htt
- p2-client-9.4.44.v20210927.jar ../../sites/default/solr-8.11.2/dist/sol
- rj-lib/http2-common-9.4.44.v20210927.jar ../../sites/default/solr-8.11.
- 2/dist/solrj-lib/http2-hpack-9.4.44.v20210927.jar ../../sites/default/s
- olr-8.11.2/dist/solrj-lib/http2-http-client-transport-9.4.44.v20210927.
- jar ../../sites/default/solr-8.11.2/dist/solrj-lib/jetty-alpn-client-9.
- 4.44.v20210927.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/jetty
- -alpn-java-client-9.4.44.v20210927.jar ../../sites/default/solr-8.11.2/
- dist/solrj-lib/netty-buffer-4.1.68.Final.jar ../../sites/default/solr-8
- .11.2/dist/solrj-lib/netty-codec-4.1.68.Final.jar ../../sites/default/s
- olr-8.11.2/dist/solrj-lib/netty-common-4.1.68.Final.jar ../../sites/def
- ault/solr-8.11.2/dist/solrj-lib/netty-handler-4.1.68.Final.jar ../../si
- tes/default/solr-8.11.2/dist/solrj-lib/netty-resolver-4.1.68.Final.jar 
- ../../sites/default/solr-8.11.2/dist/solrj-lib/netty-transport-4.1.68.F
- inal.jar ../../sites/default/solr-8.11.2/dist/solrj-lib/netty-transport
- -native-epoll-4.1.68.Final.jar ../../sites/default/solr-8.11.2/dist/sol
- rj-lib/netty-transport-native-unix-common-4.1.68.Final.jar ../../sites/
- default/solr-8.11.2/dist/solrj-lib/snappy-java-1.1.7.6.jar ../../sites/
- default/solr-8.11.2/dist/solrj-lib/zookeeper-jute-3.6.2.jar
+Class-Path: ../java_shared_libraries/commons-beanutils-1.9.3.jar
+  ../java_shared_libraries/commons-codec-1.12.jar
+  ../java_shared_libraries/commons-collections4-4.3.jar
+  ../java_shared_libraries/commons-lang3-3.8.1.jar
+  ../java_shared_libraries/commons-text-1.6.jar
+  ../java_shared_libraries/ini4j-0.5.5-SNAPSHOT.jar
+  ../java_shared_libraries/jsch-0.1.55.jar
+  ../java_shared_libraries/log4j-api-2.26.1.jar
+  ../java_shared_libraries/log4j-core-2.26.1.jar
+  ../java_shared_libraries/mysql-connector-java-8.0.29.jar
+  ../java_shared_libraries/opencsv-4.5.jar
+  ../java_shared_libraries/commons-net-3.6.jar
+  ../java_shared_libraries/solrj-9.10.1/http2-client-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/http2-common-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/http2-hpack-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/http2-http-client-transport
+ -10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/httpclient-4.5.14.jar
+  ../java_shared_libraries/solrj-9.10.1/httpcore-4.4.16.jar
+  ../java_shared_libraries/solrj-9.10.1/httpmime-4.5.14.jar
+  ../java_shared_libraries/solrj-9.10.1/jackson-annotations-2.18.0.jar
+  ../java_shared_libraries/solrj-9.10.1/jackson-core-2.18.0.jar
+  ../java_shared_libraries/solrj-9.10.1/jackson-databind-2.18.0.jar
+  ../java_shared_libraries/solrj-9.10.1/jakarta.ws.rs-api-3.1.0.jar
+  ../java_shared_libraries/solrj-9.10.1/jcl-over-slf4j-2.0.17.jar
+  ../java_shared_libraries/solrj-9.10.1/jetty-alpn-client-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/jetty-alpn-java-client
+ -10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/jetty-client-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/jetty-http-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/jetty-io-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/jetty-util-10.0.26.jar
+  ../java_shared_libraries/solrj-9.10.1/jspecify-1.0.0.jar
+  ../java_shared_libraries/solrj-9.10.1/semver4j-5.8.0.jar
+  ../java_shared_libraries/solrj-9.10.1/slf4j-api-2.0.17.jar
+  ../java_shared_libraries/solrj-9.10.1/solr-api-9.10.1.jar
+  ../java_shared_libraries/solrj-9.10.1/solr-solrj-9.10.1.jar
+  ../java_shared_libraries/solrj-9.10.1/swagger-annotations-jakarta
+ -2.2.22.jar
 Main-Class: org.aspen_discovery.reindexer.GroupedReindexMain
-

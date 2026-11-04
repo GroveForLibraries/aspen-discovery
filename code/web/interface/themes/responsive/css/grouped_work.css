@@ -260,7 +260,7 @@
 }
 .horizDisplayAllEditions {
   margin-top: 1em;
-  margin-bottom: 2em;
+  margin-bottom: 0;
 }
 .horizDisplayAllEditions .relatedRecord {
   margin-left: 0;

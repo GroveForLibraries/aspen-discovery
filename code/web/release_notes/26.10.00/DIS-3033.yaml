@@ -1,0 +1,13 @@
+Jira: DIS-3033
+Type: Enhancement
+Developer: Mark Noble (MDN)
+ContributingOrg: Grove For Libraries
+Sponsor: Cumberland County Library System
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: Interface Updates and Usability
+Description:
+  - Allow descriptions to be hidden in Grouped Work Search Results.
+NewSettings:
+  - Catalog / Grouped Works > Grouped Work Display > Search Results > Show Description in Search Results
+NewPermissions:

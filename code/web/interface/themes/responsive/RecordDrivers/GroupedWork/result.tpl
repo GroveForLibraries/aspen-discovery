@@ -63,7 +63,7 @@
 
 					{if empty($viewingCombinedResults)}
 						{* Description Section *}
-						{if !empty($summDescription)}
+						{if $showDescription && !empty($summDescription)}
 							{* Standard Description *}
 							<div class="result-description-label visible-xs">
 								<div class="result-label col-sm-4 col-xs-12">{translate text="Description" isPublicFacing=true}</div>

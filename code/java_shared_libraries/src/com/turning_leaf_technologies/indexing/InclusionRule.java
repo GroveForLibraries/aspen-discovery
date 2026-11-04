@@ -112,7 +112,7 @@ class InclusionRule {
 
 	//TODO: We can potentially just pass in the ItemInfo object instead of all or most of these parameters
 	//		This would likely require creating an interface for ItemInfo under java_shared_libraries.
-	boolean isItemIncluded(String itemIdentifier, String recordType, String locationCode, String subLocationCode, String iType, HashSet<String> audiences, String audiencesAsString, String format, String shelfLocation, String collectionCode, boolean isHoldable, boolean isOnOrder, boolean isEContent, org.marc4j.marc.Record marcRecord, DebugLogger debugLogger){
+	boolean isItemIncluded(String itemIdentifier, String recordType, String locationCode, String subLocationCode, String iType, String audience, String format, String shelfLocation, String collectionCode, boolean isHoldable, boolean isOnOrder, boolean isEContent, org.marc4j.marc.Record marcRecord, DebugLogger debugLogger){
 		if (lastIdentifier != null && lastIdentifier.equals(itemIdentifier)){
 			return lastIdentifierResult;
 		}
@@ -125,7 +125,7 @@ class InclusionRule {
 			lastIdentifierResult = false;
 			return false;
 		}
-		if (detailedInclusionRule != null && !detailedInclusionRule.isItemIncluded(itemIdentifier, subLocationCode, iType, audiences, audiencesAsString, format, shelfLocation, collectionCode, marcRecord, debugLogger)){
+		if (detailedInclusionRule != null && !detailedInclusionRule.isItemIncluded(itemIdentifier, subLocationCode, iType, audience, format, shelfLocation, collectionCode, marcRecord, debugLogger)){
 			lastIdentifierResult = false;
 			return false;
 		}

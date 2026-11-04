@@ -1,0 +1,12 @@
+Jira: DIS-3072
+Type: Enhancement
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor: SWAN Library Network
+GroveRelease: 26.10.00
+CommunityRelease: 26.11.00
+Component: Series
+Description:
+  - Strip trailing punctuation from series names and authors when creating series entries.
+New Settings:
+New Permissions:
