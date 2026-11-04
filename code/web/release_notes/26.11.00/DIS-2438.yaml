@@ -7,8 +7,8 @@ GroveRelease: 26.11.00
 CommunityRelease: 26.12.00
 Component: Web Builder
 Description:
-  - Add a setting to redirect users to submit a custom form from their home catalog
+  - Add a setting to optionally redirect users to submit a custom form from their home catalog
 New Settings:
-  - Custom form "Require submission from home library interface"
-  - Custom form "Require home library message"
+  - Web Builder > Custom Forms > Require submission from home library interface
+  - Web Builder > Custom Forms > Require home library message
 New Permissions:
