@@ -8,7 +8,7 @@
 					<div class="col-xs-4 col-md-3 col-lg-2 featuredResource">
 						<a href="/WebBuilder/WebResource?id={$resource.id}">
 						{if !empty($resource.bookCoverUrl)}
-							<img src='/files/thumbnail/{$resource.bookCoverUrl}' alt="{$resource.title}" class="img-responsive img-thumbnail">
+							<img src='{$resource.bookCoverUrl}' alt="{$resource.title}" class="img-responsive img-thumbnail">
 						{else}
 							{$resource.title}
 						{/if}
@@ -41,7 +41,7 @@
 								{if !empty($resource.bookCoverUrl)}
 								<div class="coversColumn col-xs-3 col-sm-3 col-md-3 col-lg-2 text-center" aria-hidden="true" role="presentation">
 										<a href="/WebBuilder/WebResource?id={$resource.id}" tabindex="-1">
-											<img src='/files/thumbnail/{$resource.bookCoverUrl}' alt="{$resource.title}" class="img-responsive img-thumbnail">
+											<img src='{$resource.bookCoverUrl}' alt="{$resource.title}" class="img-responsive img-thumbnail">
 										</a>
 
 								</div>
