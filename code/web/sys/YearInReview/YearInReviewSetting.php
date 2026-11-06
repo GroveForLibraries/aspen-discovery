@@ -67,6 +67,7 @@ class YearInReviewSetting extends DataObject {
 					'1' => 'Festive',
 					'2' => 'Holiday Wrapping',
 					'3' => 'Folk',
+					'4' => 'Celebration'
 				],
 				'description' => 'The style for the Year in review',
 			],
