@@ -3596,12 +3596,16 @@ class MyAccount_AJAX extends JSON_Action {
 		header('Cache-Control: max-age=0');
 		$fp = fopen('php://output', 'w');
 		try {
+			$showCostSavings = $user->isCostSavingsEnabled();
 			$fields = array(
 				'Title',
 				'Author',
 				'Format',
-				'Last used'
+				'Last Used'
 			);
+			if ($showCostSavings) {
+				$fields[] = 'Cost Savings';
+			}
 			fputcsv($fp, $fields);
 
 			foreach ($readingHistory['titles'] as $row) {
@@ -3626,6 +3630,9 @@ class MyAccount_AJAX extends JSON_Action {
 					$format,
 					$lastCheckout
 				);
+				if ($showCostSavings) {
+					$results[] = $row['costSavings'] ?? '';
+				}
 				fputcsv($fp, $results);
 			}
 		} catch (Exception $e) {
@@ -4781,6 +4788,7 @@ class MyAccount_AJAX extends JSON_Action {
 		$interface->assign('library', $patronHomeLibrary);
 		$result['showCostSavings'] = $patronHomeLibrary->enableCostSavings && $patron->enableCostSavings;
 		$result['costSavingsMessage'] = $user->getTotalCostSavingsMessage(true);
+		$interface->assign('disallowReturnDateEdits', $patronHomeLibrary->disallowReturnDateEdits);
 
 		$result['success'] = true;
 		$result['message'] = "";

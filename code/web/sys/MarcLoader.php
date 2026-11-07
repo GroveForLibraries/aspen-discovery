@@ -33,7 +33,7 @@ class MarcLoader {
 	 * @param string $recordType The type of the record in the system
 	 * @return ?File_MARC_Record
 	 */
-	public static function loadMarcRecordByILSId(string $id, string $recordType = 'marc') : ?File_MARC_Record {
+	public static function loadMarcRecordByILSId(string $id, string $recordType = 'marc', string $omitFields = null) : ?File_MARC_Record {
 		if (str_contains($id, ':')) {
 			$recordInfo = explode(':', $id);
 			$recordType = $recordInfo[0];
@@ -54,6 +54,8 @@ class MarcLoader {
 				$marcRecord = new File_MARC_Record();
 				if (!$marcRecord->jsonDecode($ilsRecord->sourceData)) {
 					AspenError::raiseError(new AspenError('Could not load marc record for record ' . $ilsId));
+				} elseif (!empty($omitFields)) {
+					MarcLoader::removeSuppressedFields($marcRecord, $omitFields);
 				}
 			}
 		}
@@ -69,6 +71,90 @@ class MarcLoader {
 		global $timer;
 		$timer->logTime("Loaded MARC record by ILS ID");
 		return $marcRecord;
+	}
+
+	private static function removeSuppressedFields(File_MARC_Record $marcRecord, string $omitFields) : void {
+		$suppressedFields = array_filter(array_map('trim', explode('|', trim($omitFields, " []"))), 'strlen');
+
+		$wholeTags = [];  // tags to drop entirely
+		$omitByTag = [];  // specific subfields to drop
+
+		foreach ($suppressedFields as $suppressedField) {
+			if (!preg_match('/^(\d{3})(.)?$/', $suppressedField, $m)) {
+				continue; // ignore malformed entries
+			}
+			if (!isset($m[2])) {
+				$wholeTags[$m[1]] = true;
+			} else {
+				$omitByTag[$m[1]][$m[2]] = true;
+			}
+		}
+
+		if (empty($wholeTags) && empty($omitByTag)) {
+			return;
+		}
+
+		$fieldsToDelete = [];  // fields to remove
+		$replacements   = [];  // fields to replace
+
+		foreach ($marcRecord->getFields() as $field) {
+			$tag = (string)$field->getTag();
+
+			// omit whole tag
+			if (isset($wholeTags[$tag])) {
+				$fieldsToDelete[] = $field;
+				continue;
+			}
+
+			// only data fields with rules are handled (no control fields)
+			if (!($field instanceof File_MARC_Data_Field) || !isset($omitByTag[$tag])) {
+				continue;
+			}
+
+			$kept = [];
+			$removedAny = false;
+			foreach ($field->getSubfields() as $subfield) {
+				if (isset($omitByTag[$tag][(string)$subfield->getCode()])) {
+					$removedAny = true;
+					continue;
+				}
+				// fresh copy so we don't carry over linked-list node state
+				$kept[] = new File_MARC_Subfield($subfield->getCode(), $subfield->getData());
+			}
+
+			// nothing matched, leave the field untouched
+			if (!$removedAny) {
+				continue;
+			}
+
+			// nothing left in field, drop the whole field
+			if (count($kept) === 0) {
+				$fieldsToDelete[] = $field;
+				continue;
+			}
+
+			// rebuild the field from the surviving subfields
+			$replacements[] = [
+				'old' => $field,
+				'new' => new File_MARC_Data_Field(
+					$tag,
+					$kept,
+					$field->getIndicator(1),
+					$field->getIndicator(2)
+				),
+			];
+		}
+
+		// replace fields not omitted entirely
+		foreach ($replacements as $r) {
+			$marcRecord->insertField($r['new'], $r['old'], true);
+			$r['old']->delete();
+		}
+
+		// remove fields omitted entirely
+		foreach ($fieldsToDelete as $field) {
+			$field->delete();
+		}
 	}
 
 	/**

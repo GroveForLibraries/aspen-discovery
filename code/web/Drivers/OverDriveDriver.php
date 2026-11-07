@@ -163,6 +163,8 @@ class OverDriveDriver extends AbstractEContentDriver {
 		}
 		if (str_contains($baseUrl, 'lexisdl')) {
 			$baseUrl .= 'title/' . $crossRefId;
+		} elseif(str_contains($baseUrl, 'soraapp.com')){
+			$baseUrl .= $crossRefId;
 		} else{
 			$baseUrl .= 'media/' . $crossRefId;
 		}
