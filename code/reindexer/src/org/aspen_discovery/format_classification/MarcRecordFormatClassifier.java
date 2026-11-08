@@ -57,7 +57,7 @@ public class MarcRecordFormatClassifier {
 				FormatMapValue formatMapValue = profile.getFormatMapValue(formatLower, BaseIndexingSettings.FORMAT_TYPE_MAT_TYPE);
 				if (formatMapValue != null) {
 					formatInfo.setFormatFromMap(formatMapValue, BaseIndexingSettings.FORMAT_TYPE_MAT_TYPE);
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + formatMapValue.getFormat() + " based on Mat Type of " + formatMapValue, 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + formatMapValue.getFormat() + " based on Mat Type of " + formatMapValue, 2);}
 					formatInfoFromBib.add(formatInfo);
 					continue;
 				}
@@ -66,7 +66,7 @@ public class MarcRecordFormatClassifier {
 				formatMapValue = profile.getFormatMapValue(formatLower, BaseIndexingSettings.FORMAT_TYPE_BIB_LEVEL);
 				if (formatMapValue != null) {
 					formatInfo.setFormatFromMap(formatMapValue, BaseIndexingSettings.FORMAT_TYPE_BIB_LEVEL);
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + formatMapValue.getFormat() + " based on bib level format of " + formatMapValue, 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + formatMapValue.getFormat() + " based on bib level format of " + formatMapValue, 2);}
 					formatInfoFromBib.add(formatInfo);
 				}
 			}else{
@@ -125,13 +125,13 @@ public class MarcRecordFormatClassifier {
 		if (leader.length() >= 6) {
 			leaderBit = leader.charAt(6);
 			if (Character.toUpperCase(leaderBit) == 'J') {
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format MusicRecording based on leader", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format MusicRecording based on leader", 2);}
 				printFormats.add("MusicRecording");
 			}else if (Character.toUpperCase(leaderBit) == 'O') {
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Kit based on leader", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Kit based on leader", 2);}
 				printFormats.add("Kit");
 			}else if (Character.toUpperCase(leaderBit) == 'P') {
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Mixed Materials based on leader", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Mixed Materials based on leader", 2);}
 				printFormats.add("MixedMaterials");
 			}
 		}
@@ -139,10 +139,10 @@ public class MarcRecordFormatClassifier {
 		if (fixedField != null && (leaderBit == 'a' || leaderBit == 't' || leaderBit == 'A' || leaderBit == 'T')){
 			if (fixedField.getData().length() > 23){
 				if (fixedField.getData().charAt(23) == 'f'){
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Braille based on 008", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Braille based on 008", 2);}
 					printFormats.add("Braille");
 				}else if (fixedField.getData().charAt(23) == 'd') {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 008", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 008", 2);}
 					printFormats.add("LargePrint");
 				}
 			}
@@ -191,13 +191,13 @@ public class MarcRecordFormatClassifier {
 		Set<String> fields = MarcUtil.getFieldList(record, "347b");
 		for (String curField : fields){
 			if (curField.equalsIgnoreCase("Blu-Ray")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray based on 347b", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray based on 347b", 2);}
 				printFormats.add("Blu-ray");
 			}else if (curField.equalsIgnoreCase("DVD video")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format DVD based on 347b", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format DVD based on 347b", 2);}
 				printFormats.add("DVD");
 			}else if (curField.equalsIgnoreCase("4K Ultra HD Blu-ray")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format 4KBlu-ray based on 347b", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format 4KBlu-ray based on 347b", 2);}
 				printFormats.add("4KBlu-ray");
 			}
 		}
@@ -207,10 +207,10 @@ public class MarcRecordFormatClassifier {
 		Set<String> fields = MarcUtil.getFieldList(record, "380a");
 		for (String curField : fields){
 			if (curField.equalsIgnoreCase("Graphic Novel")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on 380a", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on 380a", 2);}
 				printFormats.add("GraphicNovel");
 			}else if (curField.equalsIgnoreCase("Comic")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Comic based on 380a", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Comic based on 380a", 2);}
 				printFormats.add("Comic");
 			}
 		}
@@ -228,91 +228,91 @@ public class MarcRecordFormatClassifier {
 				if (subfield.getCode() != 'e') {
 					String physicalDescriptionData = subfield.getData().toLowerCase();
 					if (physicalDescriptionData.contains("atlas")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Atlas based on 300 Physical Description", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Atlas based on 300 Physical Description", 2);}
 						result.add("Atlas");
 					} else if (physicalDescriptionData.contains("large type") || physicalDescriptionData.contains("large print")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 300 Physical Description", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 300 Physical Description", 2);}
 						result.add("LargePrint");
 					}else if (physicalDescriptionData.contains("4k") && (physicalDescriptionData.contains("bluray") || physicalDescriptionData.contains("blu-ray"))) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format 4KBlu-ray based on 300 Physical Description", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format 4KBlu-ray based on 300 Physical Description", 2);}
 						result.add("4KBlu-ray");
 					} else if (physicalDescriptionData.contains("bluray") || physicalDescriptionData.contains("blu-ray")) {
 						//Check to see if this is a combo pack.
 						Subfield subfieldE = field.getSubfield('e');
 						if (subfieldE != null && subfieldE.getData().toLowerCase().contains("dvd")){
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray/DVD based on 300 Physical Description", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray/DVD based on 300 Physical Description", 2);}
 							result.add("Blu-ray/DVD");
 						}else {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray based on 300 Physical Description", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray based on 300 Physical Description", 2);}
 							result.add("Blu-ray");
 						}
 					} else if (physicalDescriptionData.contains("computer optical disc")) {
 						if (!pagesPattern.matcher(physicalDescriptionData).matches()){
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Software based on 300 Physical Description", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Software based on 300 Physical Description", 2);}
 							result.add("Software");
 						}
 					} else if (physicalDescriptionData.contains("sound cassettes")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundCassette based on 300 Physical Description", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundCassette based on 300 Physical Description", 2);}
 						result.add("SoundCassette");
 					} else if (physicalDescriptionData.contains("mp3")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format MP3Disc based on 300 Physical Description", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format MP3Disc based on 300 Physical Description", 2);}
 						result.add("MP3Disc");
 					} else if (kitPattern.matcher(physicalDescriptionData).matches()) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Kit based on 300 Physical Description", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Kit based on 300 Physical Description", 2);}
 						result.add("Kit");
 					} else if (audioDiscPattern.matcher(physicalDescriptionData).matches() && !(physicalDescriptionData.contains("cd player") || physicalDescriptionData.contains("cd boombox") || physicalDescriptionData.contains("cd boom box") || physicalDescriptionData.contains("cd/mp3 player"))) {
 						// Check to see if there is a subfield e. If so, this could be a combined format.
 						Subfield subfieldE = field.getSubfield('e');
 						if (subfieldE != null && subfieldE.getData().toLowerCase().contains("book") && !subfieldE.getData().toLowerCase().contains("booklet")){
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format CD+Book based on 300 Physical Description", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format CD+Book based on 300 Physical Description", 2);}
 							result.add("CD+Book");
 						}else{
 							if (!physicalDescriptionData.contains("cd-rom")) {
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundDisc based on 300 Physical Description", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundDisc based on 300 Physical Description", 2);}
 								result.add("SoundDisc");
 							}
 						}
 					} else if (subfield.getCode() == 'a') {
 						if (physicalDescriptionData.contains("launchpad")) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {
-								groupedWork.addDebugMessage("Adding bib level format PlayawayLaunchpad based on 300 Physical Description", 2);
+								groupedWork.addDebugMessage("[format]Adding bib level format PlayawayLaunchpad based on 300 Physical Description", 2);
 							}
 							result.add("PlayawayLaunchpad");
 						} else if (physicalDescriptionData.contains("video-enabled book")) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {
-								groupedWork.addDebugMessage("Adding bib level format VideoEnabledBook based on 300 Physical Description", 2);
+								groupedWork.addDebugMessage("[format]Adding bib level format VideoEnabledBook based on 300 Physical Description", 2);
 							}
 							result.add("VideoEnabledBook");
 						} else if (physicalDescriptionData.contains("videodisc")) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {
-								groupedWork.addDebugMessage("Adding bib level format VideoDisc based on 300 Physical Description", 2);
+								groupedWork.addDebugMessage("[format]Adding bib level format VideoDisc based on 300 Physical Description", 2);
 							}
 							result.add("VideoDisc");
 						} else if (physicalDescriptionData.contains("online resource") && settings instanceof IndexingProfile) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {
-								groupedWork.addDebugMessage("Adding bib level format online_resource based on 300$a Physical Description (ILS records only).", 2);
+								groupedWork.addDebugMessage("[format]Adding bib level format online_resource based on 300$a Physical Description (ILS records only).", 2);
 							}
 							result.add("online_resource");
 						} else if (pagesPattern2.matcher(physicalDescriptionData).matches()) {
 							Subfield subfieldE = field.getSubfield('e');
 							if (subfieldE != null && (subfieldE.getData().toLowerCase().contains("dvd") || subfieldE.getData().toLowerCase().contains("videodisc"))) {
 								if (groupedWork != null && groupedWork.isDebugEnabled()) {
-									groupedWork.addDebugMessage("Adding bib level format Book+DVD based on 300 Physical Description", 2);
+									groupedWork.addDebugMessage("[format]Adding bib level format Book+DVD based on 300 Physical Description", 2);
 								}
 								result.add("Book+DVD");
 							} else if (subfieldE != null && subfieldE.getData().toLowerCase().contains("cd-rom")) {
 								if (groupedWork != null && groupedWork.isDebugEnabled()) {
-									groupedWork.addDebugMessage("Adding bib level format Book+CD-ROM based on 300 Physical Description", 2);
+									groupedWork.addDebugMessage("[format]Adding bib level format Book+CD-ROM based on 300 Physical Description", 2);
 								}
 								result.add("Book+CD-ROM");
 							} else if (subfieldE != null && (subfieldE.getData().toLowerCase().contains("cd") || subfieldE.getData().toLowerCase().contains("audio disc"))) {
 								if (groupedWork != null && groupedWork.isDebugEnabled()) {
-									groupedWork.addDebugMessage("Adding bib level format Book+CD based on 300 Physical Description", 2);
+									groupedWork.addDebugMessage("[format]Adding bib level format Book+CD based on 300 Physical Description", 2);
 								}
 								result.add("Book+CD");
 							} else {
 								if (groupedWork != null && groupedWork.isDebugEnabled()) {
-									groupedWork.addDebugMessage("Adding bib level format Book based on 300 Physical Description", 2);
+									groupedWork.addDebugMessage("[format]Adding bib level format Book based on 300 Physical Description", 2);
 								}
 								result.add("Book");
 							}
@@ -345,19 +345,19 @@ public class MarcRecordFormatClassifier {
 					if (subfield.getCode() == 'a'){
 						String subfieldData = subfield.getData().toLowerCase();
 						if (subfieldData.contains("large type") || subfieldData.contains("large print")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 650 Subject", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 650 Subject", 2);}
 							result.add("LargePrint");
 						}else if (subfieldData.contains("playaway")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Playaway based on 650 Subject", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Playaway based on 650 Subject", 2);}
 							result.add("Playaway");
 						}else if (subfieldData.contains("board book")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BoardBook based on 650 Subject", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format BoardBook based on 650 Subject", 2);}
 							result.add("BoardBook");
 						}else if (checkPictureBooks && subfieldData.contains("picture book")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PictureBook based on 650 Subject", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PictureBook based on 650 Subject", 2);}
 							result.add("PictureBook");
 						}else if (subfieldData.contains("pop-up")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Pop-UpBook based on 650 Subject", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Pop-UpBook based on 650 Subject", 2);}
 							result.add("Pop-UpBook");
 						}else if (subfieldData.contains("graphic novel")) {
 							boolean okToAdd = false;
@@ -372,7 +372,7 @@ public class MarcRecordFormatClassifier {
 								okToAdd = true;
 							}
 							if (okToAdd){
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on 650 Subject", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on 650 Subject", 2);}
 								result.add("GraphicNovel");
 							}
 						}
@@ -393,34 +393,34 @@ public class MarcRecordFormatClassifier {
 						String subfieldData = subfield.getData().toLowerCase();
 						subfieldData = AspenStringUtils.trimTrailingPunctuation(subfieldData);
 						if (subfieldData.contains("large type")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 655 Genre", 2);}
 							result.add("LargePrint");
 						}else if (subfieldData.contains("library of things")){
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LibraryOfThings based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LibraryOfThings based on 655 Genre", 2);}
 							result.add("LibraryOfThings");
 						}else if (subfieldData.contains("playaway")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Playaway based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Playaway based on 655 Genre", 2);}
 							result.add("Playaway");
 						}else if (subfieldData.contains("board book")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BoardBook based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format BoardBook based on 655 Genre", 2);}
 							result.add("BoardBook");
 						}else if (subfieldData.contains("picture book")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PictureBook based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PictureBook based on 655 Genre", 2);}
 							result.add("PictureBook");
 						}else if (subfieldData.contains("readers (publications)")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Early Reader based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Early Reader based on 655 Genre", 2);}
 							result.add("EarlyReader");
 						}else if (subfieldData.contains("big book")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BigBook based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format BigBook based on 655 Genre", 2);}
 							result.add("BigBook");
 						}else if (subfieldData.contains("pop-up")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Pop-UpBook based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Pop-UpBook based on 655 Genre", 2);}
 							result.add("Pop-UpBook");
 						}else if (subfieldData.equals("zines")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Zines based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Zines based on 655 Genre", 2);}
 							result.add("Zines");
 						}else if (subfieldData.startsWith("manga graphic novel") || subfieldData.equals("manga") || subfieldData.equals("manga.")) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Manga based on 655 Genre", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Manga based on 655 Genre", 2);}
 							result.add("Manga");
 						}else if (subfieldData.contains("graphic novel")) {
 							boolean okToAdd = false;
@@ -435,7 +435,7 @@ public class MarcRecordFormatClassifier {
 								okToAdd = true;
 							}
 							if (okToAdd){
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on 655 Genre", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on 655 Genre", 2);}
 								result.add("GraphicNovel");
 							}
 						}
@@ -453,7 +453,7 @@ public class MarcRecordFormatClassifier {
 				Subfield subfieldA = field.getSubfield('a');
 				if (subfieldA != null) {
 					if (subfieldA.getData().toLowerCase().contains("seed library")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SeedPacket based on 690 Subject", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SeedPacket based on 690 Subject", 2);}
 						result.add("SeedPacket");
 					}
 				}
@@ -470,31 +470,31 @@ public class MarcRecordFormatClassifier {
 				if (subfieldA != null && subfieldA.getData() != null) {
 					String fieldData = subfieldA.getData().toLowerCase();
 					if (fieldData.contains("playaway view")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PlayawayView based on 710 Added Entry", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PlayawayView based on 710 Added Entry", 2);}
 						result.add("PlayawayView");
 					}else if (fieldData.contains("playaway launchpad")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PlayawayLaunchpad based on 710 Added Entry", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PlayawayLaunchpad based on 710 Added Entry", 2);}
 						result.add("PlayawayLaunchpad");
 					}else if (fieldData.contains("playaway bookpack")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PlayawayBookpack based on 710 Added Entry", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PlayawayBookpack based on 710 Added Entry", 2);}
 						result.add("PlayawayBookpack");
 					}else if (fieldData.contains("playaway wonderbook")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Wonderbook based on 710 Added Entry", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Wonderbook based on 710 Added Entry", 2);}
 						result.add("Wonderbook");
 					}else if (fieldData.contains("playaway digital audio") || fieldData.contains("findaway world")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Playaway based on 710 Added Entry", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Playaway based on 710 Added Entry", 2);}
 						result.add("Playaway");
 					}else if (fieldData.contains("boxine") || fieldData.contains("tonie")) {
 						//The 245a should also contain the word tonie
 						if (titleMatchesPattern(record, toniePattern)) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Tonie based on 710 Added Entry and 245", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Tonie based on 710 Added Entry and 245", 2);}
 							result.add("Tonies");
 						}
 					} else if (yotoPattern.matcher(fieldData).matches()) {
 						//Also confirm the title has yoto
 						if (titleMatchesPattern(record, yotoPattern)) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {
-								groupedWork.addDebugMessage("Adding bib level format Yoto based on 710 Added Entry and 245", 2);
+								groupedWork.addDebugMessage("[format]Adding bib level format Yoto based on 710 Added Entry and 245", 2);
 							}
 							result.add("Yoto");
 						}
@@ -529,43 +529,43 @@ public class MarcRecordFormatClassifier {
 		if (titleMedium != null){
 			titleMedium = titleMedium.toLowerCase();
 			if (titleMedium.contains("sound recording-cass")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundCassette based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundCassette based on 245h", 2);}
 				printFormats.add("SoundCassette");
 			}else if (titleMedium.contains("large print")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 245h", 2);}
 				printFormats.add("LargePrint");
 			}else if (titleMedium.contains("book club kit") || (titleMedium.contains("book discussion") && titleMedium.contains("kit"))){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BookClubKit based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format BookClubKit based on 245h", 2);}
 				printFormats.add("BookClubKit");
 			}else if (titleMedium.contains("ebook")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format eBook based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format eBook based on 245h", 2);}
 				printFormats.add("eBook");
 			}else if (titleMedium.contains("eaudio")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format eAudiobook based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format eAudiobook based on 245h", 2);}
 				printFormats.add("eAudiobook");
 			}else if (titleMedium.contains("emusic")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format eMusic based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format eMusic based on 245h", 2);}
 				printFormats.add("eMusic");
 			}else if (titleMedium.contains("evideo")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format eVideo based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format eVideo based on 245h", 2);}
 				printFormats.add("eVideo");
 			}else if (titleMedium.contains("ejournal")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format eJournal based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format eJournal based on 245h", 2);}
 				printFormats.add("eJournal");
 			}else if (titleMedium.contains("playaway")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Playaway based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Playaway based on 245h", 2);}
 				printFormats.add("Playaway");
 			}else if (titleMedium.contains("periodical")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Serial based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Serial based on 245h", 2);}
 				printFormats.add("Serial");
 			}else if (titleMedium.contains("vhs")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoCassette based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VideoCassette based on 245h", 2);}
 				printFormats.add("VideoCassette");
 			}else if (titleMedium.contains("blu-ray")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray based on 245h", 2);}
 				printFormats.add("Blu-ray");
 			}else if (titleMedium.contains("dvd")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format DVD based on 245h", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format DVD based on 245h", 2);}
 				printFormats.add("DVD");
 			}
 
@@ -574,13 +574,13 @@ public class MarcRecordFormatClassifier {
 		if (titleForm != null){
 			titleForm = titleForm.toLowerCase();
 			if (titleForm.contains("sound recording-cass")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundCassette based on 245k", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundCassette based on 245k", 2);}
 				printFormats.add("SoundCassette");
 			}else if (titleForm.contains("large print")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 245k", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 245k", 2);}
 				printFormats.add("LargePrint");
 			}else if (titleForm.contains("book club kit")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BookClubKit based on 245k", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format BookClubKit based on 245k", 2);}
 				printFormats.add("BookClubKit");
 			}
 		}
@@ -588,10 +588,10 @@ public class MarcRecordFormatClassifier {
 		if (titlePart != null){
 			titlePart = titlePart.toLowerCase();
 			if (titlePart.contains("sound recording-cass")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundCassette based on 245p", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundCassette based on 245p", 2);}
 				printFormats.add("SoundCassette");
 			}else if (titlePart.contains("large print")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 245p", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 245p", 2);}
 				printFormats.add("LargePrint");
 			}
 		}
@@ -623,7 +623,7 @@ public class MarcRecordFormatClassifier {
 			}
 			title = title.toLowerCase();
 			if (title.contains("book club kit")){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BookClubKit based on 245a", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format BookClubKit based on 245a", 2);}
 				printFormats.add("BookClubKit");
 			}
 		}
@@ -652,7 +652,7 @@ public class MarcRecordFormatClassifier {
 		}
 		if (subTitle != null){
 			if (graphicNovelSubtitle.matcher(subTitle).find()){
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on 245b", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on 245b", 2);}
 				printFormats.add("GraphicNovel");
 			}
 		}
@@ -668,7 +668,7 @@ public class MarcRecordFormatClassifier {
 			if (subfieldA != null && subfieldB != null) {
 				if (playawayPattern.matcher(subfieldB.getData()).lookingAt()){
 					if (whazoodlePattern.matcher(subfieldA.getData()).matches()){
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format WhaZoodle based on 028", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format WhaZoodle based on 028", 2);}
 						result.add("WhaZoodle");
 					}
 				}
@@ -685,23 +685,23 @@ public class MarcRecordFormatClassifier {
 			for (Subfield publisherSubField : publicationInfo.getSubfields('b')){
 				String sysDetailsValue = publisherSubField.getData().toLowerCase();
 				if (sysDetailsValue.contains("playaway")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format playaway based on 260/264", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format playaway based on 260/264", 2);}
 					result.add("Playaway");
 				} else if (sysDetailsValue.contains("go reader") || sysDetailsValue.contains("goreader")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GoReader based on 260/264", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GoReader based on 260/264", 2);}
 					result.add("GoReader");
 				} else if (sysDetailsValue.contains("boxine") || sysDetailsValue.contains("tonie")) {
 					//The 245a should also contain the word tonie
 					if (titleMatchesPattern(record, toniePattern)) {
 						if (groupedWork != null && groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("Adding bib level format Tonie based on 260/264", 2);
+							groupedWork.addDebugMessage("[format]Adding bib level format Tonie based on 260/264", 2);
 						}
 						result.add("Tonies");
 					}
 				} else if (yotoPattern.matcher(sysDetailsValue).matches()) {
 					if (titleMatchesPattern(record, yotoPattern)) {
 						if (groupedWork != null && groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("Adding bib level format Yoto based on 260/264", 2);
+							groupedWork.addDebugMessage("[format]Adding bib level format Yoto based on 260/264", 2);
 						}
 						result.add("Yoto");
 					}
@@ -723,42 +723,42 @@ public class MarcRecordFormatClassifier {
 				switch (formatCode) {
 					case 'A':
 						if (formatField.getData().toUpperCase().charAt(1) == 'D') {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Atlas based on 007", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Atlas based on 007", 2);}
 							resultsFrom007.add("Atlas");
 						} else {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Map based on 007", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Map based on 007", 2);}
 							resultsFrom007.add("Map");
 						}
 						break;
 					case 'C':
 						switch (formatField.getData().toUpperCase().charAt(1)) {
 							case 'A':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format TapeCartridge based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format TapeCartridge based on 007", 2);}
 								resultsFrom007.add("TapeCartridge");
 								break;
 							case 'B':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format ChipCartridge based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format ChipCartridge based on 007", 2);}
 								resultsFrom007.add("ChipCartridge");
 								break;
 							case 'C':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format DiscCartridge based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format DiscCartridge based on 007", 2);}
 								resultsFrom007.add("DiscCartridge");
 								break;
 							case 'F':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format TapeCassette based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format TapeCassette based on 007", 2);}
 								resultsFrom007.add("TapeCassette");
 								break;
 							case 'H':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format TapeReel based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format TapeReel based on 007", 2);}
 								resultsFrom007.add("TapeReel");
 								break;
 							case 'J':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format FloppyDisk based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format FloppyDisk based on 007", 2);}
 								resultsFrom007.add("FloppyDisk");
 								break;
 							case 'M':
 							case 'O':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format CDROM based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format CDROM based on 007", 2);}
 								resultsFrom007.add("CDROM");
 								break;
 							case 'R':
@@ -766,77 +766,77 @@ public class MarcRecordFormatClassifier {
 								// 856 field to be labeled as "Electronic"
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Software based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Software based on 007", 2);}
 								resultsFrom007.add("Software");
 								break;
 						}
 						break;
 					case 'D':
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Globe based on 007", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Globe based on 007", 2);}
 						resultsFrom007.add("Globe");
 						break;
 					case 'F':
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Braille based on 007", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Braille based on 007", 2);}
 						resultsFrom007.add("Braille");
 						break;
 					case 'G':
 						switch (formatField.getData().toUpperCase().charAt(1)) {
 							case 'C':
 							case 'D':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Filmstrip based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Filmstrip based on 007", 2);}
 								resultsFrom007.add("Filmstrip");
 								break;
 							case 'T':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Transparency based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Transparency based on 007", 2);}
 								resultsFrom007.add("Transparency");
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Slide based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Slide based on 007", 2);}
 								resultsFrom007.add("Slide");
 								break;
 						}
 						break;
 					case 'H':
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Microfilm based on 007", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Microfilm based on 007", 2);}
 						resultsFrom007.add("Microfilm");
 						break;
 					case 'K':
 						switch (formatField.getData().toUpperCase().charAt(1)) {
 							case 'C':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Collage based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Collage based on 007", 2);}
 								resultsFrom007.add("Collage");
 								break;
 							case 'D':
 							case 'L':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Drawing based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Drawing based on 007", 2);}
 								resultsFrom007.add("Drawing");
 								break;
 							case 'E':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Painting based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Painting based on 007", 2);}
 								resultsFrom007.add("Painting");
 								break;
 							case 'F':
 							case 'J':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Print based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Print based on 007", 2);}
 								resultsFrom007.add("Print");
 								break;
 							case 'G':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Photonegative based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Photonegative based on 007", 2);}
 								resultsFrom007.add("Photonegative");
 								break;
 							case 'O':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format FlashCard based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format FlashCard based on 007", 2);}
 								resultsFrom007.add("FlashCard");
 								break;
 							case 'N':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Chart based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Chart based on 007", 2);}
 								resultsFrom007.add("Chart");
 								break;
 							case 'Z':
 								//Don't add anything, this is identified as Other
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Photo based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Photo based on 007", 2);}
 								resultsFrom007.add("Photo");
 								break;
 						}
@@ -844,29 +844,29 @@ public class MarcRecordFormatClassifier {
 					case 'M':
 						switch (formatField.getData().toUpperCase().charAt(1)) {
 							case 'F':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoCassette based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VideoCassette based on 007", 2);}
 								resultsFrom007.add("VideoCassette");
 								break;
 							case 'R':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Filmstrip based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Filmstrip based on 007", 2);}
 								resultsFrom007.add("Filmstrip");
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format MotionPicture based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format MotionPicture based on 007", 2);}
 								resultsFrom007.add("MotionPicture");
 								break;
 						}
 						break;
 					case 'O':
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Kit based on 007", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Kit based on 007", 2);}
 						resultsFrom007.add("Kit");
 						break;
 					case 'Q':
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format MusicalScore based on 007", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format MusicalScore based on 007", 2);}
 						resultsFrom007.add("MusicalScore");
 						break;
 					case 'R':
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SensorImage based on 007", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SensorImage based on 007", 2);}
 						resultsFrom007.add("SensorImage");
 						break;
 					case 'S':
@@ -875,29 +875,29 @@ public class MarcRecordFormatClassifier {
 								if (formatField.getData().length() >= 4) {
 									char speed = formatField.getData().toUpperCase().charAt(3);
 									if (speed >= 'A' && speed <= 'E') {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Phonograph based on 007", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Phonograph based on 007", 2);}
 										resultsFrom007.add("Phonograph");
 									} else if (speed == 'F') {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format CompactDisc based on 007", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format CompactDisc based on 007", 2);}
 										resultsFrom007.add("CompactDisc");
 									} else if (speed >= 'K' && speed <= 'R') {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format TapeRecording based on 007", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format TapeRecording based on 007", 2);}
 										resultsFrom007.add("TapeRecording");
 									} else {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundDisc based on 007", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundDisc based on 007", 2);}
 										resultsFrom007.add("SoundDisc");
 									}
 								} else {
-									if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundDisc based on 007", 2);}
+									if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundDisc based on 007", 2);}
 									resultsFrom007.add("SoundDisc");
 								}
 								break;
 							case 'S':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundCassette based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundCassette based on 007", 2);}
 								resultsFrom007.add("SoundCassette");
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundRecording based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundRecording based on 007", 2);}
 								resultsFrom007.add("SoundRecording");
 								break;
 						}
@@ -905,11 +905,11 @@ public class MarcRecordFormatClassifier {
 					case 'T':
 						switch (formatField.getData().toUpperCase().charAt(1)) {
 							case 'A':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Book based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Book based on 007", 2);}
 								resultsFrom007.add("Book");
 								break;
 							case 'B':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 007", 2);}
 								resultsFrom007.add("LargePrint");
 								break;
 						}
@@ -917,36 +917,36 @@ public class MarcRecordFormatClassifier {
 					case 'V':
 						switch (formatField.getData().toUpperCase().charAt(1)) {
 							case 'C':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoCartridge based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VideoCartridge based on 007", 2);}
 								resultsFrom007.add("VideoCartridge");
 								break;
 							case 'D':
 								if (formatField.getData().length() >= 5) {
 									if (formatField.getData().toUpperCase().charAt(4) == 'T') {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format 4KBlu-ray based on 007", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format 4KBlu-ray based on 007", 2);}
 										resultsFrom007.add("4KBlu-ray");
 									}else if (formatField.getData().toUpperCase().charAt(4) == 'S') {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray based on 007", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray based on 007", 2);}
 										resultsFrom007.add("Blu-ray");
 									}else if (formatField.getData().toUpperCase().charAt(4) == 'V') {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format DVD based on 007", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format DVD based on 007", 2);}
 										resultsFrom007.add("DVD");
 									}
 								} else {
-									if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoDisc based on 007", 2);}
+									if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VideoDisc based on 007", 2);}
 									resultsFrom007.add("VideoDisc");
 								}
 								break;
 							case 'F':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoCassette based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VideoCassette based on 007", 2);}
 								resultsFrom007.add("VideoCassette");
 								break;
 							case 'R':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoReel based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VideoReel based on 007", 2);}
 								resultsFrom007.add("VideoReel");
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Video based on 007", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Video based on 007", 2);}
 								resultsFrom007.add("Video");
 								break;
 						}
@@ -981,22 +981,22 @@ public class MarcRecordFormatClassifier {
 					if (fixedField008 != null && fixedField008.getData().length() >= 25) {
 						formatCode = fixedField008.getData().toUpperCase().charAt(24);
 						if (formatCode == '6') {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
 							result.add("GraphicNovel");
 						}else if (fixedField008.getData().length() >= 26) {
 							formatCode = fixedField008.getData().toUpperCase().charAt(25);
 							if (formatCode == '6') {
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
 								result.add("GraphicNovel");
 							}else if (fixedField008.getData().length() >= 27) {
 								formatCode = fixedField008.getData().toUpperCase().charAt(26);
 								if (formatCode == '6') {
-									if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
+									if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
 									result.add("GraphicNovel");
 								}else if (fixedField008.getData().length() >= 28) {
 									formatCode = fixedField008.getData().toUpperCase().charAt(27);
 									if (formatCode == '6') {
-										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
+										if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GraphicNovel based on Leader and 008 field", 2);}
 										result.add("GraphicNovel");
 									}
 								}
@@ -1006,31 +1006,31 @@ public class MarcRecordFormatClassifier {
 					break;
 				case 'C':
 				case 'D':
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format MusicalScore based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format MusicalScore based on Leader", 2);}
 					result.add("MusicalScore");
 					break;
 				case 'E':
 				case 'F':
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Map based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Map based on Leader", 2);}
 					result.add("Map");
 					break;
 				case 'G':
 					// We appear to have a number of items without 007 tags marked as G's.
 					// These seem to be Videos rather than Slides.
 					// result.add("Slide");
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Video based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Video based on Leader", 2);}
 					result.add("Video");
 					break;
 				case 'I':
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format SoundRecording based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format SoundRecording based on Leader", 2);}
 					result.add("SoundRecording");
 					break;
 				case 'J':
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format MusicRecording based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format MusicRecording based on Leader", 2);}
 					result.add("MusicRecording");
 					break;
 				case 'K':
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Photo based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Photo based on Leader", 2);}
 					result.add("Photo");
 					break;
 				case 'M':
@@ -1039,19 +1039,19 @@ public class MarcRecordFormatClassifier {
 						formatCode = fixedField008.getData().toUpperCase().charAt(26);
 						switch (formatCode) {
 							case 'A':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format NumericData based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format NumericData based on Leader and 008 field", 2);}
 								result.add("NumericData");
 								break;
 							case 'B':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format ComputerProgram based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format ComputerProgram based on Leader and 008 field", 2);}
 								result.add("ComputerProgram");
 								break;
 							case 'G':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VideoGame based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VideoGame based on Leader and 008 field", 2);}
 								result.add("VideoGame");
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Electronic based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Electronic based on Leader and 008 field", 2);}
 								result.add("Electronic");
 								break;
 						}
@@ -1059,7 +1059,7 @@ public class MarcRecordFormatClassifier {
 					break;
 				case 'O':
 				case 'P':
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Kit based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Kit based on Leader", 2);}
 					result.add("Kit");
 					break;
 				case 'R':
@@ -1067,86 +1067,86 @@ public class MarcRecordFormatClassifier {
 						formatCode = fixedField008.getData().toUpperCase().charAt(33);
 						switch (formatCode) {
 							case 'A':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format ArtOriginal based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format ArtOriginal based on Leader and 008 field", 2);}
 								result.add("ArtOriginal");
 								break;
 							case 'B':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Kit based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Kit based on Leader and 008 field", 2);}
 								result.add("Kit");
 								break;
 							case 'C':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Journal based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Journal based on Leader and 008 field", 2);}
 								result.add("Journal");
 								break;
 							case 'D':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Diorama based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Diorama based on Leader and 008 field", 2);}
 								result.add("Diorama");
 								break;
 							case 'F':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Filmstrip based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Filmstrip based on Leader and 008 field", 2);}
 								result.add("Filmstrip");
 								break;
 							case 'G':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Game based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Game based on Leader and 008 field", 2);}
 								result.add("Game");
 								break;
 							case 'I':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Picture based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Picture based on Leader and 008 field", 2);}
 								result.add("Picture");
 								break;
 							case 'K':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Graphic based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Graphic based on Leader and 008 field", 2);}
 								result.add("Graphic");
 								break;
 							case 'L':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format TechnicalDrawing based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format TechnicalDrawing based on Leader and 008 field", 2);}
 								result.add("TechnicalDrawing");
 								break;
 							case 'N':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Chart based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Chart based on Leader and 008 field", 2);}
 								result.add("Chart");
 								break;
 							case 'O':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Flashcard based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Flashcard based on Leader and 008 field", 2);}
 								result.add("Flashcard");
 								break;
 							case 'P':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format MicroscopeSlide based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format MicroscopeSlide based on Leader and 008 field", 2);}
 								result.add("MicroscopeSlide");
 								break;
 							case 'Q':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Model based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Model based on Leader and 008 field", 2);}
 								result.add("Model");
 								break;
 							case 'R':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Realia based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Realia based on Leader and 008 field", 2);}
 								result.add("Realia");
 								break;
 							case 'S':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Slide based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Slide based on Leader and 008 field", 2);}
 								result.add("Slide");
 								break;
 							case 'T':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Transparency based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Transparency based on Leader and 008 field", 2);}
 								result.add("Transparency");
 								break;
 							case 'W':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Toy based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Toy based on Leader and 008 field", 2);}
 								result.add("Toy");
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PhysicalObject based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PhysicalObject based on Leader and 008 field", 2);}
 								result.add("PhysicalObject");
 								break;
 						}
 					} else {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PhysicalObject based on Leader and no 008 field", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PhysicalObject based on Leader and no 008 field", 2);}
 						result.add("PhysicalObject");
 						break;
 					}
 					break;
 				case 'T':
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Manuscript based on Leader", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Manuscript based on Leader", 2);}
 					result.add("Manuscript");
 					break;
 			}
@@ -1159,7 +1159,7 @@ public class MarcRecordFormatClassifier {
 				// Monograph
 				case 'M':
 					if (result.isEmpty()) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Book based on Leader", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Book based on Leader", 2);}
 						result.add("Book");
 					}
 					break;
@@ -1170,15 +1170,15 @@ public class MarcRecordFormatClassifier {
 						formatCode = fixedField008.getData().toUpperCase().charAt(21);
 						switch (formatCode) {
 							case 'N':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Newspaper based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Newspaper based on Leader and 008 field", 2);}
 								result.add("Newspaper");
 								break;
 							case 'P':
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Journal based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Journal based on Leader and 008 field", 2);}
 								result.add("Journal");
 								break;
 							default:
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Serial based on Leader and 008 field", 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Serial based on Leader and 008 field", 2);}
 								result.add("Serial");
 								break;
 						}
@@ -1193,48 +1193,48 @@ public class MarcRecordFormatClassifier {
 			if (edition.getSubfield('a') != null) {
 				String editionData = edition.getSubfield('a').getData().toLowerCase();
 				if (editionData.contains("large type") || editionData.contains("large print")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format LargePrint based on 250 edition", 2);}
 					result.add("LargePrint");
 				} else if (bluray4kComboRegex.matcher(editionData).matches()) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format 4K/Blu-ray based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format 4K/Blu-ray based on 250 edition", 2);}
 					result.add("4K/Blu-ray");
 				} else if (dvdBlurayComboRegex.matcher(editionData).matches()) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray/DVD based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray/DVD based on 250 edition", 2);}
 					result.add("Blu-ray/DVD");
 				} else if (editionData.contains("go reader") || editionData.contains("goreader")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GoReader based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GoReader based on 250 edition", 2);}
 					result.add("GoReader");
 				} else if (editionData.contains("playaway view")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PlayawayView based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format PlayawayView based on 250 edition", 2);}
 					result.add("PlayawayView");
 				} else if (editionData.contains("playaway")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Playaway based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Playaway based on 250 edition", 2);}
 					result.add("Playaway");
 				} else if (editionData.contains("wonderbook")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Wonderbook based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Wonderbook based on 250 edition", 2);}
 					result.add("Wonderbook");
 				} else if (editionData.contains("gamecube")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format GameCube based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format GameCube based on 250 edition", 2);}
 					result.add("GameCube");
 				} else if (editionData.contains("nintendo switch 2")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format NintendoSwitch2 based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format NintendoSwitch2 based on 250 edition", 2);}
 					result.add("NintendoSwitch2");
 				} else if (editionData.contains("nintendo switch")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format NintendoSwitch based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format NintendoSwitch based on 250 edition", 2);}
 					result.add("NintendoSwitch");
 				} else if (editionData.contains("book club kit")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BookClubKit based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format BookClubKit based on 250 edition", 2);}
 					result.add("BookClubKit");
 				} else if (editionData.contains("vox")) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VoxBooks based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VoxBooks based on 250 edition", 2);}
 					result.add("VoxBooks");
 				} else if (editionData.contains("pop-up") || (editionData.contains("mini-pop-up"))) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Pop-UpBook based on 250 edition", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Pop-UpBook based on 250 edition", 2);}
 					result.add("Pop-UpBook");
 				} else {
 					String gameFormat = getGameFormatFromValue(editionData);
 					if (gameFormat != null) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format " + gameFormat + " based on 250 edition", 2);}result.add(gameFormat);
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format " + gameFormat + " based on 250 edition", 2);}result.add(gameFormat);
 					}
 				}
 			}
@@ -1249,26 +1249,26 @@ public class MarcRecordFormatClassifier {
 				String sysDetailsValue = sysDetailsNote2.getSubfield('a').getData().toLowerCase();
 				String gameFormat = getGameFormatFromValue(sysDetailsValue);
 				if (gameFormat != null) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format " + gameFormat + " based on 538 note", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format " + gameFormat + " based on 538 note", 2);}
 					result.add(gameFormat);
 				} else {
 					if (sysDetailsValue.contains("playaway")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Playaway based on 538 note", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Playaway based on 538 note", 2);}
 						result.add("Playaway");
 					} else if (bluray4kComboRegex.matcher(sysDetailsValue).matches()) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format 4K/Blu-ray based on 538 note", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format 4K/Blu-ray based on 538 note", 2);}
 						result.add("4K/Blu-ray");
 					} else if (dvdBlurayComboRegex.matcher(sysDetailsValue).matches()) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray/DVD based on 538 note", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray/DVD based on 538 note", 2);}
 						result.add("Blu-ray/DVD");
 					} else if (sysDetailsValue.contains("bluray") || sysDetailsValue.contains("blu-ray")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Blu-ray based on 538 note", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format Blu-ray based on 538 note", 2);}
 						result.add("Blu-ray");
 					} else if (sysDetailsValue.contains("dvd") && !sysDetailsValue.contains("dvd-rom")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format DVD based on 538 note", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format DVD based on 538 note", 2);}
 						result.add("DVD");
 					} else if (sysDetailsValue.contains("vertical file")) {
-						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format VerticalFile based on 538 note", 2);}
+						if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding bib level format VerticalFile based on 538 note", 2);}
 						result.add("VerticalFile");
 					}
 				}

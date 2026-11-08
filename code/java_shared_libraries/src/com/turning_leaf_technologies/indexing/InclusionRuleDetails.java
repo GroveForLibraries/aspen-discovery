@@ -197,14 +197,14 @@ class InclusionRuleDetails {
 				if (!matchAllFormats) {
 					if (!formatPattern.matcher(format).matches()) {
 						if (debugLogger != null && debugLogger.isDebugEnabled()) {
-							debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because format '" + format + "' does not match pattern '" + formatPatternString + "'", 3);
+							debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because format '" + format + "' does not match pattern '" + formatPatternString + "'", 3);
 						}
 						isIncluded = false;
 					}
 					if (isIncluded && formatsToExcludePattern != null) {
 						if(formatsToExcludePattern.matcher(format).matches()){
 							if (debugLogger != null && debugLogger.isDebugEnabled()) {
-								debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because format '" + format + "' matches exclusion pattern", 3);
+								debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because format '" + format + "' matches exclusion pattern", 3);
 							}
 							isIncluded = false;
 						}

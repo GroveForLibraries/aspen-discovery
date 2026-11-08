@@ -328,7 +328,7 @@ class IIIRecordProcessor extends IlsRecordProcessor{
 						String formatValue = matTypeSubfield.getData().trim();
 						FormatMapValue formatMapValue = settings.getFormatMapValue(formatValue, BaseIndexingSettings.FORMAT_TYPE_MAT_TYPE);
 						if (formatMapValue != null) {
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + formatMapValue.getFormat() + " based on Mat Type " + formatValue, 2);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + formatMapValue.getFormat() + " based on Mat Type " + formatValue, 2);}
 							recordInfo.addFormat(formatMapValue.getFormat());
 							recordInfo.addFormatCategory(formatMapValue.getFormatCategory());
 							recordInfo.setFormatBoost(formatMapValue.getFormatBoost());

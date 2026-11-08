@@ -89,7 +89,7 @@ public class Scope implements Comparable<Scope>{
 	 */
 	public InclusionResult isItemPartOfScope(String itemIdentifier, String recordType, String locationCode, String subLocationCode, String iType, String audience, String format, String shelfLocation, String collectionCode, boolean isHoldable, boolean isOnOrder, boolean isEContent, Record marcRecord, String econtentUrl, DebugLogger debugLogger){
 		if (debugLogger != null && debugLogger.isDebugEnabled()) {
-			debugLogger.addDebugMessage("Checking scope '" + facetLabel + "' for item " + itemIdentifier, 2);
+			debugLogger.addDebugMessage("[scoping]Checking scope '" + facetLabel + "' for item " + itemIdentifier, 2);
 		}
 
 		if (isItemOwnedByScope(itemIdentifier, recordType, locationCode, subLocationCode, iType, audience, format, shelfLocation, collectionCode, isHoldable, isOnOrder, isEContent, marcRecord, debugLogger)){

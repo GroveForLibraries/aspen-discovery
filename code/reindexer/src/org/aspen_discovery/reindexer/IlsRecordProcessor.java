@@ -283,7 +283,7 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 				virtualItem.setIsVirtualChildRecord(true);
 				recordInfo.addItem(virtualItem);
 				if (groupedWork.isDebugEnabled()) {
-					groupedWork.addDebugMessage("Record " + recordInfo.getRecordIdentifier() + " has child records - created virtual child item for scoping", 2);
+					groupedWork.addDebugMessage("[general]Record " + recordInfo.getRecordIdentifier() + " has child records - created virtual child item for scoping", 2);
 				}
 			}
 
@@ -497,7 +497,7 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 			}
 			// Add debug message after processing all locations
 			if (groupedWork != null && groupedWork.isDebugEnabled()) {
-				groupedWork.addDebugMessage("Record " + recordInfo.getRecordIdentifier() + " has MARC holdings (852/866 fields) - created " + uniqueLocationCodes.size() + " virtual holdings items for scoping", 2);
+				groupedWork.addDebugMessage("[general]Record " + recordInfo.getRecordIdentifier() + " has MARC holdings (852/866 fields) - created " + uniqueLocationCodes.size() + " virtual holdings items for scoping", 2);
 			}
 		}
 	}
@@ -505,7 +505,7 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 	boolean checkIfBibShouldBeRemovedAsItemless(RecordInfo recordInfo, AbstractGroupedWorkSolr groupedWork) {
 		if (recordInfo.hasChildRecord()) {
 			if (groupedWork != null && groupedWork.isDebugEnabled()) {
-				groupedWork.addDebugMessage("Record " + recordInfo.getRecordIdentifier() + " kept despite having no items because it has child records", 2);
+				groupedWork.addDebugMessage("[general]Record " + recordInfo.getRecordIdentifier() + " kept despite having no items because it has child records", 2);
 			}
 			return false;
 		}
@@ -514,9 +514,9 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 
 		if (groupedWork != null && groupedWork.isDebugEnabled()) {
 			if (shouldRemove) {
-				groupedWork.addDebugMessage("Record " + recordInfo.getRecordIdentifier() + " will be removed because it has no items (print=" + recordInfo.getNumPrintCopies() + ", onOrder=" + recordInfo.getNumCopiesOnOrder() + ", eContent=" + recordInfo.getNumEContentCopies() + ", virtual=" + recordInfo.getNumVirtualItems() + ")", 2);
+				groupedWork.addDebugMessage("[general]Record " + recordInfo.getRecordIdentifier() + " will be removed because it has no items (print=" + recordInfo.getNumPrintCopies() + ", onOrder=" + recordInfo.getNumCopiesOnOrder() + ", eContent=" + recordInfo.getNumEContentCopies() + ", virtual=" + recordInfo.getNumVirtualItems() + ")", 2);
 			} else {
-				groupedWork.addDebugMessage("Record " + recordInfo.getRecordIdentifier() + " kept with items (print=" + recordInfo.getNumPrintCopies() + ", onOrder=" + recordInfo.getNumCopiesOnOrder() + ", eContent=" + recordInfo.getNumEContentCopies() + ", virtual=" + recordInfo.getNumVirtualItems() + ")", 3);
+				groupedWork.addDebugMessage("[general]Record " + recordInfo.getRecordIdentifier() + " kept with items (print=" + recordInfo.getNumPrintCopies() + ", onOrder=" + recordInfo.getNumCopiesOnOrder() + ", eContent=" + recordInfo.getNumEContentCopies() + ", virtual=" + recordInfo.getNumVirtualItems() + ")", 3);
 			}
 		}
 
@@ -637,7 +637,7 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 			groupedWork.addKeywords("On Order");
 			groupedWork.addKeywords("Coming Soon");
 			if (groupedWork.isDebugEnabled()) {
-				groupedWork.addDebugMessage("Record " + recordInfo.getRecordIdentifier() + " has " + recordInfo.getNumCopiesOnOrder() + " On Order items with no tangible items - this is an On Order only record (Sierra)", 2);
+				groupedWork.addDebugMessage("[general]Record " + recordInfo.getRecordIdentifier() + " has " + recordInfo.getNumCopiesOnOrder() + " On Order items with no tangible items - this is an On Order only record (Sierra)", 2);
 			}
 		}
 	}
@@ -1567,9 +1567,9 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {
 								boolean hasPhysicalItems = mainRecordInfo.getNumPrintCopies() > 0 || mainRecordInfo.getNumCopiesOnOrder() > 0;
 								if (!hasPhysicalItems) {
-									groupedWork.addDebugMessage("Record " + mainRecordInfo.getRecordIdentifier() + " has online content (" + econtentSource + ") without physical items - this is an online-only record", 2);
+									groupedWork.addDebugMessage("[general]Record " + mainRecordInfo.getRecordIdentifier() + " has online content (" + econtentSource + ") without physical items - this is an online-only record", 2);
 								} else {
-									groupedWork.addDebugMessage("Record " + mainRecordInfo.getRecordIdentifier() + " has online content (" + econtentSource + ") in addition to physical items", 3);
+									groupedWork.addDebugMessage("[general]Record " + mainRecordInfo.getRecordIdentifier() + " has online content (" + econtentSource + ") in addition to physical items", 3);
 								}
 							}
 						}
@@ -1698,11 +1698,11 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 	public void loadPrintFormatInformation(AbstractGroupedWorkSolr groupedWork, RecordInfo recordInfo, org.marc4j.marc.Record record, boolean hasChildRecords) {
 		//Check to see if we have child records, if so format will be Serials
 		if (hasChildRecords) {
-			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Title has child records, loading format from bib.", 2);}
+			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Title has child records, loading format from bib.", 2);}
 			//A record with children will not generally have items, so we will load from the bib.
 			loadPrintFormatFromBib(groupedWork, recordInfo, record);
 			if (recordInfo.getFormats().isEmpty()) {
-				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Set Format to Serial because there were no formats for the bib and child records exist.", 2);}
+				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Set Format to Serial because there were no formats for the bib and child records exist.", 2);}
 				recordInfo.addFormat("Serial");
 				recordInfo.addFormatCategory("Books");
 				recordInfo.setFormatBoost(8);
@@ -1716,7 +1716,7 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 					loadPrintFormatFromBib(groupedWork, recordInfo, record);
 					String firstFormat = recordInfo.getFirstFormat();
 					String firstFormatCategory = recordInfo.getFirstFormatCategory();
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("All items did not have formats, setting format to " + firstFormat + " for all items that did not have a format based on bib.", 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]All items did not have formats, setting format to " + firstFormat + " for all items that did not have a format based on bib.", 2);}
 					for (ItemInfo itemInfo : recordInfo.getRelatedItems()){
 						if (itemInfo.getFormat() == null || itemInfo.getFormat().isEmpty()) {
 							itemInfo.setFormat(firstFormat);
@@ -1734,7 +1734,7 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 				loadPrintFormatFromBib(groupedWork, recordInfo, record);
 				String firstFormat = recordInfo.getFirstFormat();
 				String firstFormatCategory = recordInfo.getFirstFormatCategory();
-				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("All items did not have formats, setting format to " + firstFormat + " for all items that did not have a format based on bib.", 2);}
+				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]All items did not have formats, setting format to " + firstFormat + " for all items that did not have a format based on bib.", 2);}
 				for (ItemInfo itemInfo : recordInfo.getRelatedItems()){
 					if (itemInfo.getFormat() == null || itemInfo.getFormat().isEmpty()) {
 						itemInfo.setFormat(firstFormat);
@@ -1756,14 +1756,14 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 			if (settings.getCheckRecordForLargePrint()){
 				boolean doLargePrintCheck = false;
 				if ((uniqueItemFormats.size() == 1) && uniqueItemFormats.iterator().next().equalsIgnoreCase("Book")){
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("All items are Book, checking record for Large Print.",2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]All items are Book, checking record for Large Print.",2);}
 
 					doLargePrintCheck = true;
 				}else if ((uniqueItemFormats.size() == 2) && uniqueItemFormats.contains("Book") && uniqueItemFormats.contains("Large Print")){
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("All items are Book or Large Print, checking record for Large Print.",2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]All items are Book or Large Print, checking record for Large Print.",2);}
 					doLargePrintCheck = true;
 				}else {
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Record has items that are not Book/Large Print, skipping Large Print check.",2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Record has items that are not Book/Large Print, skipping Large Print check.",2);}
 				}
 				if (doLargePrintCheck) {
 					LinkedHashSet<String> printFormats = formatClassifier.getUntranslatedFormatsFromBib(groupedWork, record, settings);
@@ -1797,12 +1797,12 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 		for (String printFormat : printFormats) {
 			FormatMapValue formatMapValue = settings.getFormatMapValue(printFormat, BaseIndexingSettings.FORMAT_TYPE_BIB_LEVEL);
 			if (formatMapValue != null) {
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Translating bib level format '" + printFormat + "' to '" + formatMapValue.getFormat() + "' using the Format Map", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Translating bib level format '" + printFormat + "' to '" + formatMapValue.getFormat() + "' using the Format Map", 2);}
 				recordInfo.addFormat(formatMapValue.getFormat());
 				recordInfo.addFormatCategory(formatMapValue.getFormatCategory());
 				recordInfo.setFormatBoost(formatMapValue.getFormatBoost());
 			} else {
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("No format mapping found for bib level format '" + printFormat + "' (appliesToBibLevel may be unchecked).", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]No format mapping found for bib level format '" + printFormat + "' (appliesToBibLevel may be unchecked).", 2);}
 			}
 		}
 	}
@@ -1903,20 +1903,20 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 
 	protected void loadTargetAudiences(AbstractGroupedWorkSolr groupedWork, org.marc4j.marc.Record record, RecordInfo recordInfo, ArrayList<ItemInfo> printItems, String identifier) {
 		if (settings.getDetermineAudienceBy() == 0) {
-			if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Determining target audience by bib record data", 1);}
+			if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Determining target audience by bib record data", 1);}
 			super.loadTargetAudiences(groupedWork, record, recordInfo, printItems, identifier, settings.getTreatUnknownAudienceAs());
 		}else{
 			HashSet<String> translatedAudiences = new HashSet<>();
 			if (settings.getDetermineAudienceBy() == 1) {
 				//Load based on collection
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Determining audience by collection", 1);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Determining audience by collection", 1);}
 				for (ItemInfo printItem : printItems){
 					String collection = printItem.getCollection();
 					if (collection != null) {
 						String collectionLower = collection.toLowerCase(Locale.ROOT);
 						if (hasTranslation("audience", collectionLower)) {
 							String translatedValue = translateValue("audience", collectionLower, identifier, true);
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience includes " + translatedValue + " based on collection " + collectionLower + " for item " + printItem.getItemIdentifier(), 1);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience includes " + translatedValue + " based on collection " + collectionLower + " for item " + printItem.getItemIdentifier(), 1);}
 							printItem.setTargetAudience(translatedValue);
 							translatedAudiences.add(translatedValue);
 						}
@@ -1925,14 +1925,14 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 				}
 			}else if (settings.getDetermineAudienceBy() == 2) {
 				//Load based on shelf location
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Determining audience by location", 1);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Determining audience by location", 1);}
 				for (ItemInfo printItem : printItems){
 					String shelfLocationCode = printItem.getShelfLocationCode();
 					if (shelfLocationCode != null) {
 						String shelfLocationCodeLower = shelfLocationCode.toLowerCase(Locale.ROOT);
 						if (hasTranslation("audience", shelfLocationCodeLower)) {
 							String translatedValue = translateValue("audience", shelfLocationCodeLower, identifier, true);
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience includes " + translatedValue + " based on shelf location " + shelfLocationCodeLower + " for item " + printItem.getItemIdentifier(), 1);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience includes " + translatedValue + " based on shelf location " + shelfLocationCodeLower + " for item " + printItem.getItemIdentifier(), 1);}
 							printItem.setTargetAudience(translatedValue);
 							translatedAudiences.add(translatedValue);
 						}
@@ -1940,14 +1940,14 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 				}
 			}else if (settings.getDetermineAudienceBy() == 3){
 				//Load based on a specified subfield
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Determining audience by subfield " + settings.getAudienceSubfield(), 1);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Determining audience by subfield " + settings.getAudienceSubfield(), 1);}
 				for (ItemInfo printItem : printItems){
 					List<String> audienceCodes = printItem.getSubfields(settings.getAudienceSubfield());
 					for (String audienceCode : audienceCodes) {
 						String audienceCodeLower = audienceCode.toLowerCase();
 						if (hasTranslation("audience", audienceCodeLower)) {
 							String translatedValue = translateValue("audience", audienceCodeLower, identifier, true);
-							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience includes code " + translatedValue + " based on subfield " + audienceCodeLower + " for item " + printItem.getItemIdentifier(), 1);}
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience includes code " + translatedValue + " based on subfield " + audienceCodeLower + " for item " + printItem.getItemIdentifier(), 1);}
 							printItem.setTargetAudience(translatedValue);
 							translatedAudiences.add(translatedValue);
 						}
@@ -1960,11 +1960,11 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 			if (!settings.isTreatUnknownAudienceAsUnknown() && translatedAudiences.contains("Unknown")) {
 				translatedAudiences.remove("Unknown");
 				translatedAudiences.add( settings.getTreatUnknownAudienceAs());
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Replacing unknown target audience with " + settings.getTreatUnknownAudienceAs(), 1);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Replacing unknown target audience with " + settings.getTreatUnknownAudienceAs(), 1);}
 			}
 			if (translatedAudiences.isEmpty()){
 				//We didn't get anything from the items (including Unknown), check the bib record
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Could not find target audience based on item - checking the bib record", 1);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Could not find target audience based on item - checking the bib record", 1);}
 				super.loadTargetAudiences(groupedWork, record, recordInfo, printItems, identifier,  settings.getTreatUnknownAudienceAs());
 			}else {
 				if (groupedWork != null) {
@@ -1977,10 +1977,10 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 
 	protected void loadLiteraryForms(AbstractGroupedWorkSolr groupedWork, org.marc4j.marc.Record record, ArrayList<ItemInfo> printItems, String identifier) {
 		if (settings.getDetermineLiteraryFormBy() == 0){
-			if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Determining literary form by bib record data", 1);}
+			if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Determining literary form by bib record data", 1);}
 			super.loadLiteraryForms(groupedWork, record, printItems, identifier);
 		}else{
-			if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Determining literary form by item subfield with literary_form map", 1);}
+			if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Determining literary form by item subfield with literary_form map", 1);}
 			//Load based on a subfield of the items
 			for (ItemInfo printItem : printItems) {
 				if (printItem.getMarcField() != null) {
@@ -1989,7 +1989,7 @@ abstract class IlsRecordProcessor extends MarcRecordProcessor {
 						if (subfield.getData() != null) {
 							String translatedValue = translateValue("literary_form", subfield.getData(), identifier, true);
 							if (translatedValue != null) {
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Subfield " + settings.getLiteraryFormSubfield() + " for item " + printItem.getItemIdentifier() + " is " + subfield.getData() + " which maps to " + translatedValue, 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Subfield " + settings.getLiteraryFormSubfield() + " for item " + printItem.getItemIdentifier() + " is " + subfield.getData() + " which maps to " + translatedValue, 2);}
 								if (groupedWork != null) {
 									groupedWork.addLiteraryForm(translatedValue);
 									groupedWork.addLiteraryFormFull(translatedValue);

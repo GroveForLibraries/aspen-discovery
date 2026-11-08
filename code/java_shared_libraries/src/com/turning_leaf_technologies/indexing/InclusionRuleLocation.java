@@ -53,7 +53,7 @@ class InclusionRuleLocation {
 		if (matchAllLocations){
 			if (!recordType.equals(this.recordType)){
 				if (debugLogger != null && debugLogger.isDebugEnabled()) {
-					debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because record type '" + recordType + "' does not match rule record type '" + this.recordType + "'", 3);
+					debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because record type '" + recordType + "' does not match rule record type '" + this.recordType + "'", 3);
 				}
 				return false;
 			}else{
@@ -62,7 +62,7 @@ class InclusionRuleLocation {
 		}else{
 			if (!this.recordType.equals(recordType)) {
 				if (debugLogger != null && debugLogger.isDebugEnabled()) {
-					debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because record type '" + recordType + "' does not match rule record type '" + this.recordType + "'", 3);
+					debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because record type '" + recordType + "' does not match rule record type '" + this.recordType + "'", 3);
 				}
 				return false;
 			}
@@ -70,14 +70,14 @@ class InclusionRuleLocation {
 			if (isLocationExactMatch) {
 				if (!locationCodeToMatch.equalsIgnoreCase(locationCode)) {
 					if (debugLogger != null && debugLogger.isDebugEnabled()) {
-						debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because location '" + locationCode + "' does not match required location '" + locationCodeToMatch + "'", 3);
+						debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because location '" + locationCode + "' does not match required location '" + locationCodeToMatch + "'", 3);
 					}
 					return false;
 				}
 			} else {
 				if (!locationCodePattern.matcher(locationCode).matches()) {
 					if (debugLogger != null && debugLogger.isDebugEnabled()) {
-						debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because location '" + locationCode + "' does not match pattern '" + locationPatternString + "'", 3);
+						debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because location '" + locationCode + "' does not match pattern '" + locationPatternString + "'", 3);
 					}
 					return false;
 				}
@@ -85,7 +85,7 @@ class InclusionRuleLocation {
 			if (!locationCode.isEmpty() && locationsToExcludePattern != null) {
 				if (locationsToExcludePattern.matcher(locationCode).matches()) {
 					if (debugLogger != null && debugLogger.isDebugEnabled()) {
-						debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because location '" + locationCode + "' matches exclusion pattern", 3);
+						debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because location '" + locationCode + "' matches exclusion pattern", 3);
 					}
 					return false;
 				}

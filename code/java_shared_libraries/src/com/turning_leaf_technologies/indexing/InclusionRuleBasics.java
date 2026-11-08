@@ -27,17 +27,17 @@ class InclusionRuleBasics {
 	boolean isItemIncluded(String itemIdentifier, boolean isHoldable, boolean isOnOrder, boolean isEContent, DebugLogger debugLogger){
 		if (!isEContent && (includeHoldableOnly && !isHoldable)) {
 			if (debugLogger != null && debugLogger.isDebugEnabled()) {
-				debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because 'Include Holdable Only' is enabled but item is not holdable", 3);
+				debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because 'Include Holdable Only' is enabled but item is not holdable", 3);
 			}
 			return false;
 		} else if (!includeItemsOnOrder && isOnOrder){
 			if (debugLogger != null && debugLogger.isDebugEnabled()) {
-				debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because 'Include Items On Order' is disabled but item is on order", 3);
+				debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because 'Include Items On Order' is disabled but item is on order", 3);
 			}
 			return  false;
 		} else if (!includeEContent && isEContent){
 			if (debugLogger != null && debugLogger.isDebugEnabled()) {
-				debugLogger.addDebugMessage("Item " + itemIdentifier + " excluded from scope because 'Include eContent' is disabled but item is eContent", 3);
+				debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " excluded from scope because 'Include eContent' is disabled but item is eContent", 3);
 			}
 			return  false;
 		}

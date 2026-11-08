@@ -103,7 +103,7 @@ class HooplaProcessor {
 						primaryFormat = kind;
 						break;
 				}
-				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + primaryFormat + " based on kind of " + kind, 2);}
+				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + primaryFormat + " based on kind of " + kind, 2);}
 
 				hooplaRecord.addFormat(primaryFormat);
 				hooplaRecord.addFormatCategory(formatCategory);
@@ -154,7 +154,7 @@ class HooplaProcessor {
 					isKids = true;
 					groupedWork.addTargetAudience("Juvenile", hooplaRecord);
 					groupedWork.addTargetAudienceFull("Juvenile", hooplaRecord);
-					if ( groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Juvenile based on Hoopla record", 2);}
+					if ( groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Juvenile based on Hoopla record", 2);}
 				}else {
 					//Todo: Also check the genres (Children's, Teen
 					boolean foundAudience = false;
@@ -165,20 +165,20 @@ class HooplaProcessor {
 								isTeen = true;
 								groupedWork.addTargetAudience("Young Adult", hooplaRecord);
 								groupedWork.addTargetAudienceFull("Adolescent (14-17)", hooplaRecord);
-								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Young Adult based on Hoopla genre", 2);}
-								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Adolescent (14-17) based on Hoopla genre", 2);}
+								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Young Adult based on Hoopla genre", 2);}
+								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Adolescent (14-17) based on Hoopla genre", 2);}
 								foundAudience = true;
 							} else if (genres.getString(i).equals("Children's")) {
 								isKids = true;
 								groupedWork.addTargetAudience("Juvenile", hooplaRecord);
 								groupedWork.addTargetAudienceFull("Juvenile", hooplaRecord);
-								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Juvenile based on Hoopla genre", 2);}
+								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Juvenile based on Hoopla genre", 2);}
 								foundAudience = true;
 							} else if (genres.getString(i).equals("Adult")) {
 								isAdult = true;
 								groupedWork.addTargetAudience("Adult", hooplaRecord);
 								groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla genre", 2);}
+								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla genre", 2);}
 								foundAudience = true;
 							}
 						}
@@ -191,7 +191,7 @@ class HooplaProcessor {
 							isAdult = true;
 							groupedWork.addTargetAudience("Adult", hooplaRecord);
 							groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-							if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla rating", 2);}
+							if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla rating", 2);}
 						} else {
 							if (kind.equals("MOVIE") || kind.equals("TELEVISION")) {
 								switch (rating) {
@@ -203,7 +203,7 @@ class HooplaProcessor {
 										isAdult = true;
 										groupedWork.addTargetAudience("Adult", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
 										break;
 									case "PG-13":
 									case "PG13":
@@ -216,11 +216,11 @@ class HooplaProcessor {
 										isTeen = true;
 										groupedWork.addTargetAudience("Young Adult", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Adolescent (14-17)", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Young Adult based on Hoopla rating " + rating, 2);}
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Young Adult based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
 										groupedWork.addTargetAudience("Adult", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
 										break;
 									case "TVY":
 									case "TVY7":
@@ -228,7 +228,7 @@ class HooplaProcessor {
 										isKids = true;
 										groupedWork.addTargetAudience("Juvenile", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Juvenile", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Juvenile based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Juvenile based on Hoopla rating " + rating, 2);}
 										break;
 									case "TVG":
 									case "G":
@@ -237,7 +237,7 @@ class HooplaProcessor {
 										isAdult = true;
 										groupedWork.addTargetAudience("General", hooplaRecord);
 										groupedWork.addTargetAudienceFull("General", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is General based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is General based on Hoopla rating " + rating, 2);}
 										break;
 									default:
 										//todo, do we want to add additional ratings here?
@@ -250,21 +250,21 @@ class HooplaProcessor {
 										isKids = true;
 										groupedWork.addTargetAudience("Juvenile", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Juvenile", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Juvenile based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Juvenile based on Hoopla rating " + rating, 2);}
 										break;
 									case "PA":
 									case "EX":
 										isAdult = true;
 										groupedWork.addTargetAudience("Adult", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
 										break;
 									case "T":
 										isTeen = true;
 										groupedWork.addTargetAudience("Young Adult", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Adolescent (14-17)", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Young Adult based on Hoopla rating " + rating, 2);}
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Young Adult based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
 										break;
 									case "T+":
 									default:
@@ -272,11 +272,11 @@ class HooplaProcessor {
 										isTeen = true;
 										groupedWork.addTargetAudience("Young Adult", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Adolescent (14-17)", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Young Adult based on Hoopla rating " + rating, 2);}
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Young Adult based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
 										groupedWork.addTargetAudience("Adult", hooplaRecord);
 										groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
+										if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
 								}
 
 							} else {
@@ -286,16 +286,16 @@ class HooplaProcessor {
 								groupedWork.addTargetAudienceFull("Adolescent (14-17)", hooplaRecord);
 								groupedWork.addTargetAudience("Adult", hooplaRecord);
 								groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Young Adult based on Hoopla rating " + rating, 2);}
-								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
-								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
+								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Young Adult based on Hoopla rating " + rating, 2);}
+								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Adolescent (14-17) based on Hoopla rating " + rating, 2);}
+								if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla rating " + rating, 2);}
 							}
 						}
 					} else if (!foundAudience) {
 						isAdult = true;
 						groupedWork.addTargetAudience("Adult", hooplaRecord);
 						groupedWork.addTargetAudienceFull("Adult", hooplaRecord);
-						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Adult based on Hoopla record", 2);}
+						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Adult based on Hoopla record", 2);}
 					}
 				}
 
@@ -355,11 +355,11 @@ class HooplaProcessor {
 					if (rawResponse.getBoolean("fiction")){
 						Util.addToMapWithCount(literaryForm, "Fiction");
 						Util.addToMapWithCount(literaryFormFull, "Fiction");
-						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is fiction based on Hoopla record", 2);}
+						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is fiction based on Hoopla record", 2);}
 					}else{
 						Util.addToMapWithCount(literaryForm, "Non Fiction");
 						Util.addToMapWithCount(literaryFormFull, "Non Fiction");
-						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is non fiction based on Hoopla record", 2);}
+						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is non fiction based on Hoopla record", 2);}
 					}
 				}
 				if (!literaryForm.isEmpty()){

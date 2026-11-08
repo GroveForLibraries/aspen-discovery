@@ -75,7 +75,7 @@ public class IlsRecordFormatClassifier extends MarcRecordFormatClassifier {
 			Set<String> fields = MarcUtil.getFieldList(record, indexingProfile.getFallbackFormatField());
 			for (String curField : fields) {
 				if (indexingProfile.hasFormat(curField.toLowerCase(), BaseIndexingSettings.FORMAT_TYPE_FALLBACK_FORMAT)) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding format " + curField + " based on fallback format", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Adding format " + curField + " based on fallback format", 2);}
 					printFormats.add( curField);
 				}
 			}
@@ -103,7 +103,7 @@ public class IlsRecordFormatClassifier extends MarcRecordFormatClassifier {
 			if (format != null) {
 				FormatMapValue formatMapValue = profile.getFormatMapValue(format, BaseIndexingSettings.FORMAT_TYPE_ITEM_FORMAT);
 				if (formatMapValue != null) {
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + formatMapValue.getFormat() + " based on Item Format of " + format, 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + formatMapValue.getFormat() + " based on Item Format of " + format, 2);}
 					return new FormatInfo(formatMapValue, BaseIndexingSettings.FORMAT_TYPE_ITEM_FORMAT);
 				}
 			}
