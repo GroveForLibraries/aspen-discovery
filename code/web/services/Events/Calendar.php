@@ -241,6 +241,7 @@ class Events_Calendar extends Action {
 		$searchObject->close();
 
 		$searchResults = $searchObject->getResultRecordSet();
+		$highlightColors = $this->getHighlightColors($searchResults);
 		$allLocations = $locations;
 
 		$dropdownSearchObject = SearchObjectFactory::initSearchObject('Events');
@@ -422,6 +423,7 @@ class Events_Calendar extends Action {
 							'hiddenTimestamps' => $hiddenTimestamps,
 							'eventFields' => $eventFields,
 							'location' => $result['branch'][0],
+							'highlightColor' => $highlightColors[$result['id']] ?? null,
 						];
 					}
 				}
@@ -556,6 +558,47 @@ class Events_Calendar extends Action {
 			return $setting->fullMonthName;
 		}
 		return 0;
+	}
+
+	function getHighlightColors(array $searchResults) : array {
+		require_once ROOT_DIR . '/sys/Events/Event.php';
+		require_once ROOT_DIR . '/sys/Events/EventInstance.php';
+
+		//Only Aspen native events can be color-coded, create array of Aspen event ids
+		$instanceIdsByResult = [];
+		foreach ($searchResults as $result) {
+			if (str_starts_with($result['id'], 'aspen') && preg_match('/(\d+)$/', $result['id'], $m)) {
+				$instanceIdsByResult[$result['id']] = (int)$m[1];
+			}
+		}
+		if (empty($instanceIdsByResult)) {
+			return [];
+		}
+
+		$eventIdByInstance = [];
+		$instance = new EventInstance();
+		$instance->whereAddIn('id', array_values(array_unique($instanceIdsByResult)), false);
+		$instance->find();
+		while ($instance->fetch()) {
+			$eventIdByInstance[(int)$instance->id] = (int)$instance->eventId;
+		}
+
+		$colorByEvent = [];
+		foreach (array_unique($eventIdByInstance) as $eventId) {
+			$event = new Event();
+			$event->id = $eventId;
+			if ($event->find(true)) {
+				$colorByEvent[$eventId] = $event->getEffectiveHighlightColor();
+			}
+		}
+
+		//Build and return the array of colors using the event ids as the keys and color as the value
+		$colors = [];
+		foreach ($instanceIdsByResult as $resultId => $instanceId) {
+			$eventId = $eventIdByInstance[$instanceId] ?? null;
+			$colors[$resultId] = $eventId ? ($colorByEvent[$eventId] ?? null) : null;
+		}
+		return $colors;
 	}
 
 }

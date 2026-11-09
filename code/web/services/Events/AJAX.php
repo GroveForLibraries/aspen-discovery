@@ -525,9 +525,10 @@ class Events_AJAX extends JSON_Action {
 		$coverCustomizable = (isset($_REQUEST['coverCustomizable']) && $_REQUEST['coverCustomizable'] == 'true') ? 1 : 0;
 		$eventLengthCustomizable = (isset($_REQUEST['eventLengthCustomizable']) && $_REQUEST['eventLengthCustomizable'] == 'true') ? 1 : 0;
 		$displayEventBranchOnThumbnailCustomizable = (isset($_REQUEST['displayEventBranchOnThumbnailCustomizable']) && $_REQUEST['displayEventBranchOnThumbnailCustomizable'] == 'true') ? 1 : 0;
+		$eventHighlightCustomizable = (isset($_REQUEST['eventHighlightCustomizable']) && $_REQUEST['eventHighlightCustomizable'] == 'true') ? 1 : 0;
 
 		//If everything is customizable no need to prompt user
-		$customizableFields = $titleCustomizable + $descriptionCustomizable + $coverCustomizable + $eventLengthCustomizable;
+		$customizableFields = $titleCustomizable + $descriptionCustomizable + $coverCustomizable + $eventLengthCustomizable + $eventHighlightCustomizable;
 		$numChanges = 0;
 
 		/** @noinspection PhpConditionAlreadyCheckedInspection */
@@ -541,6 +542,7 @@ class Events_AJAX extends JSON_Action {
 				$coverCustomizationChanged = ($eventType->coverCustomizable != $coverCustomizable) ? 1 : 0;
 				$eventLengthCustomizationChanged = ($eventType->lengthCustomizable != $eventLengthCustomizable) ? 1 : 0;
 				$displayEventBranchOnThumbnailChanged = ($eventType->displayEventBranchOnThumbnailCustomizable != $displayEventBranchOnThumbnailCustomizable) ? 1 : 0;
+				$eventHighlightCustomizationChanged = ($eventType->eventHighlightCustomizable != $eventHighlightCustomizable) ? 1 : 0;
 
 				$numChanges = $titleCustomizationChanged + $descriptionCustomizationChanged + $coverCustomizationChanged + $eventLengthCustomizationChanged + $displayEventBranchOnThumbnailChanged;
 			}
@@ -599,8 +601,9 @@ class Events_AJAX extends JSON_Action {
 		$coverCustomizable = isset($_REQUEST['coverCustomizable']) && $_REQUEST['coverCustomizable'] == 'true';
 		$eventLengthCustomizable = isset($_REQUEST['eventLengthCustomizable']) && $_REQUEST['eventLengthCustomizable'] == 'true';
 		$displayEventBranchOnThumbnailCustomizable = (isset($_REQUEST['displayEventBranchOnThumbnailCustomizable']) && $_REQUEST['displayEventBranchOnThumbnailCustomizable'] == 'true') ? 1 : 0;
+		$eventHighlightCustomizable = (isset($_REQUEST['eventHighlightCustomizable']) && $_REQUEST['eventHighlightCustomizable'] == 'true') ? 1 : 0;
 
-		if (!$titleCustomizable || !$descriptionCustomizable || !$coverCustomizable || !$eventLengthCustomizable || !$displayEventBranchOnThumbnailCustomizable) {
+		if (!$titleCustomizable || !$descriptionCustomizable || !$coverCustomizable || !$eventLengthCustomizable || !$displayEventBranchOnThumbnailCustomizable || !$eventHighlightCustomizable) {
 			//Update all Events of this Event Type
 			require_once ROOT_DIR . '/sys/Events/Event.php';
 			$eventOfType = new Event();
@@ -620,7 +623,10 @@ class Events_AJAX extends JSON_Action {
 					$eventOfType->eventLength = $_REQUEST['eventLength'];
 				}
 				if (!$displayEventBranchOnThumbnailCustomizable) {
-					$eventOfType->displayEventBranchOnThumbnail = $_REQUEST['displayEventBranchOnThumbnail'];
+					$eventOfType->displayEventBranchOnThumbnail = $_REQUEST['displayBranchOnThumbnailCustomizable'];
+				}
+				if (!$eventHighlightCustomizable) {
+					$eventOfType->eventHighlightColor = $_REQUEST['eventTypeHighlightColor'];
 				}
 				$eventOfType->update('Save Event Type');
 				$result = [

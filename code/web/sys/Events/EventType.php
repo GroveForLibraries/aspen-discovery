@@ -23,6 +23,9 @@ class EventType extends DataObject {
 	public $displayEventBranchOnThumbnail;
 	public $displayEventBranchOnThumbnailCustomizable;
 	public $waitingListInviteExpiryHours;
+	public $eventTypeHighlightColor;
+	public $eventTypeHighlightColorDefault;
+	public $eventHighlightCustomizable;
 
 	public $_libraries;
 	public $_locations;
@@ -41,6 +44,8 @@ class EventType extends DataObject {
 			'includeInReports',
 			'displayEventBranchOnThumbnailCustomizable',
 			'waitingListInviteExpiryHours',
+			'eventTypeHighlightColorDefault',
+			'eventHighlightCustomizable',
 		];
 	}
 
@@ -69,12 +74,32 @@ class EventType extends DataObject {
 				'maxLength' => 50,
 				'required' => true,
 			],
-			'titleCustomizable' => [
-				'property' => 'titleCustomizable',
+			'cover' => [
+				'property' => 'cover',
+				'type' => 'image',
+				'label' => 'Cover',
+				'maxWidth' => 280,
+				'maxHeight' => 280,
+				'maxLength' => 150,
+				'description' => 'The default cover image for this type of event',
+				'path' => "$coverPath/aspenEvents/",
+				'hideInLists' => true,
+			],
+			'displayEventBranchOnThumbnail' => [
+				'property' => 'displayEventBranchOnThumbnail',
 				'type' => 'checkbox',
-				'label' => 'Title Customizable?',
-				'default' => true,
-				'description' => 'Can users change the title for individual events of this type?',
+				'label' => 'Display Event Branch on Thumbnail',
+				'default' => false,
+				'description' => 'Whether or not to display the event branch on the thubmnail image. Can be overridden for specific events.',
+			],
+			'eventTypeHighlightColor' => [
+				'property' => 'eventTypeHighlightColor',
+				'type' => 'color',
+				'label' => 'Event Type Highlight Color',
+				'description' => 'Color to use to highlight the event. Leave blank for no highlight color.',
+				'required' => false,
+				'hideInLists' => true,
+				'default' => '',
 			],
 			'editFormInstructions' => [
 				'property' => 'editFormInstructions',
@@ -91,89 +116,61 @@ class EventType extends DataObject {
 				'label' => 'Description',
 				'description' => 'The default description for this type of event',
 			],
-			'descriptionCustomizable' => [
-				'property' => 'descriptionCustomizable',
-				'type' => 'checkbox',
-				'label' => 'Description Customizable?',
-				'default' => true,
-				'description' => 'Can users change the description for individual events of this type?',
-			],
-			'displayEventBranchOnThumbnail' => [
-				'property' => 'displayEventBranchOnThumbnail',
-				'type' => 'checkbox',
-				'label' => 'Display Event Branch on Thumbnail',
-				'default' => false,
-				'description' => 'Whether or not to display the event branch on the thubmnail image. Can be overridden for specific events.',
-			],
-			'displayEventBranchOnThumbnailCustomizable' => [
-				'property' => 'displayEventBranchOnThumbnailCustomizable',
-				'type' => 'checkbox',
-				'label' => 'Display Event Branch on Thumbnail Customizable?',
-				'default' => true,
-				'description' => 'Can users change the display the event branch on the thubmnail image setting for individual events of this type?',
-			],
-			'cover' => [
-				'property' => 'cover',
-				'type' => 'image',
-				'label' => 'Cover',
-				'maxWidth' => 280,
-				'maxHeight' => 280,
-				'maxLength' => 150,
-				'description' => 'The default cover image for this type of event',
-				'path' => "$coverPath/aspenEvents/",
-				'hideInLists' => true,
-			],
-			'coverCustomizable' => [
-				'property' => 'coverCustomizable',
-				'type' => 'checkbox',
-				'label' => 'Cover Customizable?',
-				'default' => true,
-				'description' => 'Can users change the cover for individual events of this type?',
-			],
 			'eventLength' => [
 				'property' => 'eventLength',
 				'type' => 'duration',
 				'label' => 'Event Length',
 				'description' => 'The default event length for this type of event',
 			],
-			'lengthCustomizable' => [
-				'property' => 'lengthCustomizable',
-				'type' => 'checkbox',
-				'label' => 'Length Customizable?',
-				'default' => true,
-				'description' => 'Can users change the event length for individual events of this type?',
-			],
-			'libraries' => [
-				'property' => 'libraries',
-				'type' => 'multiSelect',
-				'listStyle' => 'checkboxSimple',
-				'label' => 'Libraries',
-				'description' => 'Define libraries that use this type',
-				'values' => $libraryList,
-			],
-			'locations' => [
-				'property' => 'locations',
-				'type' => 'multiSelect',
-				'listStyle' => 'checkboxSimple',
-				'label' => 'Locations',
-				'description' => 'Define locations that use this type',
-				'values' => $locationList,
-			],
-			'attendeeCategories' => [
-				'property' => 'attendeeCategories',
-				'type' => 'oneToMany',
-				'label' => 'Attendee Categories',
-				'description' => 'Define attendee categories and their limits for this event type',
-				'keyThis' => 'id',
-				'keyOther' => 'eventTypeId',
-				'subObjectType' => 'EventTypeAttendeeCategory',
-				'structure' => EventTypeAttendeeCategory::getObjectStructure(),
-				'sortable' => false,
-				'storeDb' => true,
-				'allowEdit' => true,
-				'canEdit' => true,
-				'canAddNew' => true,
-				'canDelete' => true,
+			'customizationSection' => [
+				'property' => 'customizationSection',
+				'type' => 'section',
+				'label' => 'Customization Override Options',
+				'expandByDefault' => false,
+				'properties' => [
+					'titleCustomizable' => [
+						'property' => 'titleCustomizable',
+						'type' => 'checkbox',
+						'label' => 'Title Customizable?',
+						'default' => true,
+						'description' => 'Can users change the title for individual events of this type?',
+					],
+					'descriptionCustomizable' => [
+						'property' => 'descriptionCustomizable',
+						'type' => 'checkbox',
+						'label' => 'Description Customizable?',
+						'default' => true,
+						'description' => 'Can users change the description for individual events of this type?',
+					],
+					'displayEventBranchOnThumbnailCustomizable' => [
+						'property' => 'displayEventBranchOnThumbnailCustomizable',
+						'type' => 'checkbox',
+						'label' => 'Display Event Branch on Thumbnail Customizable?',
+						'default' => true,
+						'description' => 'Can users change the display the event branch on the thubmnail image setting for individual events of this type?',
+					],
+					'coverCustomizable' => [
+						'property' => 'coverCustomizable',
+						'type' => 'checkbox',
+						'label' => 'Cover Customizable?',
+						'default' => true,
+						'description' => 'Can users change the cover for individual events of this type?',
+					],
+					'eventHighlightCustomizable' => [
+						'property' => 'eventHighlightCustomizable',
+						'type' => 'checkbox',
+						'label' => 'Event Highlight Color Customizable?',
+						'default' => false,
+						'description' => 'Can users change the highlight color for individual events of this type?',
+					],
+					'lengthCustomizable' => [
+						'property' => 'lengthCustomizable',
+						'type' => 'checkbox',
+						'label' => 'Length Customizable?',
+						'default' => true,
+						'description' => 'Can users change the event length for individual events of this type?',
+					],
+				]
 			],
 			'eventFieldSets' => [
 				'property' => 'eventFieldSets',
@@ -199,12 +196,21 @@ class EventType extends DataObject {
 					],
 				]
 			],
-			'includeInReports' => [
-				'property' => 'includeInReports',
-				'type' => 'checkbox',
-				'label' => 'Include in Reports?',
-				'default' => true,
-				'description' => 'If unchecked, events of this type will not be shown in events reports',
+			'attendeeCategories' => [
+				'property' => 'attendeeCategories',
+				'type' => 'oneToMany',
+				'label' => 'Attendee Categories',
+				'description' => 'Define attendee categories and their limits for this event type',
+				'keyThis' => 'id',
+				'keyOther' => 'eventTypeId',
+				'subObjectType' => 'EventTypeAttendeeCategory',
+				'structure' => EventTypeAttendeeCategory::getObjectStructure(),
+				'sortable' => false,
+				'storeDb' => true,
+				'allowEdit' => true,
+				'canEdit' => true,
+				'canAddNew' => true,
+				'canDelete' => true,
 			],
 			'waitingListInviteExpiryHours' => [
 				'property' => 'waitingListInviteExpiryHours',
@@ -215,12 +221,35 @@ class EventType extends DataObject {
 				'max' => 168,
 				'description' => 'How many hours a user has to register after being invited from the waiting list',
 			],
+			'includeInReports' => [
+				'property' => 'includeInReports',
+				'type' => 'checkbox',
+				'label' => 'Include in Reports?',
+				'default' => true,
+				'description' => 'If unchecked, events of this type will not be shown in events reports',
+			],
 			'archived' => [
 				'property' => 'archived',
 				'type' => 'checkbox',
 				'label' => 'Archive?',
 				'default' => false,
 				'description' => 'An archived event type will no longer show up as an option for events but can be restored later',
+			],
+			'libraries' => [
+				'property' => 'libraries',
+				'type' => 'multiSelect',
+				'listStyle' => 'checkboxSimple',
+				'label' => 'Libraries',
+				'description' => 'Define libraries that use this type',
+				'values' => $libraryList,
+			],
+			'locations' => [
+				'property' => 'locations',
+				'type' => 'multiSelect',
+				'listStyle' => 'checkboxSimple',
+				'label' => 'Locations',
+				'description' => 'Define locations that use this type',
+				'values' => $locationList,
 			]
 		];
 
@@ -229,12 +258,22 @@ class EventType extends DataObject {
 	}
 
 	public function update(string $context = '') : int|bool {
+		$oldColor = '';
+		if (!empty($this->id)) {
+			$existing = new EventType();
+			$existing->id = $this->id;
+			if ($existing->find(true)) {
+				$oldColor = $existing->eventTypeHighlightColor ?? '';
+			}
+		}
+
 		$ret = parent::update();
 		if ($ret !== FALSE) {
 			$this->saveLibraries();
 			$this->saveLocations();
 			$this->saveAttendeeCategories();
 			$this->saveTextBlockTranslations('editFormInstructions');
+			$this->syncEventHighlightColors($oldColor);
 		}
 		return $ret;
 	}
@@ -492,6 +531,34 @@ class EventType extends DataObject {
 		}
 
 		return [];
+	}
+
+	private function syncEventHighlightColors(string $oldColor) : void {
+		global $aspen_db;
+		if (empty($this->id) || !isset($aspen_db)) {
+			return;
+		}
+
+		$newColor = $this->eventTypeHighlightColor ?? '';
+		$newDefault = ($newColor === '') ? 1 : 0;
+
+		$sql = 'UPDATE event SET eventHighlightColor = ' . $aspen_db->quote($newColor)
+			. ', eventHighlightColorDefault = ' . $newDefault
+			. ' WHERE eventTypeId = ' . $aspen_db->quote($this->id);
+
+		// If events can customize the color, leave real overrides alone:
+		// only touch events with no color or whose color matches the OLD type color.
+		if ($this->eventHighlightCustomizable) {
+			$sql .= ' AND (eventHighlightColor IS NULL OR eventHighlightColor = \'\''
+				. ' OR eventHighlightColor = ' . $aspen_db->quote($oldColor) . ')';
+		}
+
+		try {
+			$aspen_db->exec($sql);
+		} catch (PDOException $e) {
+			global $logger;
+			$logger->log('Error syncing event highlight colors: ' . $e->getMessage(), Logger::LOG_ERROR);
+		}
 	}
 
 }

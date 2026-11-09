@@ -50,6 +50,8 @@ class Event extends DataObject {
 	public $recurrenceEnd;
 	/** @noinspection PhpUnused */
 	public $recurrenceCount;
+	public $eventHighlightColor;
+	public $eventHighlightColorDefault;
 	public $_dates; // Used to generate instances
 	public $_instanceCount;
 	public $_datesPreview;
@@ -118,6 +120,15 @@ class Event extends DataObject {
 				'label' => 'Title',
 				'description' => 'The title for this event',
 				'maxLength' => 50,
+			],
+			'eventHighlightColor' => [
+				'property' => 'eventHighlightColor',
+				'type' => 'color',
+				'label' => 'Event Highlight Color',
+				'description' => 'Color to use to highlight the event. Leave blank for no highlight color.',
+				'required' => false,
+				'hideInLists' => true,
+				'default' => '',
 			],
 			'infoSection' => [
 				'property' => 'infoSection',
@@ -702,7 +713,8 @@ class Event extends DataObject {
 			'sublocationId',
 			'weekNumber',
 			'deleted',
-			'numberOfSeats'
+			'numberOfSeats',
+			'eventHighlightColorDefault'
 		];
 	}
 
@@ -1019,6 +1031,36 @@ class Event extends DataObject {
 		return null;
 	}
 
+	public function getEffectiveHighlightColor() : ?string {
+		static $typeCache = [];
+
+		$eventType = null;
+		if (!empty($this->eventTypeId)) {
+			if (!array_key_exists($this->eventTypeId, $typeCache)) {
+				$typeCache[$this->eventTypeId] = $this->getEventType();
+			}
+			$eventType = $typeCache[$this->eventTypeId];
+		}
+
+		$typeColor = null;
+		if ($eventType && !$eventType->eventTypeHighlightColorDefault && !empty($eventType->eventTypeHighlightColor)) {
+			$typeColor = $eventType->eventTypeHighlightColor;
+		}
+
+		// Type controls the color, so ignore anything stored on the event
+		if ($eventType && !$eventType->eventHighlightCustomizable) {
+			return $typeColor;
+		}
+
+		// Customizable: the event's own color wins if it has one
+		if (!$this->eventHighlightColorDefault && !empty($this->eventHighlightColor)) {
+			return $this->eventHighlightColor;
+		}
+
+		// Otherwise fall back to the type's color
+		return $typeColor;
+	}
+
 	public function updateStructureForEditingObject($structure) : array {
 		$structure['infoSection']['expandByDefault'] = true;
 		if ($eventType = $this->getEventType()) {
@@ -1055,6 +1097,11 @@ class Event extends DataObject {
 				if (!$eventType->displayEventBranchOnThumbnailCustomizable) {
 					$structure['infoSection']['properties']['displayEventBranchOnThumbnail']['readOnly'] = true;
 					$this->displayEventBranchOnThumbnail = $eventType->displayEventBranchOnThumbnail;
+				}
+				if (!$eventType->eventHighlightCustomizable) {
+					$structure['eventHighlightColor']['readOnly'] = true;
+					$this->eventHighlightColor = $eventType->eventTypeHighlightColor;
+					$this->eventHighlightColorDefault = empty($eventType->eventTypeHighlightColor) ? 1 : 0;
 				}
 				if (!isset($structure['infoSection']['properties']['fieldSetFieldSection'])) {
 					$structure['infoSection']['properties']['fieldSetFieldSection'] = [

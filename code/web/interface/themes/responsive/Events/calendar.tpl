@@ -87,7 +87,7 @@
 						</div>
 						<div class="calendar-events {if count($day.events) < 5}wrap-title{/if}">
 							{foreach from=$day.events item=event}
-								<div class="calendar-event" data-event_id="{$event.id}">
+								<div class="calendar-event" data-event_id="{$event.id}"{if !empty($event.highlightColor)} style="border-left: 8px solid {$event.highlightColor|escape};"{/if}>
 									<div class="calendar-event-title">
 										<a href="{$event.link}" target="_blank" aria-label="{translate text=$event.title isPublicFacing=true inAttribute=true} ({translate text="opens in a new window" isPublicFacing=true inAttribute=true})">{$event.title}</a>
 									</div>
