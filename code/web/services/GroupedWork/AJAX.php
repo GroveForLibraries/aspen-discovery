@@ -73,12 +73,15 @@ class GroupedWork_AJAX extends JSON_Action {
 		$groupedWork = new GroupedWork();
 		$groupedWork->permanent_id = $id;
 		if ($groupedWork->find(true)) {
-			$debuggingInfo = $groupedWork->getDebuggingInfo();
+			$debuggingInfo = $groupedWork->getParsedDebugInfo();
 			global $interface;
 			$interface->assign('debuggingInfo', $debuggingInfo);
+			$interface->assign('debugLines', $debuggingInfo['lines']);
+			$interface->assign('debugTagCounts', $debuggingInfo['tagCounts']);
+			$interface->assign('debugTagLabels', $debuggingInfo['tagLabels']);
+			$interface->assign('debugTotalLines', count($debuggingInfo['lines']));
 			$modalBody = $interface->fetch('GroupedWork/debugging.tpl');
-
-			if ($debuggingInfo->processed) {
+			if ($debuggingInfo['processed']) {
 				$buttons = "<button onclick=\"return AspenDiscovery.GroupedWork.resetDebugging('$groupedWork->permanent_id');\" class=\"modal-buttons btn btn-default\" style='float: left'>" . translate([
 						'text' => "Reset Info",
 						'isAdminFacing' => true,

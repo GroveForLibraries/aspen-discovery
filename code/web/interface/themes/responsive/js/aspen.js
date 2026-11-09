@@ -12885,6 +12885,18 @@ AspenDiscovery.GroupedWork = (function(){
 			return false;
 		},
 
+		filterDebugging: function (tag, el) {
+			$('#debugFilters li').removeClass('active');
+			$(el).parent().addClass('active');
+			if (tag === 'all') {
+				$('#debugLines .debug-line').show();
+			} else {
+				$('#debugLines .debug-line').hide();
+				$('#debugLines .debug-line[data-tag="' + tag + '"]').show();
+			}
+			return false;
+		},
+
 		getGoDeeperData: function (id, dataType){
 			var placeholder;
 			if (dataType === 'excerpt') {
