@@ -3596,16 +3596,12 @@ class MyAccount_AJAX extends JSON_Action {
 		header('Cache-Control: max-age=0');
 		$fp = fopen('php://output', 'w');
 		try {
-			$showCostSavings = $user->isCostSavingsEnabled();
 			$fields = array(
 				'Title',
 				'Author',
 				'Format',
-				'Last Used'
+				'Last used'
 			);
-			if ($showCostSavings) {
-				$fields[] = 'Cost Savings';
-			}
 			fputcsv($fp, $fields);
 
 			foreach ($readingHistory['titles'] as $row) {
@@ -3630,9 +3626,6 @@ class MyAccount_AJAX extends JSON_Action {
 					$format,
 					$lastCheckout
 				);
-				if ($showCostSavings) {
-					$results[] = $row['costSavings'] ?? '';
-				}
 				fputcsv($fp, $results);
 			}
 		} catch (Exception $e) {

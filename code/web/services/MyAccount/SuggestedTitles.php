@@ -5,7 +5,7 @@ require_once ROOT_DIR . '/sys/Suggestions.php';
 
 class SuggestedTitles extends MyAccount {
 
-	function launch() {
+	function launch() : void {
 		global $interface;
 		global $timer;
 
