@@ -2104,6 +2104,8 @@ class GroupedWorkDriver extends IndexRecordDriver {
 			'author' => $this->getPrimaryAuthor(),
 			'format' => $format,
 			'formattedTitle' => $interface->fetch('RecordDrivers/GroupedWork/scroller-title.tpl'),
+			'url' => $this->getLinkUrl(),
+			'description' => $this->getDescriptionFast(),
 		];
 	}
 
