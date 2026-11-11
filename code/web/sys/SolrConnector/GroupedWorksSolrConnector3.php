@@ -84,8 +84,10 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 		return $records;
 	}
 
-	protected $mltPrefixThese = '{!mlt qf="language^1000 subject_facet^800 topic_facet^600 awards_facet^100 authorStr^75 era^50 genre_facet^50 geographic_facet^50 personal_name_facet^50 corporate_name_facet^50 content_rating accelerated_reader_interest_level mpaa_rating" mlt.fl=language,subject_facet,topic_facet,awards_facet,authorStr,era,genre_facet,geographic_facet,personal_name_facet,corporate_name_facet,content_rating,accelerated_reader_interest_level,mpaa_rating mintf=1 mindf=2}';
-	protected $mltPrefixThis = '{!mlt qf="language^1000,subject_facet^800,topic_facet^600,awards_facet^100,authorStr^75,era^50,genre_facet^50,geographic_facet^50,personal_name_facet^50,corporate_name_facet^50,content_rating,accelerated_reader_interest_level,mpaa_rating" mintf=1 mindf=2}';
+	protected string $mltBoolPrefixThis = '{!bool should=$qSubjects should=$qDescription}';
+	// subject is not currently populated for most eContent (OverDrive/Hoopla)
+	protected string $mltSubjectPrefixThis = '{!mlt qf="subject_facet^8 topic_facet^8 awards_facet^4 era^3 genre_facet^2 geographic_facet^2 lc_subject^2" mintf=1 mindf=1 maxqt=25 boost=true}';
+	protected string $mltDescriptionPrefixThis = '{!mlt qf=description mintf=1 mindf=2 maxdf=7500 maxqt=25 minwl=5 boost=true}';
 
 	/**
 	 * Get records similar to one record
@@ -93,24 +95,30 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 	 *
 	 * Uses SOLR MLT Query Handler
 	 *
-	 * @access    public
-	 * @param $id
-	 * @param bool $availableOnly
-	 * @param bool $limitFormat
-	 * @param null $limit
-	 * @param null $fieldsToReturn
+	 * @param string $id
+	 * @param ?string $selectedAvailabilityToggle
+	 * @param ?bool $availableOnly
+	 * @param ?bool $limitFormat
+	 * @param ?int $limit
+	 * @param ?string $format
+	 * @param ?string $fieldsToReturn
 	 * @return    array                            An array of query results
 	 *
 	 */
-	function getMoreLikeThis($id, $selectedAvailabilityToggle = 'global', $availableOnly = false, $limitFormat = true, $limit = null, $format = null, $fieldsToReturn = null)
+	function getMoreLikeThis(string $id, ?string $selectedAvailabilityToggle = 'global', ?bool $availableOnly = false, ?bool $limitFormat = true, $limit = null, $format = null, $fieldsToReturn = null) : array
 	{
 		$originalResult = $this->getRecord($id, 'target_audience_full,content_rating,literary_form,language,isbn,upc,series');
 		// Query String Parameters
 		if ($fieldsToReturn == null) {
 			$fieldsToReturn = $this->getDefaultFieldsToReturn();
 		}
+		if (IPAddress::showDebuggingInformation()) {
+			$fieldsToReturn .= ',score';
+		}
 		$options = [
-			'q' => "$this->mltPrefixThis$id",
+			'q' => "$this->mltBoolPrefixThis",
+			'qSubjects' => "$this->mltSubjectPrefixThis$id",
+			'qDescription' => "$this->mltDescriptionPrefixThis$id",
 			'mlt.interestingTerms' => 'details',
 			'rows' => 25,
 			'fl' => $fieldsToReturn,
@@ -238,8 +246,9 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 			$options['rows'] = $limit;
 		}
 
-		//$options['debugQuery'] = "true";
-		//$debugInfo = print_r($options, true);
+		if (IPAddress::showDebuggingInformation()) {
+			$options['debugQuery'] = 'on';
+		}
 
 		$result = $this->_select('POST', $options);
 		if ($result instanceof AspenError) {
@@ -257,45 +266,119 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 	 *
 	 * @access    public
 	 *
-	 * @param array[] $ids
+	 * @param array[] $ids - An array of works to look with each key having workId and optional rating
 	 * @param string $fieldsToReturn
-	 * @param int $page
-	 * @param int $limit
+	 * @param ?int $page
+	 * @param ?int $limit
 	 * @param string[] $notInterestedIds - An array of ids the patron is not interested in.  Can just load the last hour or so since they are also indexed.
 	 * @return    array                            An array of query results
 	 */
-	function getMoreLikeThese($ids, $fieldsToReturn, $page = 1, $limit = 25, $notInterestedIds = [])
-	{
-		// Query String Parameters
-		$idString = '';
-		$idStringWithoutFieldPrefix = '';
-		$numIdsProcessed = 0;
-		foreach ($ids as $index => $ratingInfo) {
-			if (strlen($idString) > 0) {
-				$idString .= ' OR ';
-				$idStringWithoutFieldPrefix .= ' OR ';
-			}
-			if (empty($ratingInfo['rating'])) {
-				$idString .= "$this->mltPrefixThese{$ratingInfo['workId']}";
-			} else {
-				$ratingBoost = $ratingInfo['rating'];
-				$idString .= "($this->mltPrefixThese{$ratingInfo['workId']})^$ratingBoost";
-			}
-			$idStringWithoutFieldPrefix .= $ratingInfo['workId'];
-			$numIdsProcessed++;
-			//Only process up to 500 IDs at a time to avoid overwhelming solr
-			if ($numIdsProcessed >= 500) {
-				break;
-			}
-		}
+	function getMoreLikeThese(array $ids, string $fieldsToReturn, ?int $page = 1, ?int $limit = 25, ?array $notInterestedIds = []) : array {
+		//Set up the basic search options
 		$options = [
-			'q' => "$idString",
 			'mlt.interestingTerms' => 'details',
 			'mlt.boost' => 'true',
 			'start' => ($page - 1) * $limit,
 			'rows' => $limit,
 			'fl' => $fieldsToReturn,
 		];
+
+		//Get just the ids that we are looking for without looking for
+		$sourceIds = [];
+		foreach ($ids as $index => $ratingInfo) {
+			$workId = $ratingInfo['workId'];
+			$sourceIds[] = $workId;
+		}
+
+		//First make sure the titles exist in solr still since mlt will fail if one or more document is missing
+		global $solrScope;
+		$foundIds = [];
+		$sourceSearchOptions = [
+			'q'=>'{!terms f=id separator=,}' . implode(',', $sourceIds),
+			"fq" => [
+				"+recordtype:grouped_work",
+				'{!parent which="recordtype:grouped_work" tag=child_filter}(+recordtype:record_scoping +availability_toggle:global +scope:' . $solrScope .')'
+			],
+			'rows'=> count($sourceIds),
+			'fl'=>'id,recordtype,_root_,_nest_path_,recordtype,title_display,language,literary_form,target_audience,format_category,record_scoping,[child childFilter="+recordtype:record_scoping +scope:' . $solrScope .'" limit=-1 fl="id,recordtype,target_audience,format_category"]'
+		];
+		$sourceTitleSearch = $this->_select('GET', $sourceSearchOptions);
+		$childFilter = '{!parent which="recordtype:grouped_work"}(+recordtype:record_scoping +scope:' . $solrScope;
+		//Limit based on the target_audience, literary_form, language, format_categories in the supplied records
+		if (!empty($sourceTitleSearch['response']['docs'])) {
+			$uniqueLanguages = [];
+			$uniqueLiteraryForms = [];
+			$uniqueAudiences = [];
+			$uniqueFormatCategories = [];
+			foreach ($sourceTitleSearch['response']['docs'] as $titleInfo) {
+				$foundIds[] = $titleInfo['id'];
+				foreach ($titleInfo['language'] as $fieldValue) {
+					$uniqueLanguages[$fieldValue] = '"' . $fieldValue . '"';
+				}
+				foreach ($titleInfo['literary_form'] as $fieldValue) {
+					$uniqueLiteraryForms[$fieldValue] = '"' . $fieldValue . '"';
+				}
+				foreach ($titleInfo['record_scoping'] as $childDoc) {
+					foreach ($childDoc['target_audience'] as $fieldValue) {
+						$uniqueAudiences[$fieldValue] = '"' . $fieldValue . '"';
+					}
+					foreach ($childDoc['format_category'] as $fieldValue) {
+						$uniqueFormatCategories[$fieldValue] = '"' . $fieldValue . '"';
+					}
+				}
+			}
+			if (count($uniqueLanguages) > 0) {
+				$options['fq'][] = 'language:(' . implode(' OR ', $uniqueLanguages) . ')';
+			}
+			if (count($uniqueLiteraryForms) > 0) {
+				$options['fq'][] = 'literary_form:(' . implode(' OR ', $uniqueLiteraryForms) . ')';
+			}
+			if (count($uniqueAudiences) > 0) {
+				$childFilter .= ' +target_audience:(' . implode(' OR ', $uniqueAudiences) . ')';
+			}
+			if (count($uniqueFormatCategories) > 0) {
+				$childFilter .= ' +format_category:(' . implode(' OR ', $uniqueFormatCategories) . ')';
+			}
+		}
+		$childFilter .= ')';
+		// Query String Parameters
+		$numIdsProcessed = 0;
+		$mltTerms = [];
+
+		$q = "{!bool ";
+		$sourceIds = [];
+		foreach ($ids as $ratingInfo) {
+			$workId = $ratingInfo['workId'];
+			if (!in_array($workId, $foundIds)) {
+				continue;
+			}
+			$sourceIds[] = $workId;
+			$numIdsProcessed++;
+			$boost = 1;
+			if (!empty($ratingInfo['rating'])) {
+				$boost = $ratingInfo['workId'];
+			}
+			$mltTerms["seed" . $numIdsProcessed] = "{!bool should=\$subjects$numIdsProcessed should=\$description$numIdsProcessed}";
+			$mltTerms["subjects" . $numIdsProcessed] = "$this->mltSubjectPrefixThis$workId";
+			$mltTerms["description" . $numIdsProcessed] = "$this->mltDescriptionPrefixThis$workId";
+
+			if ($boost == 1) {
+				$q .= " should=\$seed$numIdsProcessed";
+			}else{
+				$mltTerms["weightedSeed" . $numIdsProcessed] = "{!boost b=3 v=\$seed$numIdsProcessed}";
+				$q .= " should=\$weightedSeed$numIdsProcessed";
+			}
+
+			//Only process up to 500 IDs at a time to avoid overwhelming solr
+			if ($numIdsProcessed >= 500) {
+				break;
+			}
+		}
+		$q .= "}";
+		$options['q'] = $q;
+		$options = array_merge($options, $mltTerms);
+
+		$options['fq'][] = $childFilter;
 
 		$searchLibrary = Library::getSearchLibrary();
 		$searchLocation = Location::getSearchLocation();
@@ -307,7 +390,7 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 			$options['fq'][] = '-user_reading_history_link:' . UserAccount::getActiveUserId();
 		}
 		$options['fq'][] = 'recordtype:grouped_work';
-		$options['fq'][] = "-id:($idStringWithoutFieldPrefix)";
+		$options['fq'][] = '-id:(' . implode(' OR ', $sourceIds) . ')';
 		foreach ($scopingFilters as $filter) {
 			$options['fq'][] = $filter;
 		}
@@ -316,8 +399,12 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 			$options['bf'] = $boostFactors;
 		}
 
-		$debugInfo = print_r($options, true);
+		$this->isPrimarySearch = true;
+		if (IPAddress::showDebuggingInformation()) {
+			$options['debugQuery'] = 'on';
+		}
 
+		//Now do the more like this search
 		$result = $this->_select('POST', $options, true);
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
