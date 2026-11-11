@@ -1,0 +1,12 @@
+Jira: DIS-3145
+Type: Bug
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor:
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Searching
+Description:
+  - Fix searching by Grouped Work ID to account for cases where dashes are escaped.
+New Settings:
+New Permissions:
