@@ -105,7 +105,7 @@ public class PalaceProjectProcessor {
 						primaryFormat = type;
 						break;
 				}
-				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + primaryFormat + " based on a type of " + type, 2);}
+				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + primaryFormat + " based on a type of " + type, 2);}
 
 				palaceProjectRecord.addFormat(primaryFormat);
 				palaceProjectRecord.addFormatCategory(formatCategory);
@@ -233,7 +233,7 @@ public class PalaceProjectProcessor {
 				if (fictionNonFiction != null){
 					groupedWork.addLiteraryForm(fictionNonFiction);
 					groupedWork.addLiteraryFormFull(fictionNonFiction);
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is " + fictionNonFiction + " based on Palace Project", 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is " + fictionNonFiction + " based on Palace Project", 2);}
 				}
 				if (!genres.isEmpty()) {
 					groupedWork.addGenre(genres);
@@ -245,11 +245,11 @@ public class PalaceProjectProcessor {
 					audience = "Unknown";
 					groupedWork.addTargetAudience("Unknown", palaceProjectRecord);
 					groupedWork.addTargetAudienceFull("Unknown", palaceProjectRecord);
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is unknown based on Palace Project record", 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is unknown based on Palace Project record", 2);}
 				}else {
 					groupedWork.addTargetAudience(audience, palaceProjectRecord);
 					groupedWork.addTargetAudienceFull(audience, palaceProjectRecord);
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is " + audience + " based on Palace Project record", 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is " + audience + " based on Palace Project record", 2);}
 				}
 
 				if (metadata.has("narrator")) {

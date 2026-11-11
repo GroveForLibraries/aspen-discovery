@@ -1211,7 +1211,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 
 		//Regroup all records if needed.
 		if ((regroupAllRecords && allowRegrouping) || permanentId.endsWith("|||") || permanentId.contains(" ")){
-			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Starting to regroup all records");}
+			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[general]Starting to regroup all records");}
 			for (RecordIdentifier recordIdentifier : recordIdentifiers) {
 				String type = recordIdentifier.getType();
 				String identifier = recordIdentifier.getIdentifier();
@@ -1284,7 +1284,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 		for (RecordIdentifier recordIdentifier : recordIdentifiers){
 			String type = recordIdentifier.getType();
 			String identifier = recordIdentifier.getIdentifier();
-			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Processing record " + type + ":" + identifier, 1);}
+			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[general]Processing record " + type + ":" + identifier, 1);}
 
 			//Make a copy of the grouped work, so we can revert if we don't add any records
 			AbstractGroupedWorkSolr originalWork;
@@ -1303,7 +1303,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 			//If we didn't add any records to the work (because they are all suppressed) revert to the original
 			if (groupedWork.getNumRecords() == numRecords){
 				//No change in the number of records, revert to the previous
-				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Record " + type + ":" + identifier + " did not contribute any records to work " + permanentId + ", reverting to previous state", 1);}
+				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[general]Record " + type + ":" + identifier + " did not contribute any records to work " + permanentId + ", reverting to previous state", 1);}
 				groupedWork = originalWork;
 			}else{
 				numPrimaryIdentifiers++;
@@ -1380,7 +1380,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 			}
 		}else{
 			//Log that this record did not have primary identifiers after
-			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Grouped work " + permanentId + " did not have any primary identifiers for it, suppressing", 1);}
+			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[general]Grouped work " + permanentId + " did not have any primary identifiers for it, suppressing", 1);}
 			if (!this.clearIndex){
 				this.deleteRecord(permanentId, id);
 			}
@@ -1420,6 +1420,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 				groupedWork.setLexileScore(lexileTitle.getLexileScore());
 				groupedWork.addAwards(lexileTitle.getAwards());
 				if (!lexileTitle.getSeries().isEmpty()){
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Adding series '" + lexileTitle.getSeries() + "' author '" + lexileTitle.getAuthor() + "' from Lexile data matched on ISBN " + isbn, 1);}
 					groupedWork.addSeriesWithVolume(lexileTitle.getSeries(), lexileTitle.getAuthor(), "", 1, false, false);
 				}
 				break;
@@ -1547,6 +1548,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 							if (novelistRS.wasNull()) {
 								volume = "";
 							}
+							if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Adding series '" + series + "' volume '" + volume + "' from Novelist data (no author available from Novelist)", 1);}
 							groupedWork.addSeriesWithVolume(series, "", volume, 2, false, false);
 						}
 					}
@@ -1609,7 +1611,13 @@ public class GroupedWorkIndexer implements AutoCloseable {
 				//Don't create series module records from untraced series
 				//Prefer non-econtent series info but use as fallback if no other series info exists
 				if ((!seriesInfo.isTraced() && !include490_0) || (seriesInfo.fromEContent() && hasNonEContentSeries)) {
+					if (groupedWork.isDebugEnabled()) {
+						groupedWork.addDebugMessage("[series]Not creating series module record for '" + seriesInfo.getSeriesName() + "' (traced: " + seriesInfo.isTraced() + ", include490_0: " + include490_0 + ", fromEContent: " + seriesInfo.fromEContent() + ", hasNonEContentSeries: " + hasNonEContentSeries + ")", 1);
+					}
 					continue;
+				}
+				if (groupedWork.isDebugEnabled()) {
+					groupedWork.addDebugMessage("[series]Updating series module data for '" + seriesInfo.getSeriesName() + "' author '" + seriesInfo.getAuthor() + "' language '" + seriesInfo.getLanguage() + "' (series module version " + seriesVersion + ")", 1);
 				}
 				long timeNow = new Date().getTime() / 1000;
 				long seriesId;
@@ -1619,10 +1627,12 @@ public class GroupedWorkIndexer implements AutoCloseable {
 					if (existingMember != null) {
 						//Series already exists, update if needed
 						seriesId = existingMember.getSeriesId();
+						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Found existing v1 series id " + seriesId + " by title", 2);}
 						updateV1SeriesInDb(existingMember, groupedWork);
 					} else {
 						//Need to add the series
 						seriesId = addV1SeriesToDb(seriesInfo, groupedWork, timeNow);
+						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Created v1 series id " + seriesId + ", author '" + seriesInfo.getAuthor() + "' came from the first work to define the series", 2);}
 					}
 				} else {
 					setSeriesLanguage(seriesInfo, groupedWork);
@@ -1630,6 +1640,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 					if (existingMember != null) {
 						//V2 series already exists. They don't' get updated since they are already unique by title, author, and language
 						seriesId = existingMember.getSeriesId();
+						if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Found existing v2 series id " + seriesId + " by permanent id " + seriesInfo.getPermanentId(), 2);}
 						//Check if this series has a value for "seriesToGroupWithId"
 						String seriesToGroupWithId = checkForSeriesToGroupWith(seriesInfo);
 						if (!seriesToGroupWithId.isEmpty()) {
@@ -1641,10 +1652,12 @@ public class GroupedWorkIndexer implements AutoCloseable {
 						//TODO: during testing we should make sure that this doesn't merge series with different languages
 						if (existingV1Member != null && existingV1Member.getNormalizedAuthor().equals(seriesInfo.getNormalizedAuthor())) {
 							seriesId = existingV1Member.getSeriesId();
+							if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Upgrading v1 series id " + seriesId + " to v2 because the author '" + seriesInfo.getNormalizedAuthor() + "' matched, language '" + seriesInfo.getLanguage() + "'", 2);}
 							updateV1SeriesToV2(seriesInfo, existingV1Member, groupedWork, timeNow);
 						} else {
 							//Need to add a new series V2
 							seriesId = addV2SeriesToDb(seriesInfo, groupedWork, timeNow);
+							if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Created v2 series id " + seriesId + " with author '" + seriesInfo.getAuthor() + "' and language '" + seriesInfo.getLanguage() + "'", 2);}
 						}
 					}
 				}
@@ -1662,10 +1675,10 @@ public class GroupedWorkIndexer implements AutoCloseable {
 			}
 
 			//Hide anything the user doesn't want indexed
-			for (SeriesInfo seriesInfo : groupedWork.series.values()) {
+			for (SeriesInfo seriesInfo : new ArrayList<>(groupedWork.series.values())) {
 				if (!seriesInfo.isIndexed()) {
 					if (groupedWork.isDebugEnabled()) {
-						groupedWork.addDebugMessage("Removing series " + seriesInfo.getSeriesName() + " from grouped work because the series has indexing disabled", 1);
+						groupedWork.addDebugMessage("[series]Removing series " + seriesInfo.getSeriesName() + " from grouped work because the series has indexing disabled", 1);
 					}
 					groupedWork.removeSeries(seriesInfo);
 				}
@@ -1854,7 +1867,10 @@ public class GroupedWorkIndexer implements AutoCloseable {
 
 	private void setSeriesLanguage(SeriesInfo seriesInfo, AbstractGroupedWorkSolr groupedWork) {
 		if (seriesInfo.getLanguage() == null || seriesInfo.getLanguage().isEmpty() || seriesInfo.getLanguage().length() > 3) {
+			if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[series]Language '" + seriesInfo.getLanguage() + "' for series '" + seriesInfo.getSeriesName() + "' is not a valid language code, using primary language '" + groupedWork.getPrimaryLanguage() + "' of the work", 2);}
 			seriesInfo.setLanguage(groupedWork.getPrimaryLanguage(), this);
+		} else if (groupedWork.isDebugEnabled()) {
+			groupedWork.addDebugMessage("[series]Keeping language '" + seriesInfo.getLanguage() + "' for series '" + seriesInfo.getSeriesName() + "'", 2);
 		}
 	}
 
@@ -2037,31 +2053,31 @@ public class GroupedWorkIndexer implements AutoCloseable {
 			try (ResultSet displayInfoRS = getDisplayInfoStmt.executeQuery()) {
 				if (displayInfoRS.next()) {
 					if (groupedWork.isDebugEnabled()) {
-						groupedWork.addDebugMessage("Applying Display Info for grouped work", 1);
+						groupedWork.addDebugMessage("[display]Applying Display Info for grouped work", 1);
 					}
 
 					String title = displayInfoRS.getString("title");
 					if (!title.isEmpty()){
 						if (groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("Setting title to " + title + " based on display info", 2);
+							groupedWork.addDebugMessage("[display]Setting title to " + title + " based on display info", 2);
 						}
 						groupedWork.setTitle(title, "", AspenStringUtils.makeValueSortable(title), "", true, null);
 						groupedWork.clearSubTitle();
 					}else{
 						if (groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("No title set in display info, not changing title", 2);
+							groupedWork.addDebugMessage("[display]No title set in display info, not changing title", 2);
 						}
 					}
 					String author = displayInfoRS.getString("author");
 					if (!author.isEmpty()){
 						if (groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("Setting author to " + author + " based on display info", 2);
+							groupedWork.addDebugMessage("[display]Setting author to " + author + " based on display info", 2);
 						}
 						//Force a format category of Books since we want to preserve this
 						groupedWork.setAuthorDisplay(author);
 					}else{
 						if (groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("No author set in display info, not changing author", 2);
+							groupedWork.addDebugMessage("[display]No author set in display info, not changing author", 2);
 						}
 					}
 					if (!seriesModuleEnabled) {
@@ -2069,7 +2085,7 @@ public class GroupedWorkIndexer implements AutoCloseable {
 						String seriesDisplayOrder = displayInfoRS.getString("seriesDisplayOrder");
 						if (seriesName != null && !seriesName.isEmpty()) {
 							if (groupedWork.isDebugEnabled()) {
-								groupedWork.addDebugMessage("Setting series to " + seriesName + " " + seriesDisplayOrder + " based on display info", 2);
+								groupedWork.addDebugMessage("[series]Setting series to " + seriesName + " " + seriesDisplayOrder + " based on display info", 2);
 							}
 							groupedWork.clearSeries();
 							if (seriesDisplayOrder == null) {
@@ -2078,23 +2094,23 @@ public class GroupedWorkIndexer implements AutoCloseable {
 							groupedWork.addSeriesWithVolume(seriesName, author, seriesDisplayOrder, 2, false, false);
 						}else{
 							if (groupedWork.isDebugEnabled()) {
-								groupedWork.addDebugMessage("Not applying series data for grouped work because no series was defined", 2);
+								groupedWork.addDebugMessage("[series]Not applying series data for grouped work because no series was defined", 2);
 							}
 						}
 					}else{
 						if (groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("Not applying series data for grouped work because series module is enabled", 2);
+							groupedWork.addDebugMessage("[series]Not applying series data for grouped work because series module is enabled", 2);
 						}
 					}
 					String description = displayInfoRS.getString("description");
 					if (description != null && !description.isEmpty()){
 						if (groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("Setting description to " + description + " based on display info", 2);
+							groupedWork.addDebugMessage("[display]Setting description to " + description + " based on display info", 2);
 						}
 						groupedWork.setDisplayDescription(description);
 					} else {
 						if (groupedWork.isDebugEnabled()) {
-							groupedWork.addDebugMessage("No description set in display info, not changing description", 2);
+							groupedWork.addDebugMessage("[display]No description set in display info, not changing description", 2);
 						}
 					}
 

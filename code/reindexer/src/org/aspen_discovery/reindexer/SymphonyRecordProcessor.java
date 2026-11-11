@@ -248,7 +248,7 @@ class SymphonyRecordProcessor extends IlsRecordProcessor {
 				groupedWork.addKeywords("On Order");
 				groupedWork.addKeywords("Coming Soon");
 				if (groupedWork.isDebugEnabled()) {
-					groupedWork.addDebugMessage("Record " + recordIdentifier + " has " + recordInfo.getNumCopiesOnOrder() + " On Order items with no tangible items - this is an On Order only record (Symphony)", 2);
+					groupedWork.addDebugMessage("[general]Record " + recordIdentifier + " has " + recordInfo.getNumCopiesOnOrder() + " On Order items with no tangible items - this is an On Order only record (Symphony)", 2);
 				}
 			}
 		}

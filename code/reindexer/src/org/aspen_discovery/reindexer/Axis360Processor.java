@@ -76,7 +76,7 @@ class Axis360Processor {
 					formatCategory = formatType;
 					primaryFormat = formatType;
 				}
-				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + primaryFormat + " based on a formatType of " + formatType, 2);}
+				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + primaryFormat + " based on a formatType of " + formatType, 2);}
 
 				axis360Record.addFormat(primaryFormat);
 				axis360Record.addFormatCategory(formatCategory);
@@ -233,7 +233,7 @@ class Axis360Processor {
 		String genre = getFieldValue(titleData, "genre");
 		genres.add(genre);
 		Util.addToMapWithCount(literaryForm, genre);
-		if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is " + genre + " based on Axis360 record", 2);}
+		if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is " + genre + " based on Axis360 record", 2);}
 		Util.addToMapWithCount(literaryFormFull, genre);
 
 		String targetAudience;
@@ -273,8 +273,8 @@ class Axis360Processor {
 				groupedWork.addLiteraryFormsFull(literaryFormFull);
 			}
 		}
-		if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is " + targetAudience + " based on Boundless record", 2);}
-		if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience list is " + targetAudienceFull + " based on Boundless record", 2);}
+		if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is " + targetAudience + " based on Boundless record", 2);}
+		if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience list is " + targetAudienceFull + " based on Boundless record", 2);}
 		groupedWork.addTargetAudience(targetAudience, recordInfo);
 		groupedWork.addTargetAudienceFull(targetAudienceFull, recordInfo);
 

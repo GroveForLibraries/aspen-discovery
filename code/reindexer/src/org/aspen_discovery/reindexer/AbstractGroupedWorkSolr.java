@@ -316,15 +316,15 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 					//logger.warn("Found inconsistent literary forms for grouped work " + id + " both fiction and non-fiction had the same amount of usage.  Defaulting to neither.");
 					literaryForm.clear();
 					literaryForm.put("Unknown", 1);
-					if (this.debugEnabled) {this.addDebugMessage("Fiction and non fiction score are the same - literary form is unknown ", 2);}
+					if (this.debugEnabled) {this.addDebugMessage("[litform]Fiction and non fiction score are the same - literary form is unknown ", 2);}
 				} else if (numFictionIndicators.compareTo(numNonFictionIndicators) > 0) {
 					logger.debug("Popularity dictates that Fiction is the correct literary form for grouped work {}", id);
 					literaryForm.remove("Non Fiction");
-					if (this.debugEnabled) {this.addDebugMessage("Fiction has the highest literary form score", 2);}
+					if (this.debugEnabled) {this.addDebugMessage("[litform]Fiction has the highest literary form score", 2);}
 				} else if (numFictionIndicators.compareTo(numNonFictionIndicators) < 0) {
 					logger.debug("Popularity dictates that Non Fiction is the correct literary form for grouped work {}", id);
 					literaryForm.remove("Fiction");
-					if (this.debugEnabled) {this.addDebugMessage("Non fiction has the highest literary form score", 2);}
+					if (this.debugEnabled) {this.addDebugMessage("[litform]Non fiction has the highest literary form score", 2);}
 				}
 			}
 		}
@@ -353,7 +353,7 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 					//Check to see if the highest usage literary forms are inconsistent
 					if (hasInconsistentLiteraryForms(highestUsageLiteraryForms)) {
 						//Ugh, we have inconsistent literary forms and can't make an educated guess as to which is correct.
-						if (this.debugEnabled) {this.addDebugMessage("Literary forms (" + literaryFormFull  + ") don't match - full form is Unknown", 2);}
+						if (this.debugEnabled) {this.addDebugMessage("[litform]Literary forms (" + literaryFormFull  + ") don't match - full form is Unknown", 2);}
 						literaryFormFull.clear();
 						literaryFormFull.put("Unknown", 1);
 					}
@@ -372,7 +372,7 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 			for (String curLiteraryForm : literaryFormFull.keySet()) {
 				if (firstLiteraryFormIsNonFiction != nonFictionFullLiteraryForms.contains(curLiteraryForm)) {
 					logger.debug("{} got voted off the island for grouped work {} because it was inconsistent with other full literary forms.", curLiteraryForm, id);
-					if (this.debugEnabled) {this.addDebugMessage(curLiteraryForm + " got voted off the island for grouped work " + id + " because it was inconsistent with other full literary forms.", 2);}
+					if (this.debugEnabled) {this.addDebugMessage("[litform]" + curLiteraryForm + " got voted off the island for grouped work " + id + " because it was inconsistent with other full literary forms.", 2);}
 					literaryFormFull.remove(curLiteraryForm);
 					changeMade = true;
 					break;
@@ -788,14 +788,19 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 		}
 		String normalizedSeriesName = getNormalizedSeries(seriesName);
 		if (normalizedSeriesName.isEmpty()) {
+			if (debugEnabled) {addDebugMessage("[series]Ignoring series '" + seriesName + "' because it is empty after normalization", 1);}
 			return;
 		}
 		String seriesNameLower = normalizedSeriesName.toLowerCase();
 		if (groupedWorkIndexer.hideSeries.contains(seriesNameLower)) {
+			if (debugEnabled) {addDebugMessage("[series]Ignoring series '" + seriesName + "' because it is in the hide series list", 1);}
 			return;
 		}
 		if (!volume.isEmpty()) {
 			volume = getNormalizedSeriesVolume(volume);
+		}
+		if (debugEnabled) {
+			addDebugMessage("[series]Adding series: '" + seriesName + "' normalized to: '" + normalizedSeriesName + "' author: '" + seriesAuthor + "' volume: '" + volume + "' priority: " + priority + " traced: " + !untraced + " fromEContent: " + fromEContent, 1);
 		}
 
 		//Series Module Version 2 separates out series by author and language. Version 1 ignores author and language.
@@ -808,16 +813,24 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 			// This logic only applies if the series module is NOT active.
 			// First Check the traced series
 			seriesInfo = getPreferredSeriesWithPartialMatching(normalizedSeriesName);
+			if (debugEnabled) {addDebugMessage("[series]Series module disabled, title '" + seriesInfo.getSeriesName() + "' selected with partial matching; author and language are not used for the key", 2);}
 		}else if (groupedWorkIndexer.getSeriesVersion() == 1) {
 			seriesInfo = new SeriesInfo(seriesName);
+			if (debugEnabled) {addDebugMessage("[series]Series module v1, keyed by title only (author and language ignored)", 2);}
 		}else{ //version 2
 			seriesInfo = new SeriesInfo(seriesName, seriesAuthor, this.getPrimaryLanguage(), groupedWorkIndexer);
+			if (debugEnabled) {
+				addDebugMessage("[series]Series module v2, author '" + seriesAuthor + "' came from the MARC/enrichment source that supplied the series", 2);
+				addDebugMessage("[series]Series module v2, language '" + this.getPrimaryLanguage() + "' came from the work's primary language at this point" + (this.getPrimaryLanguage() == null ? " (not set yet, will be updated in setPrimaryLanguage)" : ""), 2);
+			}
 		}
 		String seriesKey = seriesInfo.getKey();
 		if (!series.containsKey(seriesKey)) {
 			series.put(seriesKey, seriesInfo);
+			if (debugEnabled) {addDebugMessage("[series]Added new series with key '" + seriesKey + "'", 2);}
 		}else{
 			seriesInfo = series.get(seriesKey);
+			if (debugEnabled) {addDebugMessage("[series]Merged with existing series with key '" + seriesKey + "'", 2);}
 		}
 		seriesInfo.setTraced(!untraced);
 		seriesInfo.setFromEContent(fromEContent);
@@ -835,9 +848,11 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 		while (iterator.hasNext()) {
 			String existingSeriesName = iterator.next();
 			if (existingSeriesName.contains(seriesNameLower)) {
+				if (debugEnabled) {addDebugMessage("[series]'" + seriesName + "' is contained in existing series '" + existingSeriesName + "', using the existing one", 2);}
 				//Use the old one
 				return series.get(existingSeriesName);
 			} else if (seriesNameLower.contains(existingSeriesName)) {
+				if (debugEnabled) {addDebugMessage("[series]'" + seriesName + "' contains existing series '" + existingSeriesName + "', replacing the existing one", 2);}
 				iterator.remove();
 			}
 		}
@@ -1077,6 +1092,7 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 		while (seriesIterator.hasNext()) {
 			SeriesInfo seriesInfo = seriesIterator.next();
 			if (seriesInfo.getLanguage() == null || seriesInfo.getLanguage().equals("unk")) {
+				if (debugEnabled) {addDebugMessage("[series]Language for series '" + seriesInfo.getSeriesName() + "' was " + seriesInfo.getLanguage() + ", updating to primary language '" + primaryLanguage + "'", 2);}
 				seriesIterator.remove();
 				seriesInfo.setLanguage(primaryLanguage, groupedWorkIndexer);
 				seriesToAdd.add(seriesInfo);
@@ -1789,6 +1805,6 @@ public abstract class AbstractGroupedWorkSolr implements DebugLogger {
 	}
 
 	public void removeSeries(SeriesInfo seriesInfo) {
-		this.series.remove(seriesInfo);
+		this.series.remove(seriesInfo.getKey());
 	}
 }

@@ -29,7 +29,7 @@ public class IIIRecordFormatClassifier extends IlsRecordFormatClassifier {
 						if (matTypeSubfield != null) {
 							String formatValue = matTypeSubfield.getData().trim();
 							if (indexingProfile.hasFormat(formatValue, BaseIndexingSettings.FORMAT_TYPE_MAT_TYPE)) {
-								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + formatValue + " based on Mat Type " + formatValue, 2);}
+								if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + formatValue + " based on Mat Type " + formatValue, 2);}
 								formats.add(formatValue);
 								break;
 							}
