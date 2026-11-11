@@ -441,8 +441,4 @@ abstract class IndexRecordDriver extends RecordInterface {
 	public function setCustomExplain(string $customExplain) : void {
 		$this->customExplain = $customExplain;
 	}
-
-	public function setCustomScore(string $customScore) : void {
-		$this->customScore = $customScore;
-	}
 }
