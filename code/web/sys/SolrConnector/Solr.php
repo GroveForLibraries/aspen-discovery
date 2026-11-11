@@ -1345,25 +1345,6 @@ abstract class Solr {
 			$this->getHighlightOptions($fields, $options);
 		}
 
-		$solrSearchDebug = print_r($options, true) . "\n";
-		if ($this->debugSolrQuery) {
-
-			if ($filters) {
-				$solrSearchDebug .= "\nFilterQuery: ";
-				foreach ($filters as $filterItem) {
-					$solrSearchDebug .= " $filterItem";
-				}
-			}
-
-			if ($sort) {
-				$solrSearchDebug .= "\nSort: " . $options['sort'];
-			}
-
-			if ($this->isPrimarySearch) {
-				global $interface;
-				$interface->assign('solrSearchDebug', $solrSearchDebug);
-			}
-		}
 		if ($this->debugSolrQuery || $this->debug) {
 			$options['debugQuery'] = 'on';
 		}
@@ -1624,6 +1605,14 @@ abstract class Solr {
 		global $memoryWatcher;
 
 		$memoryWatcher->logMemory('Start Solr Select');
+
+		if ($this->debugSolrQuery && $this->isPrimarySearch) {
+			$solrSearchDebug = print_r($params, true) . "\n";
+			global $interface;
+			if ($interface) {
+				$interface->assign('solrSearchDebug', $solrSearchDebug);
+			}
+		}
 
 		//$this->pingServer();
 

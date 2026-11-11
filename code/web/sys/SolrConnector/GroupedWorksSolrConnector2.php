@@ -171,6 +171,8 @@ class GroupedWorksSolrConnector2 extends Solr {
 		return $result;
 	}
 
+	// subject is not currently populated for most eContent (OverDrive/Hoopla)
+	protected string $mltSubjectPrefixThis = '{!mlt qf="subject_facet^8 topic_facet^8 awards_facet^4 era^3 genre_facet^2 geographic_facet^2 lc_subject^2" mintf=1 mindf=1 maxqt=25 boost=true}';
 	/**
 	 * Get records similar to one record
 	 * Uses MoreLikeThis Request Handler
@@ -178,22 +180,27 @@ class GroupedWorksSolrConnector2 extends Solr {
 	 * Uses SOLR MLT Query Handler
 	 *
 	 * @access    public
-	 * @param $id
-	 * @param bool $availableOnly
-	 * @param bool $limitFormat
-	 * @param null $limit
-	 * @param null $fieldsToReturn
+	 * @param string $id
+	 * @param ?string $selectedAvailabilityToggle
+	 * @param ?bool $availableOnly
+	 * @param ?bool $limitFormat
+	 * @param ?int $limit
+	 * @param ?string $format
+	 * @param ?string $fieldsToReturn
 	 * @return    array                            An array of query results
 	 *
 	 */
-	function getMoreLikeThis($id, $selectedAvailabilityToggle = 'global', $availableOnly = false, $limitFormat = true, $limit = null, $format = null, $fieldsToReturn = null) {
+	function getMoreLikeThis(string $id, ?string $selectedAvailabilityToggle = 'global', ?bool $availableOnly = false, ?bool $limitFormat = true, ?int $limit = null, ?string $format = null, ?string $fieldsToReturn = null) : array {
 		$originalResult = $this->getRecord($id, 'target_audience_full,content_rating,literary_form,language,isbn,upc,series');
 		// Query String Parameters
 		if ($fieldsToReturn == null) {
 			$fieldsToReturn = $this->getDefaultFieldsToReturn();
 		}
+		if (IPAddress::showDebuggingInformation()) {
+			$fieldsToReturn .= ',score';
+		}
 		$options = [
-			'q' => "id:$id",
+			'q' => "$this->mltSubjectPrefixThis$id",
 			'mlt.interestingTerms' => 'details',
 			'rows' => 25,
 			'fl' => $fieldsToReturn,
@@ -333,6 +340,10 @@ class GroupedWorksSolrConnector2 extends Solr {
 			$options['rows'] = $limit;
 		}
 
+		if (IPAddress::showDebuggingInformation()) {
+			$options['debugQuery'] = 'on';
+		}
+
 		$result = $this->_select('POST', $options, false, 'mlt');
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
@@ -349,36 +360,16 @@ class GroupedWorksSolrConnector2 extends Solr {
 	 *
 	 * @access    public
 	 *
-	 * @param array[] $ids
+	 * @param array[] $ids - An array of works to look with each key having workId and optional rating
 	 * @param string $fieldsToReturn
-	 * @param int $page
-	 * @param int $limit
+	 * @param ?int $page
+	 * @param ?int $limit
 	 * @param string[] $notInterestedIds - An array of ids the patron is not interested in.  Can just load the last hour or so since they are also indexed.
 	 * @return    array                            An array of query results
 	 */
-	function getMoreLikeThese($ids, $fieldsToReturn, $page = 1, $limit = 25, $notInterestedIds = []) {
-		// Query String Parameters
-		$idString = '';
-		$numIdsProcessed = 0;
-		foreach ($ids as $index => $ratingInfo) {
-			if (strlen($idString) > 0) {
-				$idString .= ' OR ';
-			}
-			if (empty($ratingInfo['rating'])){
-				$idString .= "id:{$ratingInfo['workId']}";
-			}else{
-				$ratingBoost = $ratingInfo['rating'];
-				$idString .= "id:{$ratingInfo['workId']}^$ratingBoost";
-			}
-			$numIdsProcessed++;
-			//Only process up to 500 IDs at a time to avoid overwhelming solr
-			if ($numIdsProcessed >= 500) {
-				break;
-			}
-		}
-		//$idString = implode(' OR ', $ids);
+	function getMoreLikeThese(array $ids, string $fieldsToReturn, ?int $page = 1, ?int $limit = 25, ?array $notInterestedIds = []) : array {
+		//Set up the basic search options
 		$options = [
-			'q' => $idString,
 			'mlt.interestingTerms' => 'details',
 			'mlt.boost' => 'true',
 			'start' => ($page - 1) * $limit,
@@ -386,9 +377,102 @@ class GroupedWorksSolrConnector2 extends Solr {
 			'fl' => $fieldsToReturn,
 		];
 
+		//Get just the ids that we are looking for without looking for
+		$sourceIds = [];
+		foreach ($ids as $index => $ratingInfo) {
+			$workId = $ratingInfo['workId'];
+			$sourceIds[] = $workId;
+		}
+
+		//First make sure the titles exist in solr still since mlt will fail if one or more document is missing
+		global $solrScope;
+		$foundIds = [];
+		$sourceSearchOptions = [
+			'q'=>'{!terms f=id separator=,}' . implode(',', $sourceIds),
+			'rows'=> count($sourceIds),
+			'fl'=>'id,title_display,language,literary_form,target_audience,format_category'
+		];
 		$searchLibrary = Library::getSearchLibrary();
 		$searchLocation = Location::getSearchLocation();
 		$scopingFilters = $this->getScopingFilters($searchLibrary, $searchLocation);
+
+		foreach ($scopingFilters as $filter) {
+			$sourceSearchOptions['fq'][] = $filter;
+		}
+		$sourceTitleSearch = $this->_select('GET', $sourceSearchOptions);
+		//Limit based on the target_audience, literary_form, language, format_categories in the supplied records
+		if (!empty($sourceTitleSearch['response']['docs'])) {
+			$uniqueLanguages = [];
+			$uniqueLiteraryForms = [];
+			$uniqueAudiences = [];
+			$uniqueFormatCategories = [];
+			foreach ($sourceTitleSearch['response']['docs'] as $titleInfo) {
+				$foundIds[] = $titleInfo['id'];
+				foreach ($titleInfo['language'] as $fieldValue) {
+					$uniqueLanguages[$fieldValue] = '"' . $fieldValue . '"';
+				}
+				foreach ($titleInfo['literary_form'] as $fieldValue) {
+					$uniqueLiteraryForms[$fieldValue] = '"' . $fieldValue . '"';
+				}
+				foreach ($titleInfo['target_audience'] as $fieldValue) {
+					$uniqueAudiences[$fieldValue] = '"' . $fieldValue . '"';
+				}
+				foreach ($titleInfo['format_category'] as $fieldValue) {
+					if (str_starts_with($fieldValue, $solrScope . '#')) {
+						$uniqueFormatCategories[$fieldValue] = '"' . $fieldValue . '"';
+					}
+				}
+			}
+			if (count($uniqueLanguages) > 0) {
+				$options['fq'][] = 'language:(' . implode(' OR ', $uniqueLanguages) . ')';
+			}
+			if (count($uniqueLiteraryForms) > 0) {
+				$options['fq'][] = 'literary_form:(' . implode(' OR ', $uniqueLiteraryForms) . ')';
+			}
+			if (count($uniqueAudiences) > 0) {
+				$options['fq'][] = 'target_audience:(' . implode(' OR ', $uniqueAudiences) . ')';
+			}
+			if (count($uniqueFormatCategories) > 0) {
+				$options['fq'][] = 'format_category:(' . implode(' OR ', $uniqueFormatCategories) . ')';
+			}
+		}
+
+		// Query String Parameters
+		$numIdsProcessed = 0;
+
+		$q = "{!bool ";
+		$sourceIds = [];
+		$mltTerms = [];
+		foreach ($ids as $index => $ratingInfo) {
+			$workId = $ratingInfo['workId'];
+			if (!in_array($workId, $foundIds)) {
+				continue;
+			}
+			$sourceIds[] = $workId;
+			$numIdsProcessed++;
+			$boost = 1;
+			if (!empty($ratingInfo['rating'])) {
+				$boost = $ratingInfo['workId'];
+			}
+
+			$mltTerms["seed" . $numIdsProcessed] = "$this->mltSubjectPrefixThis$workId";
+			if ($boost == 1) {
+				$q .= " should=\$seed$numIdsProcessed";
+			}else{
+				$mltTerms["weightedSeed" . $numIdsProcessed] = "{!boost b=3 v=\$seed$numIdsProcessed}";
+				$q .= " should=\$weightedSeed$numIdsProcessed";
+			}
+
+			//Only process up to 500 IDs at a time to avoid overwhelming solr
+			if ($numIdsProcessed >= 500) {
+				break;
+			}
+		}
+		$q .= "}";
+
+		$options['q'] = $q;
+
+		$options = array_merge($options, $mltTerms);
 
 		if (UserAccount::isLoggedIn()) {
 			$options['fq'][] = '-user_rating_link:' . UserAccount::getActiveUserId();
@@ -399,7 +483,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 			$notInterestedString = implode(' OR ', $notInterestedIds);
 			$options['fq'][] = "-id:($notInterestedString)";
 		}
-		$options['fq'][] = "-id:($idString)";
+		$options['fq'][] = "-id:(" . implode(' OR ', $sourceIds) . ")";
 		foreach ($scopingFilters as $filter) {
 			$options['fq'][] = $filter;
 		}
@@ -408,6 +492,12 @@ class GroupedWorksSolrConnector2 extends Solr {
 			$options['bf'] = $boostFactors;
 		}
 
+		$this->isPrimarySearch = true;
+		if (IPAddress::showDebuggingInformation()) {
+			$options['debugQuery'] = 'on';
+		}
+
+		//Now do the more like this search
 		$result = $this->_select('POST', $options, true, 'mlt');
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
