@@ -4180,7 +4180,7 @@ class SirsiDynixROA extends AbstractIlsDriver {
 		}
 		if ($numOverdue > 0) {
 			if ($userProfileResponse) {
-				if ($numOverdue >= $userProfileResponse->fields->overdueThreshold) {
+				if ($numOverdue >= $userProfileResponse->fields->overdueThreshold && $userProfileResponse->fields->overdueThreshold !== 0) {
 					$result['message'] = translate([
 						'text' => 'Your account has too many overdue titles to check out this title.',
 						'isPublicFacing' => true,
