@@ -14,6 +14,8 @@ require_once ROOT_DIR . '/RecordDrivers/RecordInterface.php';
 abstract class IndexRecordDriver extends RecordInterface {
 	protected $fields;
 	protected $index = false;
+	/** @var string|null custom explanation of how the score was determined for debugging of things like more like this */
+	protected ?string $customExplain = null;
 
 	/**
 	 * These Solr fields should NEVER be used for snippets.  (We exclude author
@@ -93,8 +95,10 @@ abstract class IndexRecordDriver extends RecordInterface {
 		$this->snippetCaptions = isset($searchSettings['Snippet_Captions']) && is_array($searchSettings['Snippet_Captions']) ? $searchSettings['Snippet_Captions'] : [];
 	}
 
-	public function getExplain() {
-		if (isset($this->fields['explain'])) {
+	public function getExplain() : ?string {
+		if (!empty($this->customExplain)) {
+			return $this->customExplain;
+		}else if (isset($this->fields['explain'])) {
 			return nl2br(str_replace(' ', '&nbsp;', $this->fields['explain']));
 		}
 		return null;
@@ -229,7 +233,7 @@ abstract class IndexRecordDriver extends RecordInterface {
 		return $this->fields['placeOfPublication'];
 	}
 
-	public function getScore() {
+	public function getScore() : ?string {
 		if (isset($this->fields['score'])) {
 			return $this->fields['score'];
 		}
@@ -432,5 +436,9 @@ abstract class IndexRecordDriver extends RecordInterface {
 
 	public function getFields() {
 		return $this->fields;
+	}
+
+	public function setCustomExplain(string $customExplain) : void {
+		$this->customExplain = $customExplain;
 	}
 }

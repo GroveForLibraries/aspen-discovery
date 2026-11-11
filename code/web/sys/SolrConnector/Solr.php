@@ -667,8 +667,8 @@ abstract class Solr {
 	 * @return    array                             Array for use as _applySearchSpecs() values param
 	 */
 	private function _buildMungeValues($lookfor, $custom = null, $basic = true) {
-		$grouped_word_id_pattern_1 = '/^"?(\d+|.[boi]\d+x?|[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12})(-\w{3})?"?$/i';
-		$grouped_word_id_pattern_2 = '/^"?(\d+|.?[boi]\d+x?|[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}|MWT\d+|CARL\d+)"?$/i';
+		$grouped_word_id_pattern_1 = '/^"?(\d+|.[boi]\d+x?|[a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12})(\\\\?-\w{3})?"?$/i';
+		$grouped_word_id_pattern_2 = '/^"?(\d+|.?[boi]\d+x?|[a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12}|MWT\d+|CARL\d+)"?$/i';
 		if ($basic) {
 			// Don't strip characters out/escape them if it's a grouped work ID
 			if (!preg_match($grouped_word_id_pattern_1, $lookfor) && !preg_match($grouped_word_id_pattern_2, $lookfor)) {
@@ -1345,25 +1345,6 @@ abstract class Solr {
 			$this->getHighlightOptions($fields, $options);
 		}
 
-		$solrSearchDebug = print_r($options, true) . "\n";
-		if ($this->debugSolrQuery) {
-
-			if ($filters) {
-				$solrSearchDebug .= "\nFilterQuery: ";
-				foreach ($filters as $filterItem) {
-					$solrSearchDebug .= " $filterItem";
-				}
-			}
-
-			if ($sort) {
-				$solrSearchDebug .= "\nSort: " . $options['sort'];
-			}
-
-			if ($this->isPrimarySearch) {
-				global $interface;
-				$interface->assign('solrSearchDebug', $solrSearchDebug);
-			}
-		}
 		if ($this->debugSolrQuery || $this->debug) {
 			$options['debugQuery'] = 'on';
 		}
@@ -1624,6 +1605,14 @@ abstract class Solr {
 		global $memoryWatcher;
 
 		$memoryWatcher->logMemory('Start Solr Select');
+
+		if ($this->debugSolrQuery && $this->isPrimarySearch) {
+			$solrSearchDebug = print_r($params, true) . "\n";
+			global $interface;
+			if ($interface) {
+				$interface->assign('solrSearchDebug', $solrSearchDebug);
+			}
+		}
 
 		//$this->pingServer();
 
