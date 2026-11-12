@@ -1385,7 +1385,7 @@ abstract class ObjectEditor extends Admin_Admin {
 		$filterFields = $this->getFilterFields($object::getObjectStructure($this->getContext()));
 		$appliedFilters = $this->getAppliedFilters($filterFields);
 		foreach ($appliedFilters as $fieldName => $filter) {
-			if (!empty($filter['filterValue']) || !empty($filter['filterValue2'])) {
+			if ((isset($filter['filterValue']) && $filter['filterValue'] != '') || (isset($filter['filterValue2']) && $filter['filterValue2'] != '')) {
 				$this->applyFilter($object, $fieldName, $filter);
 			}
 		}
