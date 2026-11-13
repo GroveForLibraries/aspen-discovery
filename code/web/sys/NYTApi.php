@@ -62,15 +62,28 @@ class NYTApi {
 		curl_setopt_array($curl, $curl_opts);
 		// Send the request & save response to $response
 		$response = curl_exec($curl);
+		//Get response code and errors
+		$responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+		$curlError = curl_error($curl);
 		// Close request to clear up some resources
 		curl_close($curl);
+		//Debugging
+		if ($responseCode !== 200) {
+			global $logger;
+			$logger->log("Did not get a good result from NYT", Logger::LOG_WARNING);
+			if ($response === false) {
+				$logger->log("Curl error: " . $curlError, Logger::LOG_WARNING);
+			} else {
+				$logger->log($response, Logger::LOG_WARNING);
+			}
+		}
 
 		$jsonResponse = json_decode($response);
 		if ($jsonResponse) {
 			$this->rawJSON = $jsonResponse;
 			$this->allListsInfo = $jsonResponse->results->lists;
 			$this->lastUpdateDate = $jsonResponse->results->published_date;
-			$this->copyright = $jsonResponse->copyright;
+			$this->copyright = $jsonResponse->copyright ?? '';
 		}else{
 			$this->allListsInfo = [];
 		}
