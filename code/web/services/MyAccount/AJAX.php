@@ -4950,7 +4950,7 @@ class MyAccount_AJAX extends JSON_Action {
 		$user = UserAccount::getActiveUserObj();
 
 		$entryId = $_REQUEST['entryId'] ?? null;
-		$newReturnDate = $_REQUEST['newReturnDate'] ?? null;
+		$newReturnDateStr = $_REQUEST['newReturnDate'] ?? null;
 
 		if (empty($entryId) || !is_numeric($entryId)) {
 			$result['title'] = translate([
@@ -4964,7 +4964,17 @@ class MyAccount_AJAX extends JSON_Action {
 			return $result;
 		}
 
-		if (empty($newReturnDate) || !is_numeric($newReturnDate)) {
+		//The client sends a calendar date (YYYY-MM-DD) - resolve it as midnight in the server's timezone
+		$newReturnDateTime = false;
+		if (!empty($newReturnDateStr) && is_string($newReturnDateStr)) {
+			$newReturnDateTime = DateTime::createFromFormat('!Y-m-d', $newReturnDateStr);
+			//Reject overflow dates such as 2026-02-31
+			if ($newReturnDateTime !== false && $newReturnDateTime->format('Y-m-d') !== $newReturnDateStr) {
+				$newReturnDateTime = false;
+			}
+		}
+
+		if ($newReturnDateTime === false) {
 			$result['title'] = translate([
 				'text' => 'Invalid Date Input',
 				'isPublicFacing' => true,
@@ -4976,8 +4986,8 @@ class MyAccount_AJAX extends JSON_Action {
 			return $result;
 		}
 
-		$todayTimestamp = strtotime('today');
-		if ($newReturnDate > $todayTimestamp) {
+		// Compare calendar dates (not timestamps) so the check is consistent with the server's timezone.
+		if ($newReturnDateTime->format('Y-m-d') > date('Y-m-d')) {
 			$result['title'] = translate([
 				'text' => 'Invalid Date Input',
 				'isPublicFacing' => true,
@@ -4988,6 +4998,8 @@ class MyAccount_AJAX extends JSON_Action {
 			]);
 			return $result;
 		}
+
+		$newReturnDate = $newReturnDateTime->getTimestamp();
 
 		require_once ROOT_DIR . '/sys/ReadingHistoryEntry.php';
 		$readingHistoryEntry = new ReadingHistoryEntry();
@@ -5028,7 +5040,9 @@ class MyAccount_AJAX extends JSON_Action {
 				'text' => 'Return date updated successfully.',
 				'isPublicFacing' => true,
 			]);
-			$result['formattedDate'] = date('M d, Y', $newReturnDate);
+			$result['formattedDate'] = $newReturnDateTime->format('M d, Y');
+			$result['editedDate'] = $newReturnDateTime->format('Y-m-d');
+			$result['editedTimestamp'] = $newReturnDate;
 		} else {
 			$result['message'] = translate([
 				'text' => 'Failed to update return date in database.',
