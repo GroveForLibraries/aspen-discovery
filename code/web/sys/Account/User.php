@@ -6426,7 +6426,7 @@ class User extends DataObject {
 	public function showRenewalLink(AccountSummary $ilsAccountSummary): bool {
 		$userLibrary = $this->getHomeLibrary();
 
-		if (!$this->getPTypeObj()->canRenewOnline) {
+		if (!$this->getPTypeObj()?->canRenewOnline) {
 			return false;
 		}
 
