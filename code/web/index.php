@@ -919,15 +919,23 @@ if (preg_match('/.*(DBMS_PIPE\.RECEIVE_MESSAGE|PG_SLEEP|WAITFOR|UNION%20ALL|SLEE
 global $plugins;
 global $isPluginAction;
 $isPluginAction = false;
+$pluginJavascript = '';
 if (!empty($module) && !empty($action)) {
 	foreach ($plugins as $plugin) {
 		if ($plugin->handlesModuleAction($module, $action)) {
+			$pluginJavascript .= $plugin->getJavascriptForAction($module, $action);
+			if (!empty($pluginJavascript)) {
+				$interface->assign('pluginJavascript', $pluginJavascript);
+			}
+
 			$plugin->handleAction($module, $action);
+
 			$isPluginAction = true;
 		}
 		$timer->logTime('Finish launch of action');
 	}
 }
+
 if (!$isPluginAction) {
 if ($isInvalidUrl || !is_dir(ROOT_DIR . "/services/$module")) {
 	$module = 'Error';
