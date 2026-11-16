@@ -337,7 +337,7 @@
 		<!-- This is returned, can be used for searching, and is used for facets -->
 		<field name="publishDate" type="unchanged_string" indexed="false" stored="false" multiValued="true" docValues="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 		<!-- This is returned and used as a facet. It is the earliest publication date -->
-		<field name="publishDateSort" type="unchanged_string" indexed="false" stored="false" docValues="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+		<field name="publishDateSort" type="unchanged_string" indexed="false" stored="false" docValues="true" omitNorms="true" omitTermFreqAndPositions="true" sortMissingLast="true"/>
 		<!-- This is returned and used as a facet. -->
 		<field name="placeOfPublication" type="unchanged_string" indexed="false" stored="false" multiValued="true" docValues="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 

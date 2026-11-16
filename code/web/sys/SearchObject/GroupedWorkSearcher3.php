@@ -556,7 +556,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				}else{
 					$childFilter = implode(' +', str_replace('"', '\"', $childDocFilters)) ;
 				}
-				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="id,recordtype,scope,format,format_category,popularity,total_holds,date_added"]';
+				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="id,recordtype,scope,format,format_category,date_added"]';
 			}
 		}
 		return $fieldsToReturn;
@@ -581,8 +581,6 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				$doc['format'] = [];
 				$doc['format_category'] = [];
 				$doc['local_days_since_added'] = 0;
-				$doc['popularity'] = 0;
-				$doc['total_holds'] = 0;
 				if (!empty($doc['record_scoping'])) {
 					foreach ($doc['record_scoping'] as $record_scoping) {
 						if (isset($record_scoping['format'])) {
@@ -595,8 +593,6 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 								$doc['format_category'][$formatCategory] = $formatCategory;
 							}
 						}
-						$doc['popularity'] += $record_scoping['popularity'] ?? 0;
-						$doc['total_holds'] += $record_scoping['total_holds'] ?? 0;
 						$doc['local_days_since_added'] = max($doc['local_days_since_added'], ($record_scoping['local_days_since_added'] ?? 0));
 					}
 				}
