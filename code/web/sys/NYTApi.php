@@ -79,12 +79,14 @@ class NYTApi {
 		}
 
 		$jsonResponse = json_decode($response);
-		if ($jsonResponse) {
+		if ($jsonResponse && isset($jsonResponse->results->lists) && is_array($jsonResponse->results->lists)) {
 			$this->rawJSON = $jsonResponse;
 			$this->allListsInfo = $jsonResponse->results->lists;
 			$this->lastUpdateDate = $jsonResponse->results->published_date;
 			$this->copyright = $jsonResponse->copyright ?? '';
 		}else{
+			global $logger;
+			$logger->log("Unexpected NYT API response (HTTP $responseCode): " . substr((string)$response, 0, 500), Logger::LOG_WARNING);
 			$this->allListsInfo = [];
 		}
 
