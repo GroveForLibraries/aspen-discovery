@@ -17687,7 +17687,7 @@ AspenDiscovery.Searches = (function(){
 			event.stopPropagation();
 			var url = Globals.path + "/Search/AJAX";
 			var params = "method=clearAllLockedFacets";
-			if (searchSource) {
+			if (searchSourceSpecial) {
 				params += "&searchSourceSpecial=" + encodeURIComponent(searchSourceSpecial);
 			}
 			var fullUrl = url + "?" + params;
