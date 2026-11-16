@@ -3668,18 +3668,22 @@ class User extends DataObject {
 				$authorFacet->displayName = 'author';
 				$searchObject->addFacet('authorStr', $authorFacet);
 				$results = $searchObject->processSearch(true, true);
-				if ($results['facet_counts'] && $results['facet_counts']['facet_fields'] && $results['facet_counts']['facet_fields']['series_facet']) {
-					$seriesFacets = array_slice($results['facet_counts']['facet_fields']['series_facet'], 0, 2);
-					foreach ($seriesFacets as $series) {
-						$summary->topSeries[] = $series[0];
+				if (isset($results['facets'])) {
+					//Solr 9
+					if ($results['facets']['series_facet']['buckets']) {
+						$seriesFacets = array_slice($results['facets']['series_facet']['buckets'], 0, 2);
+						foreach ($seriesFacets as $series) {
+							$summary->topSeries[] = $series['val'];
+						}
+					}
+					if ($results['facets']['genre_facet']['buckets']) {
+						$genreFacets = array_slice($results['facets']['genre_facet']['buckets'], 0, 3);
+						foreach ($genreFacets as $genres) {
+							$summary->topGenres[] = $genres['val'];
+						}
 					}
 				}
-				if ($results['facet_counts'] && $results['facet_counts']['facet_fields'] && $results['facet_counts']['facet_fields']['genre_facet']) {
-					$genreFacets = array_slice($results['facet_counts']['facet_fields']['genre_facet'], 0, 3);
-					foreach ($genreFacets as $genres) {
-						$summary->topGenres[] = $genres[0];
-					}
-				}
+
 				$searchObject->close();
 
 				// Recommendations

@@ -285,7 +285,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				}elseif ($facetName == 'availability_at' || $facetName == 'owning_location') {
 					$limit = $numLocations;
 				}else{
-					$limit = $facetInfo->numTotalEntriesToShowInMore;
+					$limit = $facetInfo->numTotalEntriesToShowInMore > 0 ? $facetInfo->numTotalEntriesToShowInMore : $limit;
 				}
 
 				$jsonInfoForField = [
@@ -371,6 +371,10 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 					'q' => implode(' AND ', $groupQueryParts),
 					'facet' => $groupFacets,
 				];
+			}
+
+			if (count($jsonFacets['child_facets']['facet']) == 0) {
+				unset($jsonFacets['child_facets']);
 			}
 
 			if ($this->facetOffset != null) {
