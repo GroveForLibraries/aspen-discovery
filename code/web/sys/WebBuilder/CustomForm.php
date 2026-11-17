@@ -201,6 +201,9 @@ class CustomForm extends DB_LibraryLinkedObject {
 		return $ret;
 	}
 
+	/**
+	 * @return LibraryCustomForm[]|null
+	 */
 	public function getLibraries() : ?array {
 		if (!isset($this->_libraries) && $this->id) {
 			$this->_libraries = [];
