@@ -498,7 +498,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 		}
 
 		//Now do the more like this search
-		$result = $this->_select('POST', $options, true, 'mlt');
+		$result = $this->_select('POST', $options);
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
 		}
