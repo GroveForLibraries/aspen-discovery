@@ -528,7 +528,7 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 							}
 						}
 					} elseif ($field == 'id') {
-						if (!preg_match('/^"?(\d+|.[boi]\d+x?|a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12})(\\\\?-\w{3})?"?$/i', $fieldValue)) {
+						if (!preg_match('/^"?(\d+|.[boi]\d+x?|[a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12})(\\\\?-\w{3})?"?$/i', $fieldValue)) {
 							continue;
 						}
 					} elseif ($field == 'alternate_ids') {
