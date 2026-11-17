@@ -344,7 +344,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 			$options['debugQuery'] = 'on';
 		}
 
-		$result = $this->_select('POST', $options, false, 'mlt');
+		$result = $this->_select('POST', $options);
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
 		}
