@@ -66,7 +66,7 @@ function generateYearInReview(User $patron) : void {
 						if (!empty($readingHistorySummary->yearlyCostSavings)) {
 							$yearInReviewData->userData['yearlyCostSavings'] = $readingHistorySummary->yearlyCostSavings;
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 2,
+								0, 2, 3, 4 => 2,
 								1 => 3,
 							};
 						}else{
@@ -93,13 +93,13 @@ function generateYearInReview(User $patron) : void {
 							$monthName = $dateObj->format('F');
 							$yearInReviewData->userData['topMonth'] = $monthName;
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 4,
+								0, 2, 3, 4 => 4,
 								1 => 5,
 							};
 						}else{
 							$yearInReviewData->userData['averageCheckouts'] = $readingHistorySummary->averageCheckouts;
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 5,
+								0, 2, 3, 4 => 5,
 								1 => 6,
 							};
 						}
@@ -112,7 +112,7 @@ function generateYearInReview(User $patron) : void {
 							$yearInReviewData->userData['topFormat2'] = count($formatNames) > 1 ?  $formatNames[1] : '';
 							$yearInReviewData->userData['topFormat3'] = count($formatNames) > 2 ?  $formatNames[2] : '';
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 6,
+								0, 2, 3, 4 => 6,
 								1 => 7,
 							};
 						}
@@ -140,7 +140,7 @@ function generateYearInReview(User $patron) : void {
 							$yearInReviewData->userData['topGenre2'] = count($genreNames) > 1 ?  $genreNames[1] : '';
 							$yearInReviewData->userData['topGenre3'] = count($genreNames) > 2 ?  $genreNames[2] : '';
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 7,
+								0, 2, 3, 4 => 7,
 								1 => 8,
 							};
 						}
@@ -149,7 +149,7 @@ function generateYearInReview(User $patron) : void {
 						if (!empty($readingHistorySummary->topAuthor)) {
 							$yearInReviewData->userData['topAuthor'] = $readingHistorySummary->topAuthor;
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 8,
+								0, 2, 3, 4 => 8,
 								1 => 9,
 							};
 						}
@@ -161,7 +161,7 @@ function generateYearInReview(User $patron) : void {
 							$yearInReviewData->userData['topSeries1'] = $seriesNames[0];
 							$yearInReviewData->userData['topSeries2'] = count($seriesNames) > 1 ?  $seriesNames[1] : '';
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 9,
+								0, 2, 3,4 => 9,
 								1 => 10,
 							};
 						}
@@ -171,14 +171,14 @@ function generateYearInReview(User $patron) : void {
 							$yearInReviewData->userData['recommendations'] = join("\n\n", $readingHistorySummary->recommendations);
 							$yearInReviewData->userData['recommendationIds'] = $readingHistorySummary->recommendationIds;
 							$slidesToShow[] = match ($yearInReviewSetting->style) {
-								0, 2, 3 => 10,
+								0, 2, 3, 4 => 10,
 								1 => 11,
 							};
 						}
 
 						//Always show the last slide
 						$slidesToShow[] = match ($yearInReviewSetting->style) {
-							0, 2, 3 => 11,
+							0, 2, 3, 4 => 11,
 							1 => 12,
 						};
 
