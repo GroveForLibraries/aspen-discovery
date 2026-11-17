@@ -254,7 +254,10 @@ class Events_Calendar extends Action {
 					unset($libraryBranches['all']);
 					$branchNames = $this->getBranchNames(array_keys($libraryBranches), $branchNamesByLocation);
 					if (!empty($branchNames)) {
-						$searchObject->addHiddenFilter('branch', $this->getBranchFilter($branchNames));
+						$branchFilter = $this->getBranchFilter($branchNames);
+						//Also include events scoped to this library even if their branch doesn't match one of our locations
+						$branchFilter .= ' OR library_scopes:"' . addcslashes($library->subdomain, '"\\') . '"';
+						$searchObject->addHiddenFilter('branch', $branchFilter);
 					}
 				}
 			} else {
@@ -573,6 +576,109 @@ class Events_Calendar extends Action {
 			return $setting->fullMonthName;
 		}
 		return 0;
+	}
+
+	function getShowLibraryClosures($calendarDisplaySettingId) {
+		require_once ROOT_DIR . '/sys/Events/CalendarDisplaySetting.php';
+		$setting = new CalendarDisplaySetting();
+		$setting->id = $calendarDisplaySettingId;
+		if ($setting->find(true)) {
+			return $setting->showLibraryClosures;
+		}
+		return 0;
+	}
+
+	function getClosuresByDate(string $startDate, string $endDate, string $selectedLocation, array $allLocations) : array {
+		require_once ROOT_DIR . '/sys/LibraryLocation/Holiday.php';
+
+		// Branches shown on the calendar (already scoped by getLocationList / aspenEventsToInclude)
+		$branches = [];
+		$location = new Location();
+		$location->find();
+		while ($location->fetch()) {
+			if (!in_array($location->displayName, $allLocations)) {
+				continue;
+			}
+			if ($selectedLocation !== 'all' && $location->code !== $selectedLocation) {
+				continue;
+			}
+			$branches[$location->locationId] = $location->displayName;
+		}
+		if (empty($branches)) {
+			return [];
+		}
+
+		$start = DateTime::createFromFormat('Y-m-d', $startDate);
+		$end = DateTime::createFromFormat('Y-m-d', $endDate);
+		if (!$start || !$end) {
+			return [];
+		}
+
+		$holiday = new Holiday();
+		$holiday->closed = 1;
+		$holiday->whereAdd("date >= '" . $start->format('Y-m-d') . "' AND date <= '" . $end->format('Y-m-d') . "'");
+		$holiday->whereAddIn('locationId', array_keys($branches), false);
+		$holiday->find();
+
+		$grouped = [];
+		while ($holiday->fetch()) {
+			$grouped[$holiday->date][$holiday->name][$holiday->locationId] = $branches[$holiday->locationId];
+		}
+
+		$closures = [];
+		foreach ($grouped as $date => $byName) {
+			foreach ($byName as $name => $closedBranches) {
+				$closedBranches = array_values($closedBranches);
+				sort($closedBranches);
+				$closures[$date][] = [
+					'name' => $name,
+					'branches' => $closedBranches,
+					'allClosed' => count($closedBranches) >= count($branches),
+				];
+			}
+		}
+		return $closures;
+	}
+
+	function getHighlightColors(array $searchResults) : array {
+		require_once ROOT_DIR . '/sys/Events/Event.php';
+		require_once ROOT_DIR . '/sys/Events/EventInstance.php';
+
+		//Only Aspen native events can be color-coded, create array of Aspen event ids
+		$instanceIdsByResult = [];
+		foreach ($searchResults as $result) {
+			if (str_starts_with($result['id'], 'aspen') && preg_match('/(\d+)$/', $result['id'], $m)) {
+				$instanceIdsByResult[$result['id']] = (int)$m[1];
+			}
+		}
+		if (empty($instanceIdsByResult)) {
+			return [];
+		}
+
+		$eventIdByInstance = [];
+		$instance = new EventInstance();
+		$instance->whereAddIn('id', array_values(array_unique($instanceIdsByResult)), false);
+		$instance->find();
+		while ($instance->fetch()) {
+			$eventIdByInstance[(int)$instance->id] = (int)$instance->eventId;
+		}
+
+		$colorByEvent = [];
+		foreach (array_unique($eventIdByInstance) as $eventId) {
+			$event = new Event();
+			$event->id = $eventId;
+			if ($event->find(true)) {
+				$colorByEvent[$eventId] = $event->getEffectiveHighlightColor();
+			}
+		}
+
+		//Build and return the array of colors using the event ids as the keys and color as the value
+		$colors = [];
+		foreach ($instanceIdsByResult as $resultId => $instanceId) {
+			$eventId = $eventIdByInstance[$instanceId] ?? null;
+			$colors[$resultId] = $eventId ? ($colorByEvent[$eventId] ?? null) : null;
+		}
+		return $colors;
 	}
 
 	/**
