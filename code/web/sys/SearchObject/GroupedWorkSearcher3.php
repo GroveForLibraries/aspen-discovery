@@ -419,7 +419,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		// this null in order to achieve the desired effect with Solr:
 		$finalSort = ($this->sort == 'relevance') ? null : $this->sort;
 		if ($finalSort == 'days_since_added asc') {
-			$finalSort = 'local_days_since_added asc';
+			$finalSort = "local_days_since_added_sort_$solrScope asc";
 		}
 
 		// The first record to retrieve:
@@ -541,7 +541,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			$fieldsToReturn = SearchObject_GroupedWorkSearcher3::$fields_to_return;
 			global $solrScope;
 			//We should always have a scope
-			$fieldsToReturn .= ',local_days_since_added';
+			$fieldsToReturn .= ",local_days_since_added";
 			$fieldsToReturn .= ',local_time_since_added';
 			$fieldsToReturn .= ',local_callnumber';
 			$fieldsToReturn .= ',collection';
@@ -560,7 +560,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				}else{
 					$childFilter = implode(' +', str_replace('"', '\"', $childDocFilters)) ;
 				}
-				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="id,recordtype,scope,format,format_category,date_added"]';
+				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="id,recordtype,scope,format,format_category,date_added,local_days_since_added"]';
 			}
 		}
 		return $fieldsToReturn;
@@ -584,7 +584,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			foreach ($response['docs'] as $key => $doc) {
 				$doc['format'] = [];
 				$doc['format_category'] = [];
-				$doc['local_days_since_added'] = 0;
+				$doc['local_days_since_added'] = null;
 				if (!empty($doc['record_scoping'])) {
 					foreach ($doc['record_scoping'] as $record_scoping) {
 						if (isset($record_scoping['format'])) {
@@ -597,7 +597,13 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 								$doc['format_category'][$formatCategory] = $formatCategory;
 							}
 						}
-						$doc['local_days_since_added'] = max($doc['local_days_since_added'], ($record_scoping['local_days_since_added'] ?? 0));
+						if (isset($record_scoping['local_days_since_added'])) {
+							if ($doc['local_days_since_added'] == null) {
+								$doc['local_days_since_added'] = $record_scoping['local_days_since_added'];
+							}else{
+								$doc['local_days_since_added'] = max($doc['local_days_since_added'], $record_scoping['local_days_since_added']);
+							}
+						}
 					}
 				}
 				$response['docs'][$key] = $doc;

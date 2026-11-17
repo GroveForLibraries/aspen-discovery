@@ -63,7 +63,7 @@
 		<div class="result-total-checkouts result-value col-sm-8 col-xs-12">{$totalCheckouts}</div>
 	{elseif $sortValue =="days_since_added asc"}
 		<div class="result-date-purchased result-label col-sm-4 col-xs-12">{translate text="Date Purchased" isPublicFacing=true} </div>
-		<div class="result-date-purchased result-value col-sm-8 col-xs-12">{$datePurchased|date_format:"%m/%d/%Y"}</div>
+		<div class="result-date-purchased result-value col-sm-8 col-xs-12">{if $datePurchased == null}{translate text="Not Applicable" isPublicFacing=true}{else}{$datePurchased}{/if}</div>
 	{elseif $sortValue =="callnumber_sort"}
 		<div class="result-call-number result-label col-sm-4 col-xs-12">{translate text="Call Number" isPublicFacing=true} </div>
 		<div class="result-call-number result-value col-sm-8 col-xs-12">{if empty($callNumber)}&nbsp;{else}{$callNumber}{/if}</div>
