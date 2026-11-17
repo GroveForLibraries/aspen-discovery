@@ -254,7 +254,10 @@ class Events_Calendar extends Action {
 					unset($libraryBranches['all']);
 					$branchNames = $this->getBranchNames(array_keys($libraryBranches), $branchNamesByLocation);
 					if (!empty($branchNames)) {
-						$searchObject->addHiddenFilter('branch', $this->getBranchFilter($branchNames));
+						$branchFilter = $this->getBranchFilter($branchNames);
+						//Also include events scoped to this library even if their branch doesn't match one of our locations
+						$branchFilter .= ' OR library_scopes:"' . addcslashes($library->subdomain, '"\\') . '"';
+						$searchObject->addHiddenFilter('branch', $branchFilter);
 					}
 				}
 			} else {
