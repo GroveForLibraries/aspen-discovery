@@ -116,5 +116,7 @@
 <script type="text/javascript">
 	AspenDiscovery.Ratings.initializeRaters();
 	AspenDiscovery.Account.ReadingHistory.initAccordions();
+	{if empty($disallowReturnDateEdits)}
 	AspenDiscovery.Account.ReadingHistory.initEditableReturnDates();
+	{/if}
 </script>

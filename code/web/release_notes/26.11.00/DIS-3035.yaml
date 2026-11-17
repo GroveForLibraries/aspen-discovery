@@ -1,0 +1,13 @@
+Jira: DIS-3035
+Type: Enhancement
+Developer: Kodi Lein (KL)
+Contributing Org: Grove For Libraries
+Sponsor: MCFLS
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Sierra ILS
+Description:
+  - Add self registration form configuration option for staff message that will display to staff when viewing self registered patrons.
+New Settings:
+  - ILS Integration > Self Registration Forms > Staff Message
+New Permissions:

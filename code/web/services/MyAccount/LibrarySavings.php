@@ -64,6 +64,8 @@ class LibrarySavings extends MyAccount {
 					if ($variables->find(true)) {
 						$currencyCode = $variables->currencyCode;
 					}
+					$currencySymbol = StringUtils::getCurrencySymbol();
+					$interface->assign('currencySymbol', $currencySymbol);
 
 					//Get data for each of the graphs
 					$monthlySavingsColumnLabels = [

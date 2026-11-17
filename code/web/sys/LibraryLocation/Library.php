@@ -124,6 +124,7 @@ class Library extends DataObject {
 	public $enableListDescriptions;
 	public $allowableListNames;
 	public $hideSoftDeleteListUI;
+	public $hideListItemsNoLongerInCatalog;
 	public $showConvertListsFromClassic;
 	public $showUserCirculationModules;
 	public $showUserPreferences;
@@ -214,6 +215,7 @@ class Library extends DataObject {
 		$displayCallNumberInCheckoutHistory;
 	public /** @noinspection PhpUnused */
 		$displayVolumeInCheckoutHistory;
+	public $disallowReturnDateEdits;
 
 	public $alwaysDisplayRenewalCount;
 	public $allowRenewingOutOfHoldGroupCheckouts;
@@ -3146,6 +3148,15 @@ class Library extends DataObject {
 								'permissions' => ['Library ILS Connection'],
 								'relatedIls' => ['evergreen', 'koha'],
 							],
+							'disallowReturnDateEdits' => [
+								'property' => 'disallowReturnDateEdits',
+								'type' => 'checkbox',
+								'label' => 'Disallow Editing of Return Dates',
+								'description' => 'Whether users can edit the return date of titles in their reading history within Aspen.',
+								'hideInLists' => true,
+								'default' => 0,
+								'permissions' => ['Library ILS Options'],
+							],
 							'forceReadingHistoryOptIn' => [
 								'property' => 'forceReadingHistoryOptIn',
 								'type' => 'checkbox',
@@ -3802,6 +3813,14 @@ class Library extends DataObject {
 						'type' => 'checkbox',
 						'label' => 'Hide Soft Delete UI for Lists',
 						'description' => 'When enabled, the soft delete messaging and checkbox will not be shown to patrons when deleting lists. Lists will still be soft-deleted in the background.',
+						'hideInLists' => true,
+						'default' => 0,
+					],
+					'hideListItemsNoLongerInCatalog' => [
+						'property' => 'hideListItemsNoLongerInCatalog',
+						'type' => 'checkbox',
+						'label' => 'Hide List Items No Longer in Catalog',
+						'description' => 'When enabled, users will no longer see list items that no longer exist in the catalog.',
 						'hideInLists' => true,
 						'default' => 0,
 					],
@@ -7055,10 +7074,15 @@ class Library extends DataObject {
 			$apiInfo['generalSettings']['autoRotateCard'] = 0;
 			$apiInfo['enableSelfRegistrationInApp'] = 0;
 			$apiInfo['showMoreInfoBtn'] = 0;
+			$apiInfo['enableLocationChange'] = 0;
+			$apiInfo['showLocalBranchesOnly'] = 1;
 		} else {
 			$apiInfo['generalSettings']['autoRotateCard'] = $generalSettings->autoRotateCard ?? 0;
 			$apiInfo['enableSelfRegistrationInApp'] = $generalSettings->enableSelfRegistration ?? 0;
 			$apiInfo['showMoreInfoBtn'] = (int)$generalSettings->showMoreInfoBtn ?? 0;
+			$apiInfo['enableLocationChange'] = (int)$generalSettings->enableLocationChange ?? 0;
+			$apiInfo['showLocalBranchesOnly'] = (int)$generalSettings->showOnlyLocalBranches ?? 1;
+
 		}
 
 		$apiInfo['hasEventSettings'] = $this->hasEventSettings();
@@ -7431,5 +7455,13 @@ class Library extends DataObject {
 			}
 		}
 		return $config;
+	}
+
+	public function getLibraryWebResourceSettings() {
+		require_once ROOT_DIR . '/sys/WebBuilder/WebResourcesSetting.php';
+		$libraryResourceSettings = new WebResourcesSetting();
+		$libraryResourceSettings->id = $this->webResourcesSettingId;
+		$libraryResourceSettings->find(true);
+		return $libraryResourceSettings;
 	}
 }

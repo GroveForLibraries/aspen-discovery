@@ -720,6 +720,7 @@ class CatalogConnection {
 		$readingHistoryDB->selectAdd('SUM(CASE WHEN checkInDate IS NULL THEN 1 END) as checkedOut');
 		$readingHistoryDB->selectAdd('COUNT(id) as timesUsed');
 		$readingHistoryDB->selectAdd('GROUP_CONCAT(DISTINCT(format)) as format');
+		$readingHistoryDB->selectAdd('SUM(costSavings) as costSavings');
 		if ($sortOption == "checkedOut") {
 			$readingHistoryDB->orderBy('checkedOut DESC, MAX(checkOutDate) DESC, title ASC');
 		} elseif ($sortOption == "returned") {
@@ -1225,6 +1226,9 @@ class CatalogConnection {
 		$historyEntry['checkedOut'] = $readingHistoryDB->checkedOut !== null;
 		$historyEntry['permanentId'] = $readingHistoryDB->groupedWorkPermanentId;
 		$historyEntry['isIll'] = $readingHistoryDB->isIll;
+		require_once ROOT_DIR . '/sys/Utils/StringUtils.php';
+		$historyEntry['costSavings'] = (float)($readingHistoryDB->costSavings ?? 0);
+		$historyEntry['costSavings'] = StringUtils::formatCurrency($historyEntry['costSavings']);
 		if (!$forExport) {
 			require_once ROOT_DIR . '/RecordDrivers/GroupedWorkDriver.php';
 			$recordDriver = new GroupedWorkDriver($readingHistoryDB->groupedWorkPermanentId);

@@ -163,6 +163,8 @@ class OverDriveDriver extends AbstractEContentDriver {
 		}
 		if (str_contains($baseUrl, 'lexisdl')) {
 			$baseUrl .= 'title/' . $crossRefId;
+		} elseif(str_contains($baseUrl, 'soraapp.com')){
+			$baseUrl .= $crossRefId;
 		} else{
 			$baseUrl .= 'media/' . $crossRefId;
 		}
@@ -999,7 +1001,11 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'isPublicFacing' => true,
 			]);
 			if (isset($response->message)) {
-				$holdResult['message'] .= "  $response->message";
+				$translatedMessage = translate([
+					'text' => $response->message,
+					'isPublicFacing' => true,
+				]);
+				$holdResult['message'] .= " $translatedMessage";
 			}
 
 			// Result for API or app use
@@ -1063,9 +1069,6 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'text' => 'Sorry, but we could not freeze the hold on this title.',
 				'isPublicFacing' => true,
 			]);
-			if (isset($response->message)) {
-				$holdResult['message'] .= "  $response->message";
-			}
 
 			// Store result for API or app use
 			$holdResult['api']['title'] = translate([
@@ -1077,7 +1080,12 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'isPublicFacing' => true,
 			]);
 			if (isset($response->message)) {
-				$holdResult['api']['message'] .= "  $response->message";
+				$translatedMessage = translate([
+					'text' => $response->message,
+					'isPublicFacing' => true,
+				]);
+				$holdResult['message'] .= " $translatedMessage";
+				$holdResult['api']['message'] .= "  $translatedMessage";
 			}
 
 			$this->incrementStat('numApiErrors');
@@ -1131,9 +1139,6 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'text' => 'Sorry, but we could not thaw the hold on this title.',
 				'isPublicFacing' => true,
 			]);
-			if (isset($response->message)) {
-				$holdResult['message'] .= "  $response->message";
-			}
 
 			// Result for API or app use
 			$holdResult['api']['title'] = translate([
@@ -1145,7 +1150,12 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'isPublicFacing' => true,
 			]);
 			if (isset($response->message)) {
-				$holdResult['api']['message'] .= "  $response->message";
+				$translatedMessage = translate([
+					'text' => $response->message,
+					'isPublicFacing' => true,
+				]);
+				$holdResult['message'] .= " $translatedMessage";
+				$holdResult['api']['message'] .= " $translatedMessage";
 			}
 
 			$this->incrementStat('numApiErrors');
@@ -1200,9 +1210,6 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'text' => 'There was an error cancelling your hold.',
 				'isPublicFacing' => true,
 			]);
-			if (isset($response->message)) {
-				$cancelHoldResult['message'] .= "  $response->message";
-			}
 
 			// Result for API or app use
 			$cancelHoldResult['api']['title'] = translate([
@@ -1214,7 +1221,12 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'isPublicFacing' => true,
 			]);
 			if (isset($response->message)) {
-				$cancelHoldResult['api']['message'] .= "  $response->message";
+				$translatedMessage = translate([
+					'text' => $response->message,
+					'isPublicFacing' => true,
+				]);
+				$cancelHoldResult['message'] .= " $translatedMessage";
+				$cancelHoldResult['api']['message'] .= " $translatedMessage";
 			}
 
 			$this->incrementStat('numApiErrors');
@@ -1355,10 +1367,12 @@ class OverDriveDriver extends AbstractEContentDriver {
 
 			} else {
 				if (isset($response->message)) {
-					$result['message'] .= "  $response->message";
-				}
-				if (isset($response->message)) {
-					$result['api']['message'] .= "  $response->message";
+					$translatedMessage = translate([
+						'text' => $response->message,
+						'isPublicFacing' => true,
+					]);
+					$result['message'] .= " $translatedMessage";
+					$result['api']['message'] .= " $translatedMessage";
 				}
 			}
 
@@ -1479,7 +1493,11 @@ class OverDriveDriver extends AbstractEContentDriver {
 						'isPublicFacing' => true,
 					]);
 				} else {
-					$cancelHoldResult['message'] .= "  $response->message";
+					$translatedMessage = translate([
+						'text' => $response->message,
+						'isPublicFacing' => true,
+					]);
+					$cancelHoldResult['message'] .= " $translatedMessage";
 				}
 			}
 
@@ -1499,7 +1517,11 @@ class OverDriveDriver extends AbstractEContentDriver {
 						'isPublicFacing' => true,
 					]);
 				} else {
-					$cancelHoldResult['api']['message'] .= "  $response->message";
+					$translatedMessage = translate([
+						'text' => $response->message,
+						'isPublicFacing' => true,
+					]);
+					$cancelHoldResult['api']['message'] .= " $translatedMessage";
 				}
 			}
 
@@ -1713,9 +1735,6 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'text' => 'Sorry, but we could not renew this title for you.',
 				'isPublicFacing' => true,
 			]);
-			if (isset($response->message)) {
-				$holdResult['message'] .= "  $response->message";
-			}
 
 			// Result for API or app use
 			$holdResult['api']['title'] = translate([
@@ -1727,7 +1746,12 @@ class OverDriveDriver extends AbstractEContentDriver {
 				'isPublicFacing' => true,
 			]);
 			if (isset($response->message)) {
-				$holdResult['api']['message'] .= "  $response->message";
+				$translatedMessage = translate([
+					'text' => $response->message,
+					'isPublicFacing' => true,
+				]);
+				$holdResult['message'] .= " $translatedMessage";
+				$holdResult['api']['message'] .= " $translatedMessage";
 			}
 
 			$this->incrementStat('numApiErrors');

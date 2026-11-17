@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * @return PluginInterface[] an array of Plugins
+ */
 function loadPlugins() : array {
 	global $configArray;
 	$plugins = [];

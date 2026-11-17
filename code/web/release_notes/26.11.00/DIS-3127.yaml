@@ -1,0 +1,13 @@
+Jira: DIS-3127
+Type: Enhancement
+Developer: Kirstien Kroeger (KK)
+Contributing Org: Grove For Libraries
+Sponsor: Grove For Libraries
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Aspen LiDA
+Description:
+  - In General Settings, add a new setting to allow users to change their active location in LiDA.
+New Settings:
+  - Aspen LiDA > General Settings > Enable changing the location a user is active in on the Location screen
+New Permissions:

@@ -5,7 +5,7 @@
 		{assign var="vSummAuthor" value="by $summAuthor"}
 	{/if}
 
-	{if $accessibleBrowseCategories == '1' && $action != 'Results' && !$isForSearchResults}
+	{if $accessibleBrowseCategories == '1' && $action != 'Results' && $module != 'Author' && !$isForSearchResults}
 	<div class="swiper-slide browse-thumbnail {$coverStyle}">
 		<a onclick="return AspenDiscovery.GroupedWork.showGroupedWorkInfo('{$summId}', {if !empty($browseCategoryId)}'{$browseCategoryId}'{/if},'','');" href="{$summUrl}">
 			<img src="{$bookCoverUrlMedium}" alt="{$summTitle|escape}{if !empty($summSubTitle)} {$summSubTitle|escape}{/if}" title="{$summTitle|escape}{if !empty($summSubTitle)} {$summSubTitle|escape}{/if}" class="{$coverStyle}{if $useOriginalCoverUrls} use-original-covers{/if}" loading="lazy">

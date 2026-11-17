@@ -1,0 +1,12 @@
+Jira: DIS-3133
+Type: Bug
+Developer: Myranda Fuentes (MAF)
+Contributing Org: Grove For Libraries
+Sponsor: 
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Web Builder
+Description:
+  - Fix issue where PDF viewer page footer in full-width themes did not show as full-width
+New Settings:
+New Permissions:

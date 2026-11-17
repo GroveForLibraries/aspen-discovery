@@ -1,0 +1,14 @@
+Jira: DIS-2442
+Type: Enhancement
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor: CLAMS
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Searching
+Description:
+  - Improve recommendations for individual titles, Year In Review suggestions, and Recommended for You page.
+  - Refine the fields used when loading more like this and add description to the list of fields checked when using Grouped Works Searcher v3.
+  - Limit More Like These queries based on audience, literary form, format category, and languages based on the original documents.
+New Settings:
+New Permissions:

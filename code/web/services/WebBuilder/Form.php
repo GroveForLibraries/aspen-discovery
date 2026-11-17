@@ -2,9 +2,9 @@
 require_once ROOT_DIR . '/recaptcha/recaptchalib.php';
 
 class WebBuilder_Form extends Action {
-	private $form;
+	private ?CustomForm $form;
 
-	function launch() {
+	function launch() : void {
 		global $interface;
 
 		$id = strip_tags($_REQUEST['id']);
@@ -24,6 +24,41 @@ class WebBuilder_Form extends Action {
 			$actionClass = new Error_Handle404();
 			$actionClass->launch();
 			die();
+		}
+		$interface->assign('title', $this->form->title);
+
+		if ($this->form->requireHomeLibraryInterface) {
+			$formUrl = '/WebBuilder/Form?id=' . rawurlencode($id);
+			$homeLibrarySelectionComplete = !empty($_REQUEST['homeLibraryInterfaceSelected']);
+			if (!UserAccount::isLoggedIn() && !$homeLibrarySelectionComplete) {
+				require_once ROOT_DIR . '/services/MyAccount/SelectInterface.php';
+				$_REQUEST['goToPath'] = $formUrl . '&homeLibraryInterfaceSelected=1';
+				$interface->assign('module', 'MyAccount');
+				$interface->assign('action', 'SelectInterface');
+				$selectInterfaceAction = new MyAccount_SelectInterface();
+				$selectInterfaceAction->selectInterfaceMessage = $this->form->requireHomeLibraryInterfaceMessage;
+				$librariesForForm = $this->form->getLibraries();
+				$librariesToRestrictTo = [];
+				foreach ($librariesForForm as $libraryInfo) {
+					$librariesToRestrictTo[] = $libraryInfo->libraryId;
+				}
+				$selectInterfaceAction->libraryIdsToRestrictTo = $librariesToRestrictTo;
+				$selectInterfaceAction->launch();
+				return;
+			} else {
+				$user = UserAccount::getActiveUserObj();
+				$homeLibrary = $user ? $user->getHomeLibrary() : null;
+				$activeLibrary = Library::getActiveLibrary();
+				if ($homeLibrary && $activeLibrary && $homeLibrary->libraryId != $activeLibrary->libraryId) {
+					$interface->assign('homeLibraryMessage', translate([
+						'text' => 'Your library card is associated with another library. Please use your home library\'s catalog to submit this form.',
+						'isPublicFacing' => true,
+					]));
+					require_once ROOT_DIR . '/services/MyAccount/SelectInterface.php';
+					$homeLibraryUrl = MyAccount_SelectInterface::getLibraryBaseUrl($homeLibrary) . $formUrl;
+					$interface->assign('homeLibraryUrl', $homeLibraryUrl);
+				}
+			}
 		}
 
 		if (!UserAccount::isLoggedIn()) {
@@ -53,7 +88,6 @@ class WebBuilder_Form extends Action {
 
 		$interface->assign('introText', $introText);
 		$interface->assign('contents', $this->form->getFormattedFields());
-		$interface->assign('title', $this->form->title);
 
 		$this->display('customForm.tpl', $this->form->title, '', false);
 	}

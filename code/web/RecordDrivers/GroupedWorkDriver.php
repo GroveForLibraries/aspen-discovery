@@ -2104,6 +2104,8 @@ class GroupedWorkDriver extends IndexRecordDriver {
 			'author' => $this->getPrimaryAuthor(),
 			'format' => $format,
 			'formattedTitle' => $interface->fetch('RecordDrivers/GroupedWork/scroller-title.tpl'),
+			'url' => $this->getLinkUrl(),
+			'description' => $this->getDescriptionFast(),
 		];
 	}
 
@@ -4029,7 +4031,28 @@ class GroupedWorkDriver extends IndexRecordDriver {
 	}
 
 	private function getDatePurchased() {
-		return $this->fields['date_added'] ?? null;
+		global $solrScope;
+		$daysSinceAdded = null;
+		if (array_key_exists('local_days_since_added', $this->fields)) {
+			$daysSinceAdded = $this->fields['local_days_since_added'] ?? null;
+		}else if (array_key_exists("local_days_since_added_$solrScope", $this->fields)) {
+			$daysSinceAdded = $this->fields['"local_days_since_added_$solrScope"'] ?? null;
+		}
+		if ($daysSinceAdded != null) {
+			if ($daysSinceAdded == 0x7fffffff) {
+				return translate(['text' => 'Under Consideration', 'isPublicFacing'=>true]);
+			}elseif ($daysSinceAdded == -1000) {
+				return translate(['text' => 'In Processing', 'isPublicFacing'=>true]);
+			}elseif ($daysSinceAdded < 0) {
+				return translate(['text' => 'On Order', 'isPublicFacing'=>true]);
+			}else {
+				$purchaseDate = new DateTimeImmutable();
+				$purchaseDate = $purchaseDate->sub(new DateInterval('P' . $daysSinceAdded . 'D'));
+				require_once ROOT_DIR . '/sys/Utils/DateUtils.php';
+				return DateUtils::formatDateMedium($purchaseDate);
+			}
+		}
+		return null;
 	}
 
 	private function getTotalCheckouts() {

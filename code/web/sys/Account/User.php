@@ -117,6 +117,13 @@ class User extends DataObject {
 	//Data that we load, but don't store in the User table
 	public $_fullname;
 	public $_preferredName;
+	// and preferred name broken down for editing purposes
+	// for ILSs such as Evergreen that support it
+	public $_pref_prefix;
+	public $_pref_first_given_name;
+	public $_pref_second_given_name;
+	public $_pref_family_name;
+	public $_pref_suffix;
 	public $_address1;
 	public $_address2;
 	public $_city;
@@ -3661,18 +3668,22 @@ class User extends DataObject {
 				$authorFacet->displayName = 'author';
 				$searchObject->addFacet('authorStr', $authorFacet);
 				$results = $searchObject->processSearch(true, true);
-				if ($results['facet_counts'] && $results['facet_counts']['facet_fields'] && $results['facet_counts']['facet_fields']['series_facet']) {
-					$seriesFacets = array_slice($results['facet_counts']['facet_fields']['series_facet'], 0, 2);
-					foreach ($seriesFacets as $series) {
-						$summary->topSeries[] = $series[0];
+				if (isset($results['facets'])) {
+					//Solr 9
+					if ($results['facets']['series_facet']['buckets']) {
+						$seriesFacets = array_slice($results['facets']['series_facet']['buckets'], 0, 2);
+						foreach ($seriesFacets as $series) {
+							$summary->topSeries[] = $series['val'];
+						}
+					}
+					if ($results['facets']['genre_facet']['buckets']) {
+						$genreFacets = array_slice($results['facets']['genre_facet']['buckets'], 0, 3);
+						foreach ($genreFacets as $genres) {
+							$summary->topGenres[] = $genres['val'];
+						}
 					}
 				}
-				if ($results['facet_counts'] && $results['facet_counts']['facet_fields'] && $results['facet_counts']['facet_fields']['genre_facet']) {
-					$genreFacets = array_slice($results['facet_counts']['facet_fields']['genre_facet'], 0, 3);
-					foreach ($genreFacets as $genres) {
-						$summary->topGenres[] = $genres[0];
-					}
-				}
+
 				$searchObject->close();
 
 				// Recommendations
@@ -4968,8 +4979,8 @@ class User extends DataObject {
 			)) {
 				$aspenEventsAction->addSubAction(new AdminAction('Configure Event Fields', 'Define event fields for Aspen Events.', '/Events/EventFields'), 'Administer Field Sets');
 				$aspenEventsAction->addSubAction(new AdminAction('Configure Event Field Sets', 'Define sets of event fields to use for Aspen Events.', '/Events/EventFieldSets'), 'Administer Field Sets');
-				$aspenEventsAction->addSubAction(new AdminAction('Configure Event Types', 'Define event types to use for Aspen Events.', '/Events/EventTypes'), 'Administer Event Types');
 				$aspenEventsAction->addSubAction(new AdminAction('Configure Attendee Categories', 'Define attendee categories for Aspen Events.', '/Events/AttendeeCategories'), 'Administer Event Types');
+				$aspenEventsAction->addSubAction(new AdminAction('Configure Event Types', 'Define event types to use for Aspen Events.', '/Events/EventTypes'), 'Administer Event Types');
 				$aspenEventsAction->addSubAction(new AdminAction('Indexing Settings', 'Aspen Event Indexing Settings including indexing and library scope.', '/Events/IndexingSettings'), 'Administer Events for All Locations');
 				$aspenEventsAction->addSubAction(new AdminAction('Event Reports', 'Aspen Events Reporting.', '/Events/EventGraphs'), [
 					'View Event Reports for All Libraries',
@@ -6419,7 +6430,7 @@ class User extends DataObject {
 	public function showRenewalLink(AccountSummary $ilsAccountSummary): bool {
 		$userLibrary = $this->getHomeLibrary();
 
-		if (!$this->getPTypeObj()->canRenewOnline) {
+		if (!$this->getPTypeObj()?->canRenewOnline) {
 			return false;
 		}
 

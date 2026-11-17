@@ -344,6 +344,7 @@ class GroupedWork_AJAX extends JSON_Action {
 		global $library;
 		global $configArray;
 		global $memoryWatcher;
+		global $interface;
 
 		$id = $_REQUEST['id'];
 
@@ -381,6 +382,7 @@ class GroupedWork_AJAX extends JSON_Action {
 			} else{
 				$similar = $db->getMoreLikeThis($id, $selectedAvailabilityToggle);
 			}
+			$debugOn = array_key_exists('debug', $similar);
 			$memoryWatcher->logMemory('Loaded More Like This data from Solr');
 			// Send the similar items to the template; if there is only one, we need
 			// to force it to be an array or things will not display correctly.
@@ -388,13 +390,50 @@ class GroupedWork_AJAX extends JSON_Action {
 				$similarTitles = [];
 				foreach ($similar['response']['docs'] as $key => $similarTitle) {
 					$similarTitleDriver = new GroupedWorkDriver($similarTitle);
-					$similarTitles[] = $similarTitleDriver->getScrollerTitle($key, 'MoreLikeThis', $format);
+					$relevantTerms = [];
+					$interface->assign('summExplain', null);
+					if ($debugOn) {
+						if (array_key_exists($similarTitle['id'], $similar['debug']['explain'])) {
+							$explainInfo = $similar['debug']['explain'][$similarTitle['id']];
+							$explainInfo = explode("\n", trim($explainInfo));
+							$explainInfoToRetain = [];
+							foreach ($explainInfo as $explainInfoItem) {
+								if (str_contains($explainInfoItem, 'weight')) {
+									$explainInfoItem = substr($explainInfoItem, 0, strpos($explainInfoItem, '[SchemaSimilarity]'));
+									$explainInfoToRetain[] = trim($explainInfoItem);
+								}
+							}
+							natcasesort($explainInfoToRetain);
+							$relevantTerms = array_reverse($explainInfoToRetain);
+							$relevantTermInfo = implode("<br/>",$relevantTerms);
+							$similarTitleDriver->setCustomExplain($relevantTermInfo);
+						}
+					}
+
+					$similarTitle = $similarTitleDriver->getScrollerTitle($key, 'MoreLikeThis', $format);
+					if ($debugOn) {
+						$similarTitle['relevantTerms'] = $relevantTerms;
+						$similarTitle['score'] = $similarTitleDriver->getScore();
+					}
+					$similarTitles[] = $similarTitle;
 				}
 				$similarTitlesInfo = [
 					'titles' => $similarTitles,
 					'currentIndex' => 0,
 				];
+				if ($debugOn) {
+					$similarTitlesInfo['q'] = $similar['debug']['querystring'];
+					if (isset($similar['responseHeader']['params']['qSubjects'])) {
+						$similarTitlesInfo['qSubjects'] = $similar['responseHeader']['params']['qSubjects'];
+					}
+					if (isset($similar['responseHeader']['params']['qDescription'])) {
+						$similarTitlesInfo['qDescription'] = $similar['responseHeader']['params']['qDescription'];
+					}
+					$similarTitlesInfo['parsedQuery'] = $similar['debug']['parsedquery'];
+				}
 				$enrichmentResult['similarTitles'] = $similarTitlesInfo;
+			}else{
+				$enrichmentResult['error'] = $similar['error']['msg'];
 			}
 			$memoryWatcher->logMemory('Loaded More Like This scroller data');
 		}

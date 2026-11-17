@@ -2722,7 +2722,7 @@ class Theme extends DataObject {
 
 		foreach($this as $index => $item) {
 			//Properties ending with ColorDefault are checkboxes that indicate the value from the parent should be used.
-			if(str_contains($index, 'Color') && !str_contains($index, 'ColorDefault')) {
+			if(str_contains($index, 'Color') && !str_ends_with($index, 'ColorDefault') && !str_ends_with($index, 'ColorAppDefault')) {
 				if(is_null($item)) {
 					if($prevColors) {
 						if ($prevColors->$index) {

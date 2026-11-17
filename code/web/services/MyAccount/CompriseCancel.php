@@ -14,9 +14,15 @@ class CompriseCancel extends MyAccount {
 			$userPayment = new UserPayment();
 			$userPayment->id = $paymentId;
 			if ($userPayment->find(true)) {
-				$userPayment->cancelled = true;
-				$userPayment->update();
-				$message = 'Your payment has been cancelled.';
+				if ($userPayment->completed) {
+					$message = 'This payment has already been completed and cannot be cancelled.';
+				} elseif ($userPayment->cancelled) {
+					$message = 'Your payment has been cancelled.';
+				} else {
+					$userPayment->cancelled = true;
+					$userPayment->update();
+					$message = 'Your payment has been cancelled.';
+				}
 			} else {
 				$error = 'Incorrect Payment ID provided';
 			}

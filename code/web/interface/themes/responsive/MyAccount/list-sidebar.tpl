@@ -21,6 +21,23 @@
 		</div>
 	{/if}
 
+	{if !empty($showHideItemsNoLongerInCatalog)}
+		<div class="row">
+			<div id="hideNoLongerInCatalog">
+				<h3 id="narrow-search-label" class="sidebar-label">{translate text="Other Filter Options" isPublicFacing=true}</h3>
+				<div class="facetValue">
+					<label for="hideItemsNoLongerInCatalog">
+						<input type="checkbox" {if !empty($hideItemsNoLongerInCatalog)}checked{/if} {if !empty($hideItemsDisabled)}disabled{/if} name="hideItemsNoLongerInCatalog" id="hideItemsNoLongerInCatalog" onclick="document.location = '{$hideItemsToggleUrl|escape}';">
+						&nbsp;{translate text="Hide Items No Longer in Catalog" isPublicFacing=true}
+					</label>
+					{if !empty($hideItemsDisabled)}
+						<div class="help-block small">{translate text="Items no longer in the catalog are always hidden while filters are applied." isPublicFacing=true}</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	{if !empty($sideFacetSet)}
 		<div id="refineSearch">
 			{* Narrow Results *}

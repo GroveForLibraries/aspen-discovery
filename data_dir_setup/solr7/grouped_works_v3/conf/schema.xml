@@ -337,7 +337,7 @@
 		<!-- This is returned, can be used for searching, and is used for facets -->
 		<field name="publishDate" type="unchanged_string" indexed="false" stored="false" multiValued="true" docValues="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 		<!-- This is returned and used as a facet. It is the earliest publication date -->
-		<field name="publishDateSort" type="unchanged_string" indexed="false" stored="false" docValues="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+		<field name="publishDateSort" type="unchanged_string" indexed="false" stored="false" docValues="true" omitNorms="true" omitTermFreqAndPositions="true" sortMissingLast="true"/>
 		<!-- This is returned and used as a facet. -->
 		<field name="placeOfPublication" type="unchanged_string" indexed="false" stored="false" multiValued="true" docValues="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 
@@ -395,6 +395,7 @@
 		<field name="local_time_since_added" type="unchanged_string" indexed="true" stored="true" multiValued="true" sortMissingLast="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 		<!-- This is returned -->
 		<field name="local_days_since_added" type="integer" indexed="true" stored="true" multiValued="false" sortMissingLast="true" omitNorms="true" omitTermFreqAndPositions="true"/>
+		<dynamicField name="local_days_since_added_sort_*" type="integer" indexed="true" stored="true" multiValued="false" sortMissingLast="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 		<!-- This is returned and used as a facet -->
 		<field name="itype" type="unchanged_string" indexed="true" stored="false" multiValued="true" docValues="true" omitNorms="true" omitTermFreqAndPositions="true"/>
 		<field name="barcode" type="unchanged_string" indexed="true" stored="false" multiValued="true" omitNorms="true" omitTermFreqAndPositions="true"/>

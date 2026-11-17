@@ -351,6 +351,8 @@ abstract class SearchObject_BaseSearcher {
 				} elseif ($field == 'available_at' && $value == '*') {
 					$anyLocationLabel = $this->getFacetSetting("Availability", "anyLocationLabel");
 					$display = $anyLocationLabel == '' ? "Any Marmot Location" : $anyLocationLabel;
+				} elseif ($field == 'scope_has_related_records') {
+					$display = $this->getLibraryNameFromScopeValue($value);
 				} elseif ($field == 'start_date') {
 					$filterValue = substr($value, strpos($value, '[') + 1);
 					$filterValue = substr($filterValue, 0, -2);
@@ -2852,6 +2854,15 @@ abstract class SearchObject_BaseSearcher {
 		$this->page = $oldPage;
 		// Return the URL
 		return $url;
+	}
+
+	private function getLibraryNameFromScopeValue(String $value) {
+		$library = new Library();
+		$library->subdomain = $value;
+		if ($library->find(true)) {
+			return $library->displayName;
+		}
+		return $value;
 	}
 }//End of SearchObject_Base
 

@@ -407,6 +407,10 @@ public class GroupedWorkSolr3 extends AbstractGroupedWorkSolr implements Cloneab
 					groupedWorkDoc.addField("callnumber_sort_lowercase_" + scopeName, sortableCallNumberForScope.toLowerCase(Locale.ROOT));
 				}
 				groupedWorkDoc.addField("available_copies_" + scopeName, scopeData.getAvailableCopies());
+				Long daysSinceAddedSort = scopeData.getLocalDaysSinceAddedSort();
+				if (daysSinceAddedSort != null) {
+					groupedWorkDoc.addField("local_days_since_added_sort_" + scopeName, daysSinceAddedSort);
+				}
 			}
 		}catch (Exception e) {
 			logEntry.incErrors("Error determining call number sort", e);

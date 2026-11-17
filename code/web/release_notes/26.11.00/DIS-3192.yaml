@@ -1,0 +1,13 @@
+Jira: DIS-3192
+Type: Bug
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor:
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Searching
+Description:
+  - Fix sorting functionality for Grouped Work Searcher v3. (Publication Date, Total Checkouts, Total Holds, Date Purchased)
+  - Calculate Date Purchased based on days since purchased and display Date Purchased in search results properly accounting for On Order and In Processing titles. Also format the date using international formats.
+New Settings:
+New Permissions:

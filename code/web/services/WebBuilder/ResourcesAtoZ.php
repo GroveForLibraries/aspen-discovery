@@ -6,98 +6,161 @@ class WebBuilder_ResourcesAtoZ extends Action
 	{
 		global $interface;
 		global $activeLanguage;
-		global $activeLibrary;
+
+		require_once ROOT_DIR . '/sys/WebBuilder/WebResource.php';
+		require_once ROOT_DIR . '/RecordDrivers/WebResourceRecordDriver.php';
+		require_once ROOT_DIR . '/sys/WebBuilder/WebResourcesSetting.php';
+
+		global $library;
 
 		$filter = '';
 		if (isset($_REQUEST['startsWith']) && ctype_alpha($_REQUEST['startsWith']) && (strlen($_REQUEST['startsWith']) == 1 || $_REQUEST['startsWith'] == "num")) {
 			$filter = $_REQUEST['startsWith'];
 		}
 
-		require_once ROOT_DIR . '/sys/WebBuilder/WebResource.php';
-		require_once ROOT_DIR . '/RecordDrivers/WebResourceRecordDriver.php';
-		require_once ROOT_DIR . '/sys/WebBuilder/WebResourcesSetting.php';
-
-		//For display of web resources, we can use the active library rather than the patron's home library.
-		//The resources may get restricted later if they need to log in or be in the library, but that is handled later.
-		global $library;
-
 		$webResourceSetting = new WebResourcesSetting();
 		$webResourceSetting->id = $library->webResourcesSettingId;
 
-		//get valid starting letters
-		$startingLetters = new WebResource();
-		$startingLetters->selectAdd();
-		$startingLetters->selectAdd("DISTINCT LEFT(name, 1) AS first_letter");
-		$startingLetterLibrary = new LibraryWebResource();
-		$startingLetterLibrary->libraryId = $library->libraryId;
-		$startingLetters->joinAdd($startingLetterLibrary, 'INNER', 'resourceLibrary', 'id', 'webResourceId');
-		$startingLetters->orderBy('first_letter');
-		$startingLetters->find();
-		$validLetters = [];
-		while ($startingLetters->fetch()) {
-			/** @noinspection PhpUndefinedFieldInspection */
-			if (is_numeric($startingLetters->first_letter)){
-				$validLetters[] = "num";
-			} else {
-				/** @noinspection PhpUndefinedFieldInspection */
-				$validLetters[] = $startingLetters->first_letter;
+		//Decide whether to show the facet sidebar
+		$webResourceSettings = $library->getLibraryWebResourceSettings();
+		$showFilterOptions = !empty($webResourceSettings) && $webResourceSettings->showFilterOptionsAtoZ == 1;
+
+		//Always query Solr, scoped to the active library. Facet parameters on the url
+		//(i.e. ?category_facet=Arts+and+Music) are applied by init()
+		/** @var SearchObject_WebResourcesSearcher $searchObject */
+		$searchObject = SearchObjectFactory::initSearchObject('WebResources');
+		$searchObject->init(); //must come BEFORE addFilter(), since init() rebuilds the filter list from the URL
+
+		$scopeField = 'scope_has_related_records';
+		$hasAnyFilter = !empty($_REQUEST['filter']);
+
+		if ($showFilterOptions) {
+			if (!UserAccount::isLoggedIn()) {
+				//Logged-out users: apply the default unless a filter is present or they're navigating within this page
+				if (!$hasAnyFilter
+					&& !$library->isConsortialCatalog
+					&& !empty($library->subdomain)) {
+
+					$cameFromThisPage = false;
+					if (!empty($_SERVER['HTTP_REFERER'])) {
+						$ref = parse_url($_SERVER['HTTP_REFERER']);
+						$sameHost = isset($ref['host']) && strcasecmp($ref['host'], $_SERVER['HTTP_HOST'] ?? '') === 0;
+						$refPath = rtrim($ref['path'] ?? '', '/');
+						$currentPath = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '', '/');
+						$cameFromThisPage = $sameHost && strcasecmp($refPath, $currentPath) === 0;
+					}
+
+					if (!$cameFromThisPage) {
+						$searchObject->addFilter($scopeField . ':' . $library->subdomain);
+					}
+				}
+			}  else {
+				//Logged-in users: apply the default once per session so it can be removed
+				$userLibrary = Library::getPatronHomeLibrary();
+				$scopeLibrary = !empty($userLibrary) ? $userLibrary : $library;
+				$scopeValue = $scopeLibrary->subdomain;
+				$sessionKey = 'webResourcesDefaultScopeApplied';
+
+				if (!$scopeLibrary->isConsortialCatalog && !empty($scopeValue)) {
+					$hasScopeFilter = false;
+					foreach ((array)($_REQUEST['filter'] ?? []) as $requestFilter) {
+						if (str_starts_with($requestFilter, $scopeField . ':')) {
+							$hasScopeFilter = true;
+							break;
+						}
+					}
+
+					if (!$hasScopeFilter && !$hasAnyFilter && empty($_SESSION[$sessionKey])) {
+						//First visit with a clean URL: apply the default
+						$searchObject->addFilter($scopeField . ':' . $scopeValue);
+						$_SESSION[$sessionKey] = true;
+					}
+					//Otherwise the user removed it (or chose other filters), so leave it off
+				}
 			}
 		}
 
-		//get web resources to show based off current filter
-		$resourcesForAtoZ = new WebResource();
+		$searchObject->init();
+		$searchObject->disableSpelling();
+		$searchObject->setSearchTerms([
+			'lookfor' => '*:*',
+			'index' => 'WebsiteKeyword',
+		]);
+		$searchObject->addHiddenFilter('recordtype', '"WebResource"');
+		//Sort alphabetically by title
+		$searchObject->setSort('title_sort');
+		$searchObject->setPage(1);
+		$searchObject->setLimit(1000);
+		//Handle filtering by first character
 		if (!empty($filter)) {
-			if ($filter == "num") {
-				$filter = "^[0-9]";
-				$escapedFilter = $resourcesForAtoZ->escape($filter);
-				$resourcesForAtoZ->whereAdd("name regexp $escapedFilter");
-			} else {
-				$escapedFilter = $resourcesForAtoZ->escape($filter . '%');
-				$resourcesForAtoZ->whereAdd("name LIKE $escapedFilter");
-			}
+			$value = ($filter === 'num')
+				? '/[0-9].*/'
+				: mb_strtolower($filter) . '*';
+			$searchObject->addHiddenFilter('title_sort', $value);
 		}
-		$resourcesForAtoZ->joinAdd($startingLetterLibrary, 'INNER', 'resourceLibrary', 'id', 'webResourceId');
-		$resourcesForAtoZ->orderBy('name');
-		$resourcesForAtoZ->find();
+		//Process recommendations so SideFacets assigns facets to the interface
+		$result = $searchObject->processSearch(true, true);
+
+		$solrSearchSucceeded = !($result instanceof AspenError) && empty($result['error']);
+
+		$validLetters = [];
 		$webResources = [];
-		$webResourceIds = [];
-
-		while ($resourcesForAtoZ->fetch()) {
-			if (!in_array("WebResource:" . $resourcesForAtoZ->id, $webResourceIds)) {
-				$webResourceIds[] = "WebResource:" . $resourcesForAtoZ->id;
-			}
-		}
-
-		foreach ($webResourceIds as $curResource) {
-			$webResourceRecordDriver = new WebResourceRecordDriver($curResource);
-
-			if ($webResourceRecordDriver->isValid()) {
-				$webResource = new WebResource();
-				$webResource->id = $webResourceRecordDriver->getNumericId();
-				$openInNewTab = false;
-				if ($webResource->find(true)) {
-					$openInNewTab = $webResource->openInNewTab == 1;
+		if ($solrSearchSucceeded) {
+			foreach ($searchObject->getResultRecordSet() as $solrRecord) {
+				$webResourceRecordDriver = new WebResourceRecordDriver($solrRecord);
+				if (!$webResourceRecordDriver->isValid()) {
+					continue;
 				}
 
-				$webResources[$webResourceRecordDriver->getNumericId()] = [
-					'id' => $webResourceRecordDriver->getNumericId(),
-					'title' => $webResourceRecordDriver->getTitle(),
+				$title = $webResourceRecordDriver->getTitle();
+
+				//Work out the A-Z letter for this resource
+				$firstLetter = mb_strtoupper(mb_substr($title, 0, 1));
+				$letterKey = is_numeric($firstLetter) ? 'num' : $firstLetter;
+				$validLetters[$letterKey] = true;
+
+				//Apply the A-Z filter in PHP
+				if (!empty($filter) && $letterKey !== mb_strtoupper($filter)) {
+					continue;
+				}
+
+				$id = $webResourceRecordDriver->getNumericId();
+				$webResources[$id] = [
+					'id' => $id,
+					'title' => $title,
 					'description' => $webResourceRecordDriver->getDescription(),
 					'url' => $webResourceRecordDriver->getLinkUrl(),
 					'bookCoverUrl' => $webResourceRecordDriver->getBookCoverUrl('medium'),
-					'openInNewTab' => $openInNewTab,
+					'openInNewTab' => $webResourceRecordDriver->opensInNewTab(),
 				];
 			}
 		}
+		$validLetters = array_keys($validLetters);
 
 		$filterArray = range('A', 'Z');
 		$filterArray = ['num', ...$filterArray];
+
+		$filterParams = $searchObject->getFilterParams();
+		$atozQuery = empty($filterParams) ? '' : implode('&', $filterParams) . '&';
+		$interface->assign('atozQuery', $atozQuery);
 
 		$interface->assign('validLetters', $validLetters);
 		$interface->assign('filterArray', $filterArray);
 		$interface->assign('webResources', $webResources);
 		$interface->assign('description', $webResourceSetting->getTextBlockTranslation('descriptionAtoZ', $activeLanguage->code));
-		$this->display('resourcesAtoZ.tpl', 'Resources A-Z', '', false);
+		$interface->assign('searchSourceSpecial', 'WebResources');
+
+		$sidebar = '';
+		if ($showFilterOptions) {
+			$interface->assign('sideRecommendations', $searchObject->getRecommendationsTemplates('side'));
+			if (($searchObject->getResultTotal() > 0) && (count($searchObject->getFacetList()) > 0)) {
+				$sidebar = 'Search/results-sidebar.tpl';
+			}
+		} else {
+			$interface->assign('sideRecommendations', []);
+		}
+
+		$this->display('resourcesAtoZ.tpl', 'Resources A-Z', $sidebar, false);
 	}
 
 	function getBreadcrumbs(): array

@@ -152,6 +152,11 @@ class MyAccount_ContactInformation extends MyAccount {
 						$user->updateMessageIsError = !$result['success'];
 						$user->update();
 					}
+				} elseif ($updateScope == 'preferredName' && $samePatron) {
+					$result = $user->updatePatronInfo($canUpdateContactInfo, false);
+					$user->updateMessage = implode('<br/>', $result['messages']);
+					$user->updateMessageIsError = !$result['success'];
+					$user->update();
 				} else {
 					$user->updateMessage = translate([
 						'text' => 'Wrong account credentials, please try again.',
@@ -234,6 +239,7 @@ class MyAccount_ContactInformation extends MyAccount {
 		$interface->assign('isHorizon', $ils == 'horizon');
 		$interface->assign('isCarlX', $ils == 'carlx');
 		$interface->assign('isSymphony', $ils == 'symphony');
+		$interface->assign('isEvergreen', $ils == 'evergreen');
 
 		$this->display('contactInformation.tpl', 'Contact Information');
 	}

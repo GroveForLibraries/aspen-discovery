@@ -1,0 +1,14 @@
+Jira: DIS-3094
+Type: Enhancement
+Developer: Kodi Lein (KL)
+Contributing Org: Grove For Libraries
+Sponsor: MCFLS
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Facets, Web Builder
+Description:
+  - Add ability to enable side facets for the web resource list page and a to z page.
+New Settings:
+  - Web Builder > Web Resource Settings > Web Resource Listing Page > Show Filter Options
+  - Web Builder > Web Resource Settings > A-Z Listing Page > Show Filter Options
+New Permissions:

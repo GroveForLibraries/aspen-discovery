@@ -1443,7 +1443,7 @@ abstract class SearchObject_AbstractGroupedWorkSearcher extends SearchObject_Sol
 	 * @return    array                            An array of query results
 	 */
 	function getMoreLikeThese(array $ids, ?int $page = 1, ?int $limit = 25, ?array $notInterestedTitles = []) : array {
-		if ($this->indexEngine instanceof GroupedWorksSolrConnector ||  $this->indexEngine instanceof GroupedWorksSolrConnector2) {
+		if ($this->indexEngine instanceof GroupedWorksSolrConnector2) {
 			return $this->indexEngine->getMoreLikeThese($ids, $this->getFieldsToReturn(), $page, $limit, $notInterestedTitles);
 		}else{
 			return [];

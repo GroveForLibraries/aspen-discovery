@@ -407,6 +407,9 @@ public class MarcRecordFormatClassifier {
 						}else if (subfieldData.contains("picture book")) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format PictureBook based on 655 Genre", 2);}
 							result.add("PictureBook");
+						}else if (subfieldData.contains("readers (publications)")) {
+							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format Early Reader based on 655 Genre", 2);}
+							result.add("EarlyReader");
 						}else if (subfieldData.contains("big book")) {
 							if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BigBook based on 655 Genre", 2);}
 							result.add("BigBook");
@@ -531,7 +534,7 @@ public class MarcRecordFormatClassifier {
 			}else if (titleMedium.contains("large print")){
 				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format LargePrint based on 245h", 2);}
 				printFormats.add("LargePrint");
-			}else if (titleMedium.contains("book club kit")){
+			}else if (titleMedium.contains("book club kit") || (titleMedium.contains("book discussion") && titleMedium.contains("kit"))){
 				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Adding bib level format BookClubKit based on 245h", 2);}
 				printFormats.add("BookClubKit");
 			}else if (titleMedium.contains("ebook")){
@@ -1586,6 +1589,10 @@ public class MarcRecordFormatClassifier {
 			printFormats.remove("Book");
 		}
 		if (printFormats.contains("PictureBook")){
+			printFormats.remove("Book");
+		}
+		if (printFormats.contains("EarlyReader")){
+			printFormats.remove("PictureBook");
 			printFormats.remove("Book");
 		}
 		if (printFormats.contains("BigBook")){

@@ -20,6 +20,7 @@ class WebsiteFacet extends FacetSetting
             "search_category" => "Website Type",
             "audience_facet" => "Audience",
             "category_facet" => "Category",
+			"scope_has_related_records" => "Available At",
         ];
 
         asort($availableFacets);
