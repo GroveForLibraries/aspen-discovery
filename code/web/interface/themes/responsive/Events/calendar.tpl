@@ -11,22 +11,24 @@
 			<a class="btn btn-default" href="" onclick='return AspenDiscovery.Events.getPrintListOptions({if !empty($weekNumber)}{$weekNumber}{else}""{/if}, {if !empty($monthNumber)}{$monthNumber}{else}""{/if}, {$yearNumber})'>{translate text="Print Options" isPublicFacing=true}</a>
 		</div>
 		<div class="col-xs-12 col-sm-6 text-right calendar-nav-cell calendar-location-filter">
-			<form method="get" id="locationFilter" style="display: inline-block; margin: 0;">
-				<label for="location" style="display: inline-block; margin-right: 5px; margin-bottom: 0;">{translate text="Filter by location" isPublicFacing=true}</label>
-				<select name="location" id="location" class="form-control" onchange="document.getElementById('locationFilter').submit()" style="display: inline-block; width: auto;">
-					<option value="all"{if $selectedLocation == 'all'} selected{/if}>{translate text="All Locations" isPublicFacing=true}</option>
-					{foreach from=$locations key=code item=name}
-						<option value="{$code}"{if $selectedLocation == $code} selected{/if}>{$name}</option>
-					{/foreach}
-				</select>
-				<input type="hidden" name="month" value="{$monthNumber}">
-				<input type="hidden" name="year" value="{$yearNumber}">
-				{if $useWeek}<input type="hidden" name="week" value="{$weekNumber}">{/if}
-				{if !empty($embedSuffix)}
-					<input type="hidden" name="embed" value="true">
-					{if strstr($embedSuffix, 'resizeIframe')}<input type="hidden" name="resizeIframe" value="on">{/if}
-				{/if}
-			</form>
+			{if empty($hideLocationFilter)}
+				<form method="get" id="locationFilter" style="display: inline-block; margin: 0;">
+					<label for="location" style="display: inline-block; margin-right: 5px; margin-bottom: 0;">{translate text="Filter by location" isPublicFacing=true}</label>
+					<select name="location" id="location" class="form-control" onchange="document.getElementById('locationFilter').submit()" style="display: inline-block; width: auto;">
+						<option value="all"{if $selectedLocation == 'all'} selected{/if}>{translate text="All Locations" isPublicFacing=true}</option>
+						{foreach from=$locations key=code item=name}
+							<option value="{$code}"{if $selectedLocation == $code} selected{/if}>{$name}</option>
+						{/foreach}
+					</select>
+					<input type="hidden" name="month" value="{$monthNumber}">
+					<input type="hidden" name="year" value="{$yearNumber}">
+					{if $useWeek}<input type="hidden" name="week" value="{$weekNumber}">{/if}
+					{if !empty($embedSuffix)}
+						<input type="hidden" name="embed" value="true">
+						{if strstr($embedSuffix, 'resizeIframe')}<input type="hidden" name="resizeIframe" value="on">{/if}
+					{/if}
+				</form>
+			{/if}
 		</div>
 	</div>
 	<div class="calendar {if $useWeek}week-view{/if}">
