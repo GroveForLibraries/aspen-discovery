@@ -344,7 +344,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 			$options['debugQuery'] = 'on';
 		}
 
-		$result = $this->_select('POST', $options, false, 'mlt');
+		$result = $this->_select('POST', $options);
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
 		}
@@ -498,7 +498,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 		}
 
 		//Now do the more like this search
-		$result = $this->_select('POST', $options, true, 'mlt');
+		$result = $this->_select('POST', $options);
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
 		}
@@ -741,11 +741,11 @@ class GroupedWorksSolrConnector2 extends Solr {
 							}
 						}
 					} elseif ($field == 'id') {
-						if (!preg_match('/^"?(\d+|.[boi]\d+x?|a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12})(\\\\?-\w{3})?"?$/i', $fieldValue)) {
+						if (!preg_match('/^"?(\d+|.[boi]\d+x?|[a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12})(\\\\?-\w{3})?"?$/i', $fieldValue)) {
 							continue;
 						}
 					} elseif ($field == 'alternate_ids') {
-						if (!preg_match('/^"?(\d+|.?[boi]\d+x?|a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12}|MWT\d+|CARL\d+)"?$/i', $fieldValue)) {
+						if (!preg_match('/^"?(\d+|.?[boi]\d+x?|[a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12}|MWT\d+|CARL\d+)"?$/i', $fieldValue)) {
 							continue;
 						}
 					} elseif ($field == 'issn') {

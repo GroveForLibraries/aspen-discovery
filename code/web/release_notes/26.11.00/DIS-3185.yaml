@@ -1,0 +1,12 @@
+Jira: DIS-3185
+Type: Enhancement
+Developer: Mark Noble (MDN)
+Contributing Org: Grove For Libraries
+Sponsor:
+GroveRelease: 26.11.00
+CommunityRelease: 26.12.00
+Component: Administration
+Description:
+  - Allow plugins to add javascript to their pages.
+New Settings:
+New Permissions:

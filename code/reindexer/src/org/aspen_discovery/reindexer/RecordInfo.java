@@ -774,9 +774,18 @@ public class RecordInfo {
 		private int availableCopies;
 		private String sortableCallNumber;
 		private int callNumberPriority;
+		private Long localDaysSinceAddedSort;
 
 		private void add(PreparedItemData item, ScopingInfo scopingInfo) {
 			if (item.available) availableCopies++;
+			if (scopingInfo.isLocallyOwned() || scopingInfo.isLibraryOwned()) {
+				Long itemDaysSinceAdded = item.getDaysSinceAdded();
+				// Keep the oldest local item so the value reflects the largest days-since-added count.
+				if (itemDaysSinceAdded != null
+					&& (localDaysSinceAddedSort == null || itemDaysSinceAdded > localDaysSinceAddedSort)) {
+					localDaysSinceAddedSort = itemDaysSinceAdded;
+				}
+			}
 			if (item.sortableCallNumber == null || item.sortableCallNumber.isEmpty()) return;
 			if (!(scopingInfo.isLocallyOwned() || scopingInfo.isLibraryOwned()
 				|| !scopingInfo.getScope().isRestrictOwningLibraryAndLocationFacets())) return;
@@ -792,6 +801,7 @@ public class RecordInfo {
 
 		public int getAvailableCopies() { return availableCopies; }
 		public String getSortableCallNumber() { return sortableCallNumber; }
+		public Long getLocalDaysSinceAddedSort() { return localDaysSinceAddedSort; }
 	}
 
 	private static final class PreparedItemData {

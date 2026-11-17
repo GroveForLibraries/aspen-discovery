@@ -53,6 +53,12 @@ class DateUtils {
 		return $formatter->format($date);
 	}
 
+	static function formatDateMedium(DateTimeImmutable $date): string|false {
+		global $locale;
+		$formatter = new IntlDateFormatter(self::formatLocale($locale), IntlDateFormatter::MEDIUM, IntlDateFormatter::NONE);
+		return $formatter->format($date);
+	}
+
 	static function formatDateTime(DateTimeImmutable $dateTime): string|false {
 		global $locale;
 		$formatter = new IntlDateFormatter(self::formatLocale($locale), IntlDateFormatter::FULL, IntlDateFormatter::SHORT);

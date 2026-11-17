@@ -1474,29 +1474,26 @@ class ItemAPI extends AbstractAPI {
 			} elseif ($showVolumesWithLocalCopiesFirst && ($b->hasLocalItems() && !$a->hasLocalItems())) {
 				return 1;
 			} else {
-				if ($a->displayOrder > $b->displayOrder) {
-					return $isPeriodical ? -1 : 1;
-				} elseif ($b->displayOrder > $a->displayOrder) {
-					return $isPeriodical ? 1: -1;
-				} else {
-					require_once ROOT_DIR . '/sys/Utils/GroupingUtils.php';
-					if ($isPeriodical) {
-						$dateA = getSortableDate($a->displayLabel);
-						$dateB = getSortableDate($b->displayLabel);
-						if (is_null($dateA) && is_null($dateB)) {
-							//No date found, just compare the call numbers
-							return strnatcasecmp($b->displayLabel, $a->displayLabel);
-						}elseif (is_null($dateA)) {
-							return 1;
-						}elseif (is_null($dateB)) {
-							return -1;
-						}else{
-							return $dateB <=> $dateA;
-						}
+				require_once ROOT_DIR . '/sys/Utils/GroupingUtils.php';
+				if ($isPeriodical) {
+					$dateA = getSortableDate($a->displayLabel);
+					$dateB = getSortableDate($b->displayLabel);
+					if (is_null($dateA) && is_null($dateB)) {
+						//No date found, just compare the call numbers
+						return strnatcasecmp($b->displayLabel, $a->displayLabel);
+					}elseif (is_null($dateA)) {
+						return 1;
+					}elseif (is_null($dateB)) {
+						return -1;
 					}else{
-						return strnatcasecmp($a->displayLabel, $b->displayLabel);
+						return $dateB <=> $dateA;
 					}
 				}
+
+				if ($a->displayOrder != $b->displayOrder) {
+					return $a->displayOrder <=> $b->displayOrder;
+				}
+				return strnatcasecmp($b->displayLabel, $a->displayLabel);
 			}
 		};
 
