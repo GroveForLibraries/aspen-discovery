@@ -2,9 +2,9 @@
 require_once ROOT_DIR . '/recaptcha/recaptchalib.php';
 
 class WebBuilder_Form extends Action {
-	private $form;
+	private ?CustomForm $form;
 
-	function launch() {
+	function launch() : void {
 		global $interface;
 
 		$id = strip_tags($_REQUEST['id']);
@@ -37,6 +37,12 @@ class WebBuilder_Form extends Action {
 				$interface->assign('action', 'SelectInterface');
 				$selectInterfaceAction = new MyAccount_SelectInterface();
 				$selectInterfaceAction->selectInterfaceMessage = $this->form->requireHomeLibraryInterfaceMessage;
+				$librariesForForm = $this->form->getLibraries();
+				$librariesToRestrictTo = [];
+				foreach ($librariesForForm as $libraryInfo) {
+					$librariesToRestrictTo[] = $libraryInfo->libraryId;
+				}
+				$selectInterfaceAction->libraryIdsToRestrictTo = $librariesToRestrictTo;
 				$selectInterfaceAction->launch();
 				return;
 			} else {
