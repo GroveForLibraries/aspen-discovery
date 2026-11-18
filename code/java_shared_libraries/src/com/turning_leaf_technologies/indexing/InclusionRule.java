@@ -132,7 +132,7 @@ class InclusionRule {
 
 		if (debugLogger != null && debugLogger.isDebugEnabled()) {
 			if (lastIdentifierResult) {
-				debugLogger.addDebugMessage("Item " + itemIdentifier + " included in scope (location='" + locationCode + "', format='" + format + "', holdable=" + isHoldable + ")", 3);
+				debugLogger.addDebugMessage("[scoping]Item " + itemIdentifier + " included in scope (location='" + locationCode + "', format='" + format + "', holdable=" + isHoldable + ")", 3);
 			}
 		}
 		lastIdentifierResult = true;

@@ -95,7 +95,7 @@ class CloudLibraryProcessor extends MarcRecordProcessor {
 									}
 								}
 							}
-							if (groupedWork.isDebugEnabled() && primaryFormat.equals("eComic")) {groupedWork.addDebugMessage("Overrode Format to " + primaryFormat + " based on 008", 2);}
+							if (groupedWork.isDebugEnabled() && primaryFormat.equals("eComic")) {groupedWork.addDebugMessage("[format]Overrode Format to " + primaryFormat + " based on 008", 2);}
 
 						}
 						if (!primaryFormat.equals("eComic")) {
@@ -110,7 +110,7 @@ class CloudLibraryProcessor extends MarcRecordProcessor {
 										String subfieldData = subfield.getData().toLowerCase();
 										if (subfieldData.contains("graphic novel")) {
 											primaryFormat = "eComic";
-											if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Overrode Format to " + primaryFormat + " based on subject", 2);}
+											if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Overrode Format to " + primaryFormat + " based on subject", 2);}
 											break;
 										}
 									}
@@ -128,7 +128,7 @@ class CloudLibraryProcessor extends MarcRecordProcessor {
 						primaryFormat = format;
 						break;
 				}
-				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Format is " + primaryFormat + " based on kind of " + format, 2);}
+				if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[format]Format is " + primaryFormat + " based on kind of " + format, 2);}
 
 				cloudLibraryRecord.addFormat(primaryFormat);
 				cloudLibraryRecord.addFormatCategory(formatCategory);
@@ -151,7 +151,7 @@ class CloudLibraryProcessor extends MarcRecordProcessor {
 				if (targetAudience.equals("ADULT")) {
 					targetAudience = "Adult";
 				}
-				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is " + targetAudience + " based on cloudLibrary record", 2);}
+				if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is " + targetAudience + " based on cloudLibrary record", 2);}
 				groupedWork.addTargetAudience(targetAudience, cloudLibraryRecord);
 
 				boolean isAdult = targetAudience.equalsIgnoreCase("Adult");

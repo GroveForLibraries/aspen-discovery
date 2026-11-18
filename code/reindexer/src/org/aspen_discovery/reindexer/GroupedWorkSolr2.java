@@ -121,13 +121,13 @@ public class GroupedWorkSolr2 extends AbstractGroupedWorkSolr implements Cloneab
 				.sorted(Comparator.comparingInt(SeriesInfo::getPriorityScore).reversed())
 				.toArray(SeriesInfo[]::new);
 			if (isDebugEnabled() && !series.isEmpty()) {
-				addDebugMessage("Series Priority Values", 1);
+				addDebugMessage("[series]Series Priority Values", 1);
 			}
 			//seriesWithVolume.values().removeAll(GroupedWorkIndexer.hideSeries);
 			boolean isFirstSeries = true;
 			for (SeriesInfo seriesInfo : sortedSeriesWithVolume) {
 				if (isDebugEnabled()) {
-					addDebugMessage(seriesInfo.getSeriesName() + " priority: " + seriesInfo.getVolumes(), 2);
+					addDebugMessage("[series]" + seriesInfo.getSeriesName() + " priority: " + seriesInfo.getVolumes(), 2);
 				}
 				doc.addField("series", seriesInfo.getSeriesName());
 
@@ -163,12 +163,12 @@ public class GroupedWorkSolr2 extends AbstractGroupedWorkSolr implements Cloneab
 			checkDefaultValue(literaryFormFull, "Not Coded");
 			checkDefaultValue(literaryFormFull, "Other");
 			checkDefaultValue(literaryFormFull, "Unknown");
-			if (this.isDebugEnabled()) {this.addDebugMessage("Total full literary form score: " + this.literaryFormFull, 1);}
+			if (this.isDebugEnabled()) {this.addDebugMessage("[litform]Total full literary form score: " + this.literaryFormFull, 1);}
 			checkInconsistentLiteraryFormsFull();
 			checkDefaultValue(literaryForm, "Not Coded");
 			checkDefaultValue(literaryForm, "Other");
 			checkDefaultValue(literaryForm, "Unknown");
-			if (this.isDebugEnabled()) {this.addDebugMessage("Total fiction vs non fiction score: " + this.literaryForm, 1);}
+			if (this.isDebugEnabled()) {this.addDebugMessage("[litform]Total fiction vs non fiction score: " + this.literaryForm, 1);}
 			checkInconsistentLiteraryForms();
 			//Check if .isHide
 			if (groupedWorkIndexer.isHideUnknownLiteraryForm()) {
@@ -180,15 +180,15 @@ public class GroupedWorkSolr2 extends AbstractGroupedWorkSolr implements Cloneab
 				literaryFormFull.remove("Not Coded");
 			}
 			//Add field
-			if (this.debugEnabled) {this.addDebugMessage("Literary form is " + literaryForm.keySet(), 2);}
-			if (this.debugEnabled) {this.addDebugMessage("Full literary form is " + literaryFormFull.keySet(), 2);}
+			if (this.debugEnabled) {this.addDebugMessage("[litform]Literary form is " + literaryForm.keySet(), 2);}
+			if (this.debugEnabled) {this.addDebugMessage("[litform]Full literary form is " + literaryFormFull.keySet(), 2);}
 			doc.addField("literary_form_full", literaryFormFull.keySet());
 			doc.addField("literary_form", literaryForm.keySet());
 			targetAudienceFull = groupedWorkIndexer.cleanTargetAudiences(targetAudienceFull);
 			doc.addField("target_audience_full", targetAudienceFull);
 			targetAudience = groupedWorkIndexer.cleanTargetAudiences(targetAudience);
-			if (this.isDebugEnabled()) {this.addDebugMessage("Final target audience is " + targetAudience, 1);}
-			if (this.isDebugEnabled()) {this.addDebugMessage("Final full target audience is " + targetAudienceFull, 1);}
+			if (this.isDebugEnabled()) {this.addDebugMessage("[audience]Final target audience is " + targetAudience, 1);}
+			if (this.isDebugEnabled()) {this.addDebugMessage("[audience]Final full target audience is " + targetAudienceFull, 1);}
 			doc.addField("target_audience", targetAudience);
 			//Date added to catalog
 			Date dateAdded = getDateAdded();
