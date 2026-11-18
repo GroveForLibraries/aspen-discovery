@@ -3067,6 +3067,7 @@ class Location extends DataObject {
 
 	public function getPublicLocationInfo(array $hours, ?string $mapsKey): array {
 		global $configArray;
+		require_once ROOT_DIR . '/sys/Parsedown/AspenParsedown.php';
 		$parsedown = AspenParsedown::instance();
 		$parsedown->setBreaksEnabled(true);
 
