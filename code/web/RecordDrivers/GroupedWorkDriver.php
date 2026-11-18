@@ -4050,24 +4050,21 @@ class GroupedWorkDriver extends IndexRecordDriver {
 		if (!$showDebug) {
 			$debugSuffix = '';
 		}
-		if ($daysSinceAdded != null) {
-			if ($daysSinceAdded == 0x7fffffff) {
-				return translate([
-					'text' => 'Under Consideration',
-					'isPublicFacing'=>true
-				]) . $debugSuffix;
-			}elseif ($daysSinceAdded == -1000) {
-				return translate(['text' => 'In Processing', 'isPublicFacing'=>true]) . $debugSuffix;
-			}elseif ($daysSinceAdded < 0) {
-				return translate(['text' => 'On Order', 'isPublicFacing'=>true]) . $debugSuffix;
-			}else {
-				$purchaseDate = new DateTimeImmutable();
-				$purchaseDate = $purchaseDate->sub(new DateInterval('P' . $daysSinceAdded . 'D'));
-				require_once ROOT_DIR . '/sys/Utils/DateUtils.php';
-				return DateUtils::formatDateMedium($purchaseDate) . $debugSuffix;
-			}
+		if ($daysSinceAdded == 0x7fffffff) {
+			return translate([
+				'text' => 'Under Consideration',
+				'isPublicFacing'=>true
+			]) . $debugSuffix;
+		}elseif ($daysSinceAdded == -1000) {
+			return translate(['text' => 'In Processing', 'isPublicFacing'=>true]) . $debugSuffix;
+		}elseif ($daysSinceAdded < 0) {
+			return translate(['text' => 'On Order', 'isPublicFacing'=>true]) . $debugSuffix;
+		}else {
+			$purchaseDate = new DateTimeImmutable();
+			$purchaseDate = $purchaseDate->sub(new DateInterval('P' . $daysSinceAdded . 'D'));
+			require_once ROOT_DIR . '/sys/Utils/DateUtils.php';
+			return DateUtils::formatDateMedium($purchaseDate) . $debugSuffix;
 		}
-		return null;
 	}
 
 	private function getTotalCheckouts() {
