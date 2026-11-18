@@ -538,6 +538,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 			global $solrScope;
 			//We should always have a scope
 			$fieldsToReturn .= ",local_days_since_added";
+			$fieldsToReturn .= ",local_days_since_added_sort_$solrScope";
 			$fieldsToReturn .= ',local_time_since_added';
 			$fieldsToReturn .= ',local_callnumber';
 			$fieldsToReturn .= ',collection';
