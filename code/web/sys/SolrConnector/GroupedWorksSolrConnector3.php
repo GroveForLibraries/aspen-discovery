@@ -302,7 +302,7 @@ class GroupedWorksSolrConnector3 extends GroupedWorksSolrConnector2
 			'rows'=> count($sourceIds),
 			'fl'=>'id,recordtype,_root_,_nest_path_,recordtype,title_display,language,literary_form,target_audience,format_category,record_scoping,[child childFilter="+recordtype:record_scoping +scope:' . $solrScope .'" limit=-1 fl="id,recordtype,target_audience,format_category"]'
 		];
-		$sourceTitleSearch = $this->_select('GET', $sourceSearchOptions);
+		$sourceTitleSearch = $this->_select('POST', $sourceSearchOptions);
 		$childFilter = '{!parent which="recordtype:grouped_work"}(+recordtype:record_scoping +scope:' . $solrScope;
 		//Limit based on the target_audience, literary_form, language, format_categories in the supplied records
 		if (!empty($sourceTitleSearch['response']['docs'])) {
