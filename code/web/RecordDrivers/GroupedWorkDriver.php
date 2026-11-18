@@ -4044,6 +4044,8 @@ class GroupedWorkDriver extends IndexRecordDriver {
 		}else if (array_key_exists("local_days_since_added_$solrScope", $this->fields)) {
 			$daysSinceAdded = $this->fields["local_days_since_added_$solrScope"];
 			$debugSuffix = " ($daysSinceAdded from unscoped field)";
+		}else{
+			$daysSinceAdded = 0;
 		}
 		if (!$showDebug) {
 			$debugSuffix = '';
