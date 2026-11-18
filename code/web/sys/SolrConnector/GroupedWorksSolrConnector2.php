@@ -399,7 +399,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 		foreach ($scopingFilters as $filter) {
 			$sourceSearchOptions['fq'][] = $filter;
 		}
-		$sourceTitleSearch = $this->_select('GET', $sourceSearchOptions);
+		$sourceTitleSearch = $this->_select('POST', $sourceSearchOptions);
 		//Limit based on the target_audience, literary_form, language, format_categories in the supplied records
 		if (!empty($sourceTitleSearch['response']['docs'])) {
 			$uniqueLanguages = [];

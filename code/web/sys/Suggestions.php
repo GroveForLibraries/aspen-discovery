@@ -41,22 +41,19 @@ class Suggestions {
 			}
 		}
 
-		//Load all titles the user has rated.  Need to load all so we don't recommend things they already rated
-		$allRatedTitles = [];
 		$allLikedRatedTitles = [];
 		require_once ROOT_DIR . '/sys/LocalEnrichment/UserWorkReview.php';
 		$ratings = new UserWorkReview();
 		$ratings->userId = $userId;
-		$ratings->orderBy('dateRated DESC');
+		$ratings->orderBy('rating DESC, dateRated DESC');
+		$ratings->whereAdd('rating > 2');
+		$ratings->limit(0, 100);
 		$ratings->find();
 		while ($ratings->fetch()) {
-			$allRatedTitles[$ratings->groupedRecordPermanentId] = $ratings->groupedRecordPermanentId;
-			if ($ratings->rating >= 3) {
-				$allLikedRatedTitles[] = [
-					'workId' => $ratings->groupedRecordPermanentId,
-					'rating' => $ratings->rating,
-				];
-			}
+			$allLikedRatedTitles[] = [
+				'workId' => $ratings->groupedRecordPermanentId,
+				'rating' => $ratings->rating,
+			];
 		}
 		$timer->logTime("Loaded titles the patron has rated");
 
