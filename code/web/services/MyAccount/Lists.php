@@ -64,6 +64,9 @@ class Lists extends MyAccount {
 		$interface->assign('numUnassignedLists', $numUnassignedLists);
 
 		$activeListGroup = [];
+		$activeListGroupDetails = new UserListGroup();
+		$activeListGroupDetails->title = 'All Lists';
+		$activeListGroupDetails->id = 0;
 		$listGroup = new UserListGroup();
 		$listGroups = $listGroup->getListGroups(UserAccount::getActiveUserObj());
 		$groupId = null;
@@ -73,9 +76,10 @@ class Lists extends MyAccount {
 			$user->update();
 			if ($groupId == -1) {
 				$activeListGroup = UserAccount::getActiveUserObj()->getUnassignedListsForListGroups();
-				$activeListGroupDetails = new UserListGroup();
 				$activeListGroupDetails->title = 'Unassigned Lists';
 				$activeListGroupDetails->id = -1;
+			} elseif ($groupId == 0) {
+				$activeListGroup = $user->getLists();
 			} else {
 				$listGroup = new UserListGroup();
 				$listGroup->id = $groupId;
@@ -91,32 +95,36 @@ class Lists extends MyAccount {
 					}
 				} else {
 					$activeListGroup = UserListGroup::getLastViewedGroupForUser(UserAccount::getActiveUserObj());
-					$activeListGroupDetails = UserListGroup::getLastViewedGroupDetailsForUser(UserAccount::getActiveUserObj());
+					if ($activeListGroup === null || $activeListGroup === 0) {
+						$activeListGroup = $user->getLists();
+					} else {
+						$activeListGroupDetails = UserListGroup::getLastViewedGroupDetailsForUser(UserAccount::getActiveUserObj());
+					}
 				}
 			}
 		} else {
 			if ($user->lastListGroupViewed == -1) {
 				$activeListGroup = UserAccount::getActiveUserObj()->getUnassignedListsForListGroups();
-				$activeListGroupDetails = new UserListGroup();
 				$activeListGroupDetails->title = 'Unassigned Lists';
 				$activeListGroupDetails->id = -1;
+			} elseif (empty($user->lastListGroupViewed)) {
+				$activeListGroup = $user->getLists();
+				$user->lastListGroupViewed = 0;
+				$user->update();
 			} else {
 				$activeListGroup = UserListGroup::getLastViewedGroupForUser(UserAccount::getActiveUserObj());
-				if (empty($activeListGroup) && count($listGroups) > 0) {
-					$activeListGroup = $listGroup->getListsForGroup(UserAccount::getActiveUserObj());
-					$activeListGroupDetails = $listGroups[0];
-					// Update the user's last viewed group to this one so we don't keep hitting this case
-					$user->lastListGroupViewed = $activeListGroupDetails->id;
-					$user->update();
-				} else {
-					$activeListGroupDetails = UserListGroup::getLastViewedGroupDetailsForUser(UserAccount::getActiveUserObj());
-				}
+				$activeListGroupDetails = UserListGroup::getLastViewedGroupDetailsForUser(UserAccount::getActiveUserObj());
+				$user->lastListGroupViewed = $activeListGroupDetails->id;
+				$user->update();
 			}
 		}
 		$interface->assign('groupId', $groupId);
 		$interface->assign('activeListGroup', $activeListGroup);
 		$interface->assign('activeListGroupDetails', $activeListGroupDetails);
 		$interface->assign('listGroups', $listGroups);
+
+		$numAllLists = array_reduce($listGroups, fn($total, $group) => $total + $group->numValidLists(), $numUnassignedLists);
+		$interface->assign('numAllLists', $numAllLists);
 
 		$this->display('../MyAccount/lists.tpl', 'My Lists');
 

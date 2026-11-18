@@ -8,6 +8,7 @@
 			<div class="form-group">
 				<div class="col-xs-12" style="padding-bottom:.5em;">
 					<select id="listGroupSelect" name="listGroupSelect" class="form-control" onchange="return AspenDiscovery.Account.loadListGroupData();">
+					<option value="0" {if $activeListGroupDetails->id == 0} selected="selected"{/if}>{translate text="All Lists" isPublicFacing=true} ({$numAllLists})</option>
 	 	 	 	 	 	{foreach from=$listGroups item=listGroup}
 							<option value="{$listGroup->id}" {if $listGroup->id == $activeListGroupDetails->id}selected{/if}>{$listGroup->title|escape:"html"} ({$listGroup->numValidLists()})</option>
 	 	 	 	 	 	{/foreach}
@@ -18,7 +19,7 @@
 		</div>
 		<h2 id="activeListGroupTitle">{$activeListGroupDetails->title}</h2>
 	 	<div class="row">
-	 	 	{if $groupId != -1}
+	 	 	{if $groupId && $groupId > 0}
 			<div class="col-xs-12">
 				<div class="btn-toolbar" role="toolbar" style="padding-bottom:.5em;">
 					<div class="btn-group btn-group-sm">
@@ -32,7 +33,9 @@
 			<div class="col-xs-12">
 				<div style="padding-bottom:1em;">
                     {if !empty($userCanTransfer) && $userCanTransfer}
-	                    <button class="btn btn-sm btn-default" onclick="return AspenDiscovery.Lists.listGroupTransferAction({$activeListGroupDetails->id})">{translate text='Transfer List Group' isPublicFacing=true}</button>
+						{if ($groupId != 0)} 
+							<button class="btn btn-sm btn-default" onclick="return AspenDiscovery.Lists.listGroupTransferAction({$activeListGroupDetails->id})">{translate text='Transfer List Group' isPublicFacing=true}</button>
+						{/if}
 	                    <button class="btn btn-sm btn-default" onclick="return AspenDiscovery.Lists.listsTransferAction()">{translate text='Transfer All Lists' isPublicFacing=true}</button>
                     {/if}
 					<button class="btn btn-sm btn-default" onclick="return AspenDiscovery.Account.showCreateListForm(undefined, undefined, '{$activeListGroupDetails->id}')">{translate text="Create a New List" isPublicFacing=true}</button>
