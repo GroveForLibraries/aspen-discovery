@@ -179,73 +179,10 @@ class Events_Calendar extends Action {
 			$selectedLocation = $_REQUEST['location'];
 		}
 
-		if (isset($_REQUEST['location'])) {
-			$selectedLocation = $_REQUEST['location'];
-		}
-
 		//Events can be indexed under the Aspen location name or the name used by an events integration
 		$branchNamesByLocation = $this->getBranchNamesForLocations($locations);
 
-		if ($selectedLocation === 'all') {
-			if ($library->aspenEventsToInclude == 2) {
-				$libraryBranches = $locations;
-				unset($libraryBranches['all']);
-				$branchNames = $this->getBranchNames(array_keys($libraryBranches), $branchNamesByLocation);
-				if (!empty($branchNames)) {
-					$searchObject->addHiddenFilter('branch', $this->getBranchFilter($branchNames));
-				}
-			}
-		} else {
-			if (!empty($locations[$selectedLocation])) {
-				$branchNames = $this->getBranchNames([$selectedLocation], $branchNamesByLocation);
-				$searchObject->addHiddenFilter('branch', $this->getBranchFilter($branchNames));
-			}
-		}
-
-		$locationParam = '&location=' . urlencode($selectedLocation);
-		if (isset($prevLink)) $prevLink .= $locationParam;
-		if (isset($nextLink)) $nextLink .= $locationParam;
-		if (isset($weekLink)) $weekLink .= $locationParam;
-		if (isset($monthLink)) $monthLink .= $locationParam;
-
-
-		
-		if (isset($prevLink)) $interface->assign('prevLink', $prevLink);
-		if (isset($nextLink)) $interface->assign('nextLink', $nextLink);
-		if (isset($weekLink)) $interface->assign('weekLink', $weekLink);
-		if (isset($monthLink)) $interface->assign('monthLink', $monthLink);
-		
-
-		//Instead we limit to just this month.
-		if ($useWeek) {
-			$searchObject->addHiddenFilter("event_week", '"' . $weekFilter . '"');
-		} else {
-			$searchObject->addHiddenFilter("event_month", '"' . $monthFilter . '"');
-		}
-		$searchObject->addPrivateEventFilters();
-		$searchObject->setSort('start_date_sort asc, title_sort asc');
-
-		$timer->logTime('Setup Search');
-
-		// Process Search
-		$searchResult = $searchObject->processSearch(true, true);
-		if ($searchResult instanceof AspenError) {
-			AspenError::raiseError($searchResult->getMessage());
-		}
-		$timer->logTime('Process Search');
-
-		// Some more variables
-		//   Those we can construct AFTER the search is executed, but we need
-		//   no matter whether there were any results
-		$interface->assign('lookfor', $searchObject->displayQuery());
-		$interface->assign('searchType', $searchObject->getSearchType());
-		// Will assign null for an advanced search
-		$interface->assign('searchIndex', $searchObject->getSearchIndex());
-
-		// 'Finish' the search... complete timers and log search history.
-		$searchObject->close();
-
-		$searchResults = $searchObject->getResultRecordSet();
+		//Figure out which locations actually have events before the main search is filtered by branch
 		$allLocations = $locations;
 
 		$dropdownSearchObject = SearchObjectFactory::initSearchObject('Events');
@@ -289,6 +226,10 @@ class Events_Calendar extends Action {
 			}
 		}
 
+		//If no location matches any event, hide the location filter and don't filter the main search by branch.
+		$hideLocationFilter = empty($locationsWithEvents);
+		$interface->assign('hideLocationFilter', $hideLocationFilter);
+
 		if (!empty($locationsWithEvents)) {
 			if (isset($allLocations['all'])) {
 				$locationsWithEvents = ['all' => $allLocations['all']] + $locationsWithEvents;
@@ -299,10 +240,78 @@ class Events_Calendar extends Action {
 			if (!isset($locations[$selectedLocation])) {
 				$selectedLocation = 'all';
 			}
+		} else {
+			$selectedLocation = 'all';
 		}
 
 		$interface->assign('locations', $locations);
 		$interface->assign('selectedLocation', $selectedLocation);
+
+		if (!$hideLocationFilter) {
+			if ($selectedLocation === 'all') {
+				if ($library->aspenEventsToInclude == 2) {
+					$libraryBranches = $locations;
+					unset($libraryBranches['all']);
+					$branchNames = $this->getBranchNames(array_keys($libraryBranches), $branchNamesByLocation);
+					if (!empty($branchNames)) {
+						$branchFilter = $this->getBranchFilter($branchNames);
+						//Also include events scoped to this library even if their branch doesn't match one of our locations
+						$branchFilter .= ' OR library_scopes:"' . addcslashes($library->subdomain, '"\\') . '"';
+						$searchObject->addHiddenFilter('branch', $branchFilter);
+					}
+				}
+			} else {
+				if (!empty($locations[$selectedLocation])) {
+					$branchNames = $this->getBranchNames([$selectedLocation], $branchNamesByLocation);
+					$searchObject->addHiddenFilter('branch', $this->getBranchFilter($branchNames));
+				}
+			}
+		}
+
+		$locationParam = '&location=' . urlencode($selectedLocation);
+		if (isset($prevLink)) $prevLink .= $locationParam;
+		if (isset($nextLink)) $nextLink .= $locationParam;
+		if (isset($weekLink)) $weekLink .= $locationParam;
+		if (isset($monthLink)) $monthLink .= $locationParam;
+
+
+
+		if (isset($prevLink)) $interface->assign('prevLink', $prevLink);
+		if (isset($nextLink)) $interface->assign('nextLink', $nextLink);
+		if (isset($weekLink)) $interface->assign('weekLink', $weekLink);
+		if (isset($monthLink)) $interface->assign('monthLink', $monthLink);
+
+
+		//Instead we limit to just this month.
+		if ($useWeek) {
+			$searchObject->addHiddenFilter("event_week", '"' . $weekFilter . '"');
+		} else {
+			$searchObject->addHiddenFilter("event_month", '"' . $monthFilter . '"');
+		}
+		$searchObject->addPrivateEventFilters();
+		$searchObject->setSort('start_date_sort asc, title_sort asc');
+
+		$timer->logTime('Setup Search');
+
+		// Process Search
+		$searchResult = $searchObject->processSearch(true, true);
+		if ($searchResult instanceof AspenError) {
+			AspenError::raiseError($searchResult->getMessage());
+		}
+		$timer->logTime('Process Search');
+
+		// Some more variables
+		//   Those we can construct AFTER the search is executed, but we need
+		//   no matter whether there were any results
+		$interface->assign('lookfor', $searchObject->displayQuery());
+		$interface->assign('searchType', $searchObject->getSearchType());
+		// Will assign null for an advanced search
+		$interface->assign('searchIndex', $searchObject->getSearchIndex());
+
+		// 'Finish' the search... complete timers and log search history.
+		$searchObject->close();
+
+		$searchResults = $searchObject->getResultRecordSet() ?? [];
 
 		$defaultTimezone = new DateTimeZone(date_default_timezone_get());
 
@@ -432,7 +441,7 @@ class Events_Calendar extends Action {
 							'isCancelled' => $isCancelled,
 							'hiddenTimestamps' => $hiddenTimestamps,
 							'eventFields' => $eventFields,
-							'location' => $result['branch'][0],
+							'location' => $result['branch'][0] ?? '',
 						];
 					}
 				}
