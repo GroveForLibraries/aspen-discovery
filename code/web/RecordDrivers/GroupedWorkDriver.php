@@ -4036,13 +4036,13 @@ class GroupedWorkDriver extends IndexRecordDriver {
 		$debugSuffix = '';
 		$daysSinceAdded = null;
 		if (array_key_exists("local_days_since_added_sort_$solrScope", $this->fields)) {
-			$daysSinceAdded = $this->fields["local_days_since_added_sort_$solrScope"] ?? null;
+			$daysSinceAdded = $this->fields["local_days_since_added_sort_$solrScope"];
 			$debugSuffix = " ($daysSinceAdded from scoped sort)";
 		}else if (array_key_exists('local_days_since_added', $this->fields)) {
-			$daysSinceAdded = $this->fields['local_days_since_added'] ?? null;
+			$daysSinceAdded = $this->fields['local_days_since_added'];
 			$debugSuffix = " ($daysSinceAdded from unscoped field)";
 		}else if (array_key_exists("local_days_since_added_$solrScope", $this->fields)) {
-			$daysSinceAdded = $this->fields["local_days_since_added_$solrScope"] ?? null;
+			$daysSinceAdded = $this->fields["local_days_since_added_$solrScope"];
 			$debugSuffix = " ($daysSinceAdded from unscoped field)";
 		}
 		if (!$showDebug) {
