@@ -4030,26 +4030,39 @@ class GroupedWorkDriver extends IndexRecordDriver {
 		return null;
 	}
 
-	private function getDatePurchased() {
+	private function getDatePurchased() : ?string {
 		global $solrScope;
+		$showDebug = IPAddress::showDebuggingInformation();
+		$debugSuffix = '';
 		$daysSinceAdded = null;
-		if (array_key_exists('local_days_since_added', $this->fields)) {
+		if (array_key_exists("local_days_since_added_sort_$solrScope", $this->fields)) {
+			$daysSinceAdded = $this->fields["local_days_since_added_sort_$solrScope"] ?? null;
+			$debugSuffix = " ($daysSinceAdded from scoped sort)";
+		}else if (array_key_exists('local_days_since_added', $this->fields)) {
 			$daysSinceAdded = $this->fields['local_days_since_added'] ?? null;
+			$debugSuffix = " ($daysSinceAdded from unscoped field)";
 		}else if (array_key_exists("local_days_since_added_$solrScope", $this->fields)) {
-			$daysSinceAdded = $this->fields['"local_days_since_added_$solrScope"'] ?? null;
+			$daysSinceAdded = $this->fields["local_days_since_added_$solrScope"] ?? null;
+			$debugSuffix = " ($daysSinceAdded from unscoped field)";
+		}
+		if (!$showDebug) {
+			$debugSuffix = '';
 		}
 		if ($daysSinceAdded != null) {
 			if ($daysSinceAdded == 0x7fffffff) {
-				return translate(['text' => 'Under Consideration', 'isPublicFacing'=>true]);
+				return translate([
+					'text' => 'Under Consideration',
+					'isPublicFacing'=>true
+				]) . $debugSuffix;
 			}elseif ($daysSinceAdded == -1000) {
-				return translate(['text' => 'In Processing', 'isPublicFacing'=>true]);
+				return translate(['text' => 'In Processing', 'isPublicFacing'=>true]) . $debugSuffix;
 			}elseif ($daysSinceAdded < 0) {
-				return translate(['text' => 'On Order', 'isPublicFacing'=>true]);
+				return translate(['text' => 'On Order', 'isPublicFacing'=>true]) . $debugSuffix;
 			}else {
 				$purchaseDate = new DateTimeImmutable();
 				$purchaseDate = $purchaseDate->sub(new DateInterval('P' . $daysSinceAdded . 'D'));
 				require_once ROOT_DIR . '/sys/Utils/DateUtils.php';
-				return DateUtils::formatDateMedium($purchaseDate);
+				return DateUtils::formatDateMedium($purchaseDate) . $debugSuffix;
 			}
 		}
 		return null;
