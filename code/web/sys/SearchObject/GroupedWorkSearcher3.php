@@ -25,7 +25,8 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 		'owning_location',
 		'shelf_location',
 		'target_audience',
-		'target_audience_full'
+		'target_audience_full',
+		'itype'
 	];
 
 	public function getSolrConnector($indexUrl) : GroupedWorksSolrConnector3 {
@@ -561,7 +562,7 @@ class SearchObject_GroupedWorkSearcher3 extends SearchObject_GroupedWorkSearcher
 				}else{
 					$childFilter = implode(' +', str_replace('"', '\"', $childDocFilters)) ;
 				}
-				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="id,recordtype,scope,format,format_category,date_added,local_days_since_added"]';
+				$fieldsToReturn .= ',[child childFilter="+recordtype:record_scoping +' . $childFilter . '"  fl="id,recordtype,scope,format,format_category,date_added,local_days_since_added,itype"]';
 			}
 		}
 		return $fieldsToReturn;
