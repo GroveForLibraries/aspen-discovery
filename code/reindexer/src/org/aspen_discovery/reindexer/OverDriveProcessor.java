@@ -107,7 +107,7 @@ class OverDriveProcessor implements AutoCloseable {
 										break;
 								}
 								if (groupedWork.isDebugEnabled()) {
-									groupedWork.addDebugMessage("Format is " + primaryFormat + " based on a mediaType of " + mediaType, 2);
+									groupedWork.addDebugMessage("[format]Format is " + primaryFormat + " based on a mediaType of " + mediaType, 2);
 								}
 
 								HashMap<String, String> metadata = loadOverDriveMetadata(groupedWork, productId, formatCategory, logEntry);
@@ -269,7 +269,7 @@ class OverDriveProcessor implements AutoCloseable {
 												if (curSubject.equals("Comic and Graphic Books")) {
 													isEComic = true;
 													if (groupedWork.isDebugEnabled()) {
-														groupedWork.addDebugMessage("Overrode format based on a subject of " + curSubject, 2);
+														groupedWork.addDebugMessage("[format]Overrode format based on a subject of " + curSubject, 2);
 													}
 													break;
 												}
@@ -280,7 +280,7 @@ class OverDriveProcessor implements AutoCloseable {
 												if (rawMetadataDecoded.getString("edition").equalsIgnoreCase("Light Novel") || rawMetadataDecoded.getString("edition").equalsIgnoreCase("BL Light Novel")) {
 													isEComic = false;
 													if (groupedWork.isDebugEnabled()) {
-														groupedWork.addDebugMessage("Resetting format back to eBook due to an edition of Light Novel", 2);
+														groupedWork.addDebugMessage("[format]Resetting format back to eBook due to an edition of Light Novel", 2);
 													}
 												}
 											}
@@ -288,7 +288,7 @@ class OverDriveProcessor implements AutoCloseable {
 												if (series.toLowerCase().contains("light novel")) {
 													isEComic = false;
 													if (groupedWork.isDebugEnabled()) {
-														groupedWork.addDebugMessage("Resetting format back to eBook due to a series including Light Novel", 2);
+														groupedWork.addDebugMessage("[format]Resetting format back to eBook due to a series including Light Novel", 2);
 													}
 												}
 											}
@@ -661,47 +661,47 @@ class OverDriveProcessor implements AutoCloseable {
 					Util.addToMapWithCount(literaryForm, "Non Fiction");
 					Util.addToMapWithCount(literaryFormFull, "Non Fiction");
 					genres.add("Non Fiction");
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is non fiction based on OverDrive subjects", 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is non fiction based on OverDrive subjects", 2);}
 				} else if (curSubject.contains("Fiction")) {
 					Util.addToMapWithCount(literaryForm, "Fiction");
 					Util.addToMapWithCount(literaryFormFull, "Fiction");
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is fiction based on OverDrive subjects", 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is fiction based on OverDrive subjects", 2);}
 					genres.add("Fiction");
 				}
 
 				if (curSubject.contains("Poetry")) {
 					Util.addToMapWithCount(literaryForm, "Non Fiction");
 					Util.addToMapWithCount(literaryFormFull, "Poetry");
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is non-fiction/poetry based on OverDrive subjects", 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is non-fiction/poetry based on OverDrive subjects", 2);}
 				} else if (curSubject.contains("Essays")) {
 					Util.addToMapWithCount(literaryForm, "Non Fiction");
 					Util.addToMapWithCount(literaryFormFull, curSubject);
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is non fiction/" + curSubject + " based on OverDrive subjects", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is non fiction/" + curSubject + " based on OverDrive subjects", 2);}
 				} else if (curSubject.contains("Short Stories") || curSubject.contains("Drama")) {
 					Util.addToMapWithCount(literaryForm, "Fiction");
 					Util.addToMapWithCount(literaryFormFull, curSubject);
-					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Literary Form is fiction/" + curSubject + "  based on OverDrive subject", 2);}
+					if (groupedWork != null && groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[litform]Literary Form is fiction/" + curSubject + "  based on OverDrive subject", 2);}
 				}
 
 				if (curSubject.contains("Juvenile")) {
 					targetAudience = "Juvenile";
 					targetAudienceFull = "Juvenile";
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target/full target audience is Juvenile based on Overdrive subject " + curSubject, 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target/full target audience is Juvenile based on Overdrive subject " + curSubject, 2);}
 				} else if (curSubject.contains("Young Adult")) {
 					targetAudience = "Young Adult";
 					targetAudienceFull = "Adolescent (14-17)";
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Young Adult based on Overdrive subject " + curSubject, 2);}
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Adolescent (14-17) based on Overdrive subject " + curSubject, 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Young Adult based on Overdrive subject " + curSubject, 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Adolescent (14-17) based on Overdrive subject " + curSubject, 2);}
 				} else if (curSubject.contains("Picture Book")) {
 					targetAudience = "Juvenile";
 					targetAudienceFull = "Preschool (0-5)";
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Juvenile based on Overdrive subject " + curSubject, 2);}
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Preschool (0-5) based on Overdrive subject " + curSubject, 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Juvenile based on Overdrive subject " + curSubject, 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Preschool (0-5) based on Overdrive subject " + curSubject, 2);}
 				} else if (curSubject.contains("Beginning Reader")) {
 					targetAudience = "Juvenile";
 					targetAudienceFull = "Primary (6-8)";
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Target audience is Juvenile based on Overdrive subject " + curSubject, 2);}
-					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("Full target audience is Primary (6-8) based on Overdrive subject " + curSubject, 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Target audience is Juvenile based on Overdrive subject " + curSubject, 2);}
+					if (groupedWork.isDebugEnabled()) {groupedWork.addDebugMessage("[audience]Full target audience is Primary (6-8) based on Overdrive subject " + curSubject, 2);}
 				}
 
 				topics.add(curSubject);

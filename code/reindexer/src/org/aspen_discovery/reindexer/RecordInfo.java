@@ -576,8 +576,8 @@ public class RecordInfo {
 		Set<String> filteredTargetAudiencesFull = groupedWorkIndexer.cleanTargetAudiences(targetAudienceFull);
 
 		if (parentWork.isDebugEnabled()) {
-			parentWork.addDebugMessage("Final target audience for " + recordIdentifier + " is " + targetAudience, 1);
-			parentWork.addDebugMessage("Final full target audience " + recordIdentifier + " is " + targetAudienceFull, 1);
+			parentWork.addDebugMessage("[audience]Final target audience for " + recordIdentifier + " is " + targetAudience, 1);
+			parentWork.addDebugMessage("[audience]Final full target audience " + recordIdentifier + " is " + targetAudienceFull, 1);
 		}
 
 		Map<OptimizedScopeData, OptimizedScopeDocumentGroup> groupedDocuments =
@@ -618,7 +618,7 @@ public class RecordInfo {
 
 		if (parentWork.isDebugEnabled()) {
 			parentWork.addDebugMessage(
-				"Combined " + scopeDataByName.size() + " scope documents into "
+				"[scoping]Combined " + scopeDataByName.size() + " scope documents into "
 					+ documents.size() + " record_scoping documents for " + recordIdentifier,
 				1
 			);
