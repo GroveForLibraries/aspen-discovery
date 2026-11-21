@@ -77,6 +77,8 @@ public class EvergreenExportMain {
 		private String recordId;			//From 901$r in mfhds.xml
 		private String libraryCode;        //From 852$b in mfhds.xml
 		private String holdingsStatement;  //From 866$a in mfhds.xml
+		private String holdingsNote;		//From 866$z
+		private ArrayList<String[]> links = new ArrayList<>(); //From 856: ind1, ind2, $u, $y, $z
 	}
 
 	public static void main(String[] args) {
@@ -364,6 +366,9 @@ public class EvergreenExportMain {
 			String currentDataFieldTag = null;
 			String currentSubfieldCode = null;
 			StringBuilder currentSubfieldText = new StringBuilder();
+			String holdingsNote = null;
+			ArrayList<String[]> links = new ArrayList<>();
+			String[] currentLink = null;
 
 			char ind1_852 = ' ', ind2_852 = ' ';
 			char ind1_866 = ' ', ind2_866 = '0';
@@ -376,6 +381,9 @@ public class EvergreenExportMain {
 						recordId = null;
 						libraryCode = null;
 						holdingsStatement = null;
+						holdingsNote = null;
+						links = new ArrayList<>();
+						currentLink = null;
 						ind1_852 = ' '; ind2_852 = ' ';
 						ind1_866 = ' '; ind2_866 = '0';
 					} else if (elementName.equals("datafield")) {
@@ -384,15 +392,20 @@ public class EvergreenExportMain {
 						// Helper function to extract first char of indicator attribute
 						String attrInd1 = xmlStreamReader.getAttributeValue(null, "ind1");
 						String attrInd2 = xmlStreamReader.getAttributeValue(null, "ind2");
-						char i1 = (attrInd1 != null && !attrInd1.isEmpty()) ? attrInd1.charAt(0) : ' ';
-						char i2 = (attrInd2 != null && !attrInd2.isEmpty()) ? attrInd2.charAt(0) : ' ';
+						char indicator1 = (attrInd1 != null && !attrInd1.isEmpty()) ? attrInd1.charAt(0) : ' ';
+						char indicator2 = (attrInd2 != null && !attrInd2.isEmpty()) ? attrInd2.charAt(0) : ' ';
 
 						if ("852".equals(currentDataFieldTag)) {
-							ind1_852 = i1;
-							ind2_852 = i2;
+							ind1_852 = indicator1;
+							ind2_852 = indicator2;
 						} else if ("866".equals(currentDataFieldTag)) {
-							ind1_866 = i1;
-							ind2_866 = i2;
+							ind1_866 = indicator1;
+							ind2_866 = indicator2;
+						} else if ("856".equals(currentDataFieldTag) && currentLink != null) {
+							char linkIndicator1 = (attrInd1 != null && !attrInd1.isEmpty()) ? attrInd1.charAt(0) : '4';
+							char linkIndicator2 = (attrInd2 != null && !attrInd2.isEmpty()) ? attrInd2.charAt(0) : '0';
+							//Set current link array using link indicators 1 and 2 and add 3 more slots for the array using null placeholders
+							currentLink = new String[]{String.valueOf(linkIndicator1), String.valueOf(linkIndicator2), null, null, null};
 						}
 					} else if (elementName.equals("subfield")) {
 						currentSubfieldCode = xmlStreamReader.getAttributeValue(null, "code");
@@ -411,8 +424,24 @@ public class EvergreenExportMain {
 							libraryCode = currentSubfieldText.toString();
 						} else if ("866".equals(currentDataFieldTag) && "a".equals(currentSubfieldCode)) {
 							holdingsStatement = currentSubfieldText.toString();
+						} else if ("866".equals(currentDataFieldTag) && "z".equals(currentSubfieldCode)) {
+							holdingsNote = currentSubfieldText.toString();
+						} else if ("856".equals(currentDataFieldTag)) {
+							if ("u".equals(currentSubfieldCode)) {
+								currentLink[2] = currentSubfieldText.toString().trim();
+							} else if ("y".equals(currentSubfieldCode)) {
+								currentLink[3] = currentSubfieldText.toString();
+							} else if ("z".equals(currentSubfieldCode)) {
+								currentLink[4] = currentSubfieldText.toString();
+							}
 						}
 						currentSubfieldCode = null;
+					} else if (elementName.equals("datafield")) {
+						if ("856".equals(currentDataFieldTag) && currentLink != null && currentLink[2] != null && !currentLink[2].isEmpty()) {
+							links.add(currentLink);
+						}
+						currentLink = null;
+						currentDataFieldTag = null;
 					} else if (elementName.equals("record")) {
 						if (recordId != null && !recordId.isEmpty()) {
 							List<MfhdInfo> list = mfhdHoldingsByBibId.computeIfAbsent(recordId, k -> new ArrayList<>());
@@ -423,6 +452,8 @@ public class EvergreenExportMain {
 							mfhdInfo.linkNumber = list.size() + 1;
 							mfhdInfo.libraryCode = libraryCode;
 							mfhdInfo.holdingsStatement = holdingsStatement;
+							mfhdInfo.holdingsNote = holdingsNote;
+							mfhdInfo.links = links;
 
 							// Assign parsed indicators
 							mfhdInfo.ind1_852 = ind1_852;
@@ -467,7 +498,23 @@ public class EvergreenExportMain {
 				DataField field866 = marcFactory.newDataField("866", mfhdInfo.ind1_866, mfhdInfo.ind2_866);
 				field866.addSubfield(marcFactory.newSubfield('6', linkValue));
 				field866.addSubfield(marcFactory.newSubfield('a', mfhdInfo.holdingsStatement));
+				if (mfhdInfo.holdingsNote != null && !mfhdInfo.holdingsNote.isEmpty()) {
+					field866.addSubfield(marcFactory.newSubfield('z', mfhdInfo.holdingsNote));
+				}
 				marcRecord.addVariableField(field866);
+			}
+
+			for (String[] link : mfhdInfo.links) {
+				DataField field856 = marcFactory.newDataField("856", link[0].charAt(0), link[1].charAt(0));
+				field856.addSubfield(marcFactory.newSubfield('6', linkValue));
+				field856.addSubfield(marcFactory.newSubfield('u', link[2]));
+				if (link[3] != null && !link[3].isEmpty()) {
+					field856.addSubfield(marcFactory.newSubfield('y', link[3]));
+				}
+				if (link[4] != null && !link[4].isEmpty()) {
+					field856.addSubfield(marcFactory.newSubfield('z', link[4]));
+				}
+				marcRecord.addVariableField(field856);
 			}
 		}
 	}
