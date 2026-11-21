@@ -95,6 +95,36 @@
 					{/if}
 				</div>
 			</div>
+			{if !empty($profile->_address2)}
+				<div class="form-group">
+					<div class="col-xs-4">
+						<label for="address1">{translate text='Address 2' isPublicFacing=true}</label>
+					</div>
+					<div class="col-xs-8">
+						{$profile->_address2|escape}
+					</div>
+				</div>
+			{/if}
+			{if !empty($profile->_address3)}
+				<div class="form-group">
+					<div class="col-xs-4">
+						<label for="address1">{translate text='Address 3' isPublicFacing=true}</label>
+					</div>
+					<div class="col-xs-8">
+						{$profile->_address3|escape}
+					</div>
+				</div>
+			{/if}
+			{if !empty($profile->_address4)}
+				<div class="form-group">
+					<div class="col-xs-4">
+						<label for="address1">{translate text='Address 4' isPublicFacing=true}</label>
+					</div>
+					<div class="col-xs-8">
+						{$profile->_address4|escape}
+					</div>
+				</div>
+			{/if}
 			<div class="form-group">
 				<div class="col-xs-4"><label for="city">{translate text='City' isPublicFacing=true}</label></div>
 				<div class="col-xs-8">

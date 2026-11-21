@@ -126,6 +126,8 @@ class User extends DataObject {
 	public $_pref_suffix;
 	public $_address1;
 	public $_address2;
+	public $_address3;
+	public $_address4;
 	public $_city;
 	public $_state;
 	public $_zip;

@@ -4721,15 +4721,20 @@ class Sierra extends AbstractIlsDriver {
 					if ($i > 2) {
 						$previousLine = $primaryAddress->lines[$i - 1];
 						$this->getCityStateFromLine($previousLine, $user);
+						$this->loadAdditionalAddressLines($primaryAddress->lines, $i - 1, $user);
 					}else{
-						//city state is probably not included
+						//city state is probably not included since the first line is the main street address
 					}
 					return;
 				}elseif (preg_match('/^(.*?)(\d{5}(-\d{4})?|[A-Z]\d[A-Z] ?\d[A-Z]\d)$/', $addressLine)) {
 					$this->getCityStateZipFromLine($addressLine, $user);
+					$this->loadAdditionalAddressLines($primaryAddress->lines, $i, $user);
 					return;
 				}
 			}
+		}else{
+			//We got a good zip code from the specified line. Check to see if we need to load additional address lines (2-4)
+			$this->loadAdditionalAddressLines($primaryAddress->lines, $userHomeLibrary->sierraAddressLineForCityState, $user);
 		}
 	}
 
@@ -4780,6 +4785,22 @@ class Sierra extends AbstractIlsDriver {
 			} else {
 				$user->_city = $line2;
 			}
+		}
+	}
+
+	/**
+	 * Loads
+	 * @param $addressLines - The address lines from Sierra
+	 * @param int $cityStateLineIndex - The address of the city/state line in the array of lines
+	 * @param User $user - The user to update
+	 * @return void
+	 */
+	private function loadAdditionalAddressLines($addressLines, int $cityStateLineIndex, User $user) : void {
+		//Add any relevant information between lines 1 and the previous line to the address
+		for ($j = 1; $j < $cityStateLineIndex; $j++)  {
+			$addressLineNumber = $j+1;
+			$addressField = "_address$addressLineNumber";
+			$user->$addressField = $addressLines[$j];
 		}
 	}
 }
