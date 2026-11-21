@@ -1884,6 +1884,9 @@ class Sierra extends AbstractIlsDriver {
 			'messages' => [],
 		];
 
+		//Avoid overriding information that was previously set
+		$currentPatronInformation = $this->getPatronInfoByBarcode($patron->getBarcode());
+
 		if ($canUpdateContactInfo) {
 			$params = [];
 
@@ -1900,6 +1903,18 @@ class Sierra extends AbstractIlsDriver {
 					$tmpPhone->type = $userHomeLibrary->phoneField;
 					$tmpPhone->number = $_REQUEST['phone'];
 					$params['phones'][] = $tmpPhone;
+					//We always update the first phone. So if there are multiple phones of the same type in the patron record we need to copy the others.
+					$replacedPhoneField = false;
+					if (isset($currentPatronInformation->phones)) {
+						for ($i = 0; $i < count($currentPatronInformation->phones); $i++) {
+							if ($currentPatronInformation->phones[$i]->type == $userHomeLibrary->phoneField) {
+								if ($replacedPhoneField) {
+									$params['phones'][] = $currentPatronInformation->phones[$i];
+								}
+								$replacedPhoneField = true;
+							}
+						}
+					}
 				}
 			}
 			if ($userHomeLibrary->allowPatronWorkPhoneNumberUpdates) {
@@ -1912,6 +1927,28 @@ class Sierra extends AbstractIlsDriver {
 					$tmpPhone->type = $userHomeLibrary->workPhoneField;
 					$tmpPhone->number = $_REQUEST['workPhone'];
 					$params['phones'][] = $tmpPhone;
+					//We always update the first phone. So if there are multiple phones of the same type in the patron record we need to copy the others.
+					$replacedPhoneField = false;
+					if (isset($currentPatronInformation->phones)) {
+						for ($i = 0; $i < count($currentPatronInformation->phones); $i++) {
+							if ($currentPatronInformation->phones[$i]->type == $userHomeLibrary->workPhoneField) {
+								if ($replacedPhoneField) {
+									$params['phones'][] = $currentPatronInformation->phones[$i];
+								}
+								$replacedPhoneField = true;
+							}
+						}
+					}
+				}
+			}
+			if (count($params['phones']) > 0) {
+				//Make sure that we preserve any other phone fields
+				if (isset($currentPatronInformation->phones)) {
+					for ($i = 0; $i < count($currentPatronInformation->phones); $i++) {
+						if ($currentPatronInformation->phones[$i]->type != $userHomeLibrary->phoneField && $currentPatronInformation->phones[$i]->type != $userHomeLibrary->workPhoneField) {
+							$params['phones'][] = $currentPatronInformation->phones[$i];
+						}
+					}
 				}
 			}
 			if ($userHomeLibrary->allowPatronAddressUpdates) {
@@ -3168,11 +3205,20 @@ class Sierra extends AbstractIlsDriver {
 			$this->parseCityStateZipFromAddressLines($primaryAddress, $userHomeLibrary, $user);
 		}
 		if (!empty($patronInfo->phones)) {
+			//If a user has multiple phone numbers of the same type, use the first one since they are returned in display order
+			$phoneSet = false;
+			$workPhoneSet = false;
 			foreach ($patronInfo->phones as $phoneInfo) {
 				if ($phoneInfo->type == $userHomeLibrary->phoneField) {
-					$user->phone = $phoneInfo->number;
+					if (!$phoneSet) {
+						$user->phone = $phoneInfo->number;
+						$phoneSet = true;
+					}
 				}elseif ($phoneInfo->type == $userHomeLibrary->workPhoneField) {
-					$user->_workPhone = $phoneInfo->number;
+					if (!$workPhoneSet) {
+						$user->_workPhone = $phoneInfo->number;
+						$workPhoneSet = true;
+					}
 				}
 			}
 		}
