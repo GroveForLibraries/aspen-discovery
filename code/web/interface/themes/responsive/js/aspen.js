@@ -2519,7 +2519,9 @@ AspenDiscovery.Account = (function () {
 
 			var addToListGroupOption = $('#addToListGroup-Options').val();
 			var addToListGroupNewName = $('#addToListGroup-NewName').val();
-			var addToListGroupNested = $('#addToListGroup-Nested').val();
+			var addToListGroupNested = addToListGroupOption === 'existing'
+				? $('#addToList-listGroup').val()
+				: $('#addToListGroup-Nested').val();
 
 			var desc = $("#listDesc").val();
 			var url = Globals.path + "/MyAccount/AJAX";
@@ -2564,6 +2566,13 @@ AspenDiscovery.Account = (function () {
 				.on("switchChange.listForm", function () {
 					AspenDiscovery.Lists.updateListEditFields();
 				});
+			var groupOption = form.find("#addToListGroup-Options");
+			groupOption.off("change.listForm").on("change.listForm", function () {
+				var selectedOption = $(this).val();
+				form.find("#addToListGroup-New").toggle(selectedOption === 'new');
+				form.find("#addToListGroup-Existing").toggle(selectedOption === 'existing');
+			});
+			groupOption.trigger('change');
 			AspenDiscovery.Lists.updateListEditFields();
 		},
 
@@ -2573,17 +2582,20 @@ AspenDiscovery.Account = (function () {
 		 */
 		cloneList: function () {
 			const form = $("#addListForm");
-			const isPublic = form.find("#public").prop("checked");
 			const params = {
 				method: 'cloneList',
 				sourceListId: form.find("input[name=sourceListId]").val(),
 				title: form.find("input[name=title]").val(),
 				desc: form.find("#listDesc").val(),
-				public: isPublic,
+				public: form.find("#public").prop("checked"),
 				searchable: form.find("#searchable").prop("checked"),
 				displayListAuthor: form.find("#displayListAuthor").prop("checked"),
 				customAuthorName: form.find("input[name=customAuthorName]").val(),
-				listGroupId: form.find("#addToList-listGroup").val() || -1
+				addToListGroupOption: form.find("#addToListGroup-Options").val(),
+				addToListGroupNewName: form.find("#addToListGroup-NewName").val(),
+				addToListGroupNested: form.find("#addToListGroup-Options").val() === 'existing'
+					? form.find("#addToList-listGroup").val()
+					: form.find("#addToListGroup-Nested").val(),
 			};
 			$.getJSON(Globals.path + "/MyAccount/AJAX", params, function (data) {
 				if (data.success) {
@@ -14176,29 +14188,32 @@ AspenDiscovery.Lists = (function () {
 			return false;
 		},
 
-		updateListEditFields: function () {
-			let publicSwitch = $("#public");
-			let searchableSwitch = $("#searchable");
-			let displayListAuthorSwitch = $("#displayListAuthor");
+		updateListEditFields: function (source) {
+			console.log('updateListEditFields');
+			let container = source ? $(source).closest('form') : $('#addListForm');
+			if (container.length === 0) {
+				container = $('#myListFormHead');
+			}
+
+			let publicSwitch = container.find('input[name="public"]');
+			let searchableSwitch = container.find('input[name="searchable"]');
+			let displayListAuthorSwitch = container.find('input[name="displayListAuthor"]');
+			let searchableRow = container.find('[id="searchableRow"]');
+			let displayListAuthorRow = container.find('[id="displayListAuthorRow"]');
+			let customAuthorNameRow = container.find('[id="customAuthorNameRow"]');
 			if (publicSwitch.prop('checked')) {
-				if (searchableSwitch !== undefined) {
-					$('#searchableRow').show();
-					if (searchableSwitch.prop('checked')) {
-						$('#displayListAuthorRow').show();
-						if (displayListAuthorSwitch.prop('checked')) {
-							$('#customAuthorNameRow').show();
-						}else{
-							$('#customAuthorNameRow').hide();
-						}
-					}else{
-						$('#displayListAuthorRow').hide();
-						$('#customAuthorNameRow').hide();
-					}
+				searchableRow.show();
+				if (searchableSwitch.prop('checked')) {
+					displayListAuthorRow.show();
+					customAuthorNameRow.toggle(displayListAuthorSwitch.prop('checked'));
+				} else {
+					displayListAuthorRow.hide();
+					customAuthorNameRow.hide();
 				}
-			}else{
-				$('#searchableRow').hide();
-				$('#displayListAuthorRow').hide();
-				$('#customAuthorNameRow').hide();
+			} else {
+				searchableRow.hide();
+				displayListAuthorRow.hide();
+				customAuthorNameRow.hide();
 			}
 		},
 
@@ -14626,6 +14641,7 @@ AspenDiscovery.Lists = (function () {
 		}
 	};
 }(AspenDiscovery.Lists || {}));
+
 AspenDiscovery.CollectionSpotlights = (function(){
 	return {
 		createSpotlightFromList: function (listId){

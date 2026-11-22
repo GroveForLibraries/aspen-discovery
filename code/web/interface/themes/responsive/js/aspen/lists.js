@@ -27,29 +27,32 @@ AspenDiscovery.Lists = (function () {
 			return false;
 		},
 
-		updateListEditFields: function () {
-			let publicSwitch = $("#public");
-			let searchableSwitch = $("#searchable");
-			let displayListAuthorSwitch = $("#displayListAuthor");
+		updateListEditFields: function (source) {
+			console.log('updateListEditFields');
+			let container = source ? $(source).closest('form') : $('#addListForm');
+			if (container.length === 0) {
+				container = $('#myListFormHead');
+			}
+
+			let publicSwitch = container.find('input[name="public"]');
+			let searchableSwitch = container.find('input[name="searchable"]');
+			let displayListAuthorSwitch = container.find('input[name="displayListAuthor"]');
+			let searchableRow = container.find('[id="searchableRow"]');
+			let displayListAuthorRow = container.find('[id="displayListAuthorRow"]');
+			let customAuthorNameRow = container.find('[id="customAuthorNameRow"]');
 			if (publicSwitch.prop('checked')) {
-				if (searchableSwitch !== undefined) {
-					$('#searchableRow').show();
-					if (searchableSwitch.prop('checked')) {
-						$('#displayListAuthorRow').show();
-						if (displayListAuthorSwitch.prop('checked')) {
-							$('#customAuthorNameRow').show();
-						}else{
-							$('#customAuthorNameRow').hide();
-						}
-					}else{
-						$('#displayListAuthorRow').hide();
-						$('#customAuthorNameRow').hide();
-					}
+				searchableRow.show();
+				if (searchableSwitch.prop('checked')) {
+					displayListAuthorRow.show();
+					customAuthorNameRow.toggle(displayListAuthorSwitch.prop('checked'));
+				} else {
+					displayListAuthorRow.hide();
+					customAuthorNameRow.hide();
 				}
-			}else{
-				$('#searchableRow').hide();
-				$('#displayListAuthorRow').hide();
-				$('#customAuthorNameRow').hide();
+			} else {
+				searchableRow.hide();
+				displayListAuthorRow.hide();
+				customAuthorNameRow.hide();
 			}
 		},
 

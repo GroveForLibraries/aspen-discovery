@@ -1414,6 +1414,58 @@ class MyAccount_AJAX extends JSON_Action {
 		return $tmpResult;
 	}
 
+	/**
+	 * Resolve the list group selection submitted by the create/clone list forms.
+	 *
+	 * @return int|false The selected/created group ID, -1 for no group, or false for invalid input.
+	 */
+	private function getListGroupIdFromRequest(User $user): int|false {
+		$groupOption = $_REQUEST['addToListGroupOption'] ?? 'none';
+		if ($groupOption === 'none') {
+			return -1;
+		}
+
+		require_once ROOT_DIR . '/sys/UserLists/UserListGroup.php';
+		$groupId = $_REQUEST['addToListGroupNested'] ?? 'none';
+		if ($groupOption === 'existing') {
+			if (!is_numeric($groupId) || (int)$groupId <= 0) {
+				return false;
+			}
+			$existingGroup = new UserListGroup();
+			$existingGroup->id = (int)$groupId;
+			$existingGroup->userId = $user->id;
+			return $existingGroup->find(true) ? (int)$groupId : false;
+		}
+
+		if ($groupOption !== 'new') {
+			return false;
+		}
+		$groupTitle = $_REQUEST['addToListGroupNewName'] ?? '';
+		if (is_array($groupTitle) || trim((string)$groupTitle) === '') {
+			return false;
+		}
+
+		$parentGroupId = -1;
+		if ($groupId !== 'none') {
+			if (!is_numeric($groupId) || (int)$groupId <= 0) {
+				return false;
+			}
+			$parentGroup = new UserListGroup();
+			$parentGroup->id = (int)$groupId;
+			$parentGroup->userId = $user->id;
+			if (!$parentGroup->find(true)) {
+				return false;
+			}
+			$parentGroupId = (int)$groupId;
+		}
+
+		$newGroup = new UserListGroup();
+		$newGroup->title = strip_tags(urldecode(trim((string)$groupTitle)));
+		$newGroup->userId = $user->id;
+		$newGroup->parentGroupId = $parentGroupId;
+		return $newGroup->insert() ? (int)$newGroup->id : false;
+	}
+
 	/** @noinspection PhpUnused */
 	function addList() : array {
 		$this->requireLoggedInUser(null, "You must be logged in to create a list");
@@ -1461,26 +1513,13 @@ class MyAccount_AJAX extends JSON_Action {
 				$list->customAuthorName = $_REQUEST['customAuthorName'] ?? '';
 			}
 
-			$list->listGroupId = -1;
-			if (isset($_REQUEST['addToListGroupOption'])) {
-				$addToListGroupOption = $_REQUEST['addToListGroupOption'];
-				$addToListGroupNested = $_REQUEST['addToListGroupNested'] ?? 'none';
-				if ($addToListGroupOption == 'new') {
-					//Create a new list group
-					require_once ROOT_DIR . '/sys/UserLists/UserListGroup.php';
-					$listGroup = new UserListGroup();
-					$listGroup->title = $_REQUEST['addToListGroupNewName'];
-					$listGroup->userId = $user->id;
-					if ($addToListGroupNested != 'none') {
-						$listGroup->parentGroupId = $addToListGroupNested;
-					}
-					$listGroup->insert();
-					$list->listGroupId = $listGroup->id;
-				} elseif ($addToListGroupOption == "existing" && is_numeric($addToListGroupNested)) {
-					//Add to an existing list group
-					$list->listGroupId = intval($addToListGroupNested);
-				}
+			$listGroupId = $this->getListGroupIdFromRequest($user);
+			if ($listGroupId === false) {
+				$return['success'] = false;
+				$return['message'] = 'The selected list group is invalid';
+				return $return;
 			}
+			$list->listGroupId = $listGroupId;
 
 			if ($existingList) {
 				$list->update();
@@ -1634,7 +1673,12 @@ class MyAccount_AJAX extends JSON_Action {
 		if (is_array($description)) {
 			$description = reset($description);
 		}
-		$groupId = $_REQUEST['listGroupId'] ?? -1;
+		$user = UserAccount::getLoggedInUser();
+		$listGroupId = $this->getListGroupIdFromRequest($user);
+		if ($listGroupId === false) {
+			$return['message'] = 'The selected list group is invalid';
+			return $return;
+		}
 		$clonedList = $sourceList->clone([
 			'title' => $title,
 			'description' => strip_tags(urldecode($description)),
@@ -1642,7 +1686,7 @@ class MyAccount_AJAX extends JSON_Action {
 			'searchable' => isset($_REQUEST['searchable']) && $_REQUEST['searchable'] === 'true',
 			'displayListAuthor' => isset($_REQUEST['displayListAuthor']) && $_REQUEST['displayListAuthor'] === 'true',
 			'customAuthorName' => $_REQUEST['customAuthorName'] ?? '',
-			'listGroupId' => is_numeric($groupId) ? (int)$groupId : -1,
+			'listGroupId' => $listGroupId,
 		]);
 
 		if ($clonedList === false) {

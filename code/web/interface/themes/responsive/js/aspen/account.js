@@ -51,7 +51,9 @@ AspenDiscovery.Account = (function () {
 
 			var addToListGroupOption = $('#addToListGroup-Options').val();
 			var addToListGroupNewName = $('#addToListGroup-NewName').val();
-			var addToListGroupNested = $('#addToListGroup-Nested').val();
+			var addToListGroupNested = addToListGroupOption === 'existing'
+				? $('#addToList-listGroup').val()
+				: $('#addToListGroup-Nested').val();
 
 			var desc = $("#listDesc").val();
 			var url = Globals.path + "/MyAccount/AJAX";
@@ -96,6 +98,13 @@ AspenDiscovery.Account = (function () {
 				.on("switchChange.listForm", function () {
 					AspenDiscovery.Lists.updateListEditFields();
 				});
+			var groupOption = form.find("#addToListGroup-Options");
+			groupOption.off("change.listForm").on("change.listForm", function () {
+				var selectedOption = $(this).val();
+				form.find("#addToListGroup-New").toggle(selectedOption === 'new');
+				form.find("#addToListGroup-Existing").toggle(selectedOption === 'existing');
+			});
+			groupOption.trigger('change');
 			AspenDiscovery.Lists.updateListEditFields();
 		},
 
@@ -105,17 +114,20 @@ AspenDiscovery.Account = (function () {
 		 */
 		cloneList: function () {
 			const form = $("#addListForm");
-			const isPublic = form.find("#public").prop("checked");
 			const params = {
 				method: 'cloneList',
 				sourceListId: form.find("input[name=sourceListId]").val(),
 				title: form.find("input[name=title]").val(),
 				desc: form.find("#listDesc").val(),
-				public: isPublic,
+				public: form.find("#public").prop("checked"),
 				searchable: form.find("#searchable").prop("checked"),
 				displayListAuthor: form.find("#displayListAuthor").prop("checked"),
 				customAuthorName: form.find("input[name=customAuthorName]").val(),
-				listGroupId: form.find("#addToList-listGroup").val() || -1
+				addToListGroupOption: form.find("#addToListGroup-Options").val(),
+				addToListGroupNewName: form.find("#addToListGroup-NewName").val(),
+				addToListGroupNested: form.find("#addToListGroup-Options").val() === 'existing'
+					? form.find("#addToList-listGroup").val()
+					: form.find("#addToListGroup-Nested").val(),
 			};
 			$.getJSON(Globals.path + "/MyAccount/AJAX", params, function (data) {
 				if (data.success) {
