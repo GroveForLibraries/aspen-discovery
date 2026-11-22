@@ -2072,28 +2072,28 @@ class UserList extends DataObject {
 	 * The returned list is owned by the active user. Uploaded covers are copied to the
 	 * new list's ID; generated cover-cache data is intentionally not copied.
 	 *
-	 * @param array $overrides Editable list fields supplied by the clone form.
+	 * @param array $cloneData List fields supplied by the clone form.
 	 * @return UserList|false
 	 */
-	public function clone(array $overrides = []): UserList|false {
+	public function clone(array $cloneData): UserList|false {
 		$activeUserId = UserAccount::getActiveUserId();
 		if (empty($this->id) || empty($activeUserId) || $this->deleted || !$this->isVisibleToUser()) {
 			return false;
 		}
 
 		$newList = new UserList();
-		$newList->title = trim((string)($overrides['title'] ?? $this->title));
+		$newList->title = trim((string)($cloneData['title'] ?? ''));
 		if ($newList->title === '') {
-			return false;
+			$newList->title = 'Clone of ' . $this->title;
 		}
 
 		$newList->user_id = $activeUserId;
 
-		$newList->description = (string)($overrides['description'] ?? $this->description);
-		$newList->public = !empty($overrides['public']) ? 1 : 0;
-		$newList->searchable = !empty($overrides['searchable']) ? 1 : 0;
-		$newList->displayListAuthor = !empty($overrides['displayListAuthor']) ? 1 : 0;
-		$newList->customAuthorName = (string)($overrides['customAuthorName'] ?? $this->customAuthorName);
+		$newList->description = (string)($cloneData['description'] ?? '');
+		$newList->public = !empty($cloneData['public']) ? 1 : 0;
+		$newList->searchable = !empty($cloneData['searchable']) ? 1 : 0;
+		$newList->displayListAuthor = !empty($cloneData['displayListAuthor']) ? 1 : 0;
+		$newList->customAuthorName = (string)($cloneData['customAuthorName'] ?? '');
 		$newList->listGroupId = -1;
 		$newList->defaultSort = $this->defaultSort;
 		$newList->deleted = 0;
@@ -2103,7 +2103,7 @@ class UserList extends DataObject {
 
 
 		// Groups are owned by users. Never attach a clone to another user's group.
-		$requestedGroupId = $overrides['listGroupId'] ?? $this->listGroupId;
+		$requestedGroupId = $cloneData['listGroupId'] ?? -1;
 		if (is_numeric($requestedGroupId) && (int)$requestedGroupId > 0) {
 			require_once ROOT_DIR . '/sys/UserLists/UserListGroup.php';
 			$listGroup = new UserListGroup();

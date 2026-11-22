@@ -2493,14 +2493,14 @@ AspenDiscovery.Account = (function () {
 			let sourceId = form.find("input[name=sourceId]").val();
 			let isPublic = form.find("#public").prop("checked");
 			let isSearchable = false;
-			let searchableControl = $("#searchable");
+			let searchableControl = form.find("#searchable");
 			let isDisplayListAuthor = false;
 			let customAuthorName = '';
-			if (searchableControl) {
+			if (searchableControl.length > 0) {
 				isSearchable = searchableControl.prop("checked");
 				if (isSearchable) {
-					let displayListAuthorControl = $("#displayListAuthor");
-					if (displayListAuthorControl) {
+					let displayListAuthorControl = form.find("#displayListAuthor");
+					if (displayListAuthorControl.length > 0) {
 						isDisplayListAuthor = displayListAuthorControl.prop("checked");
 						if (isDisplayListAuthor) {
 							customAuthorName = form.find("input[name=customAuthorName]").val();
@@ -2514,16 +2514,16 @@ AspenDiscovery.Account = (function () {
 			if (titleInput.length > 0) {
 				title = titleInput.val();
 			} else {
-				title = $('#listTitle option:selected').text();
+				title = form.find('#listTitle option:selected').text();
 			}
 
-			var addToListGroupOption = $('#addToListGroup-Options').val();
-			var addToListGroupNewName = $('#addToListGroup-NewName').val();
+			var addToListGroupOption = form.find('#addToListGroup-Options').val();
+			var addToListGroupNewName = form.find('#addToListGroup-NewName').val();
 			var addToListGroupNested = addToListGroupOption === 'existing'
-				? $('#addToList-listGroup').val()
-				: $('#addToListGroup-Nested').val();
+				? form.find('#addToList-listGroup').val()
+				: form.find('#addToListGroup-Nested').val();
 
-			var desc = $("#listDesc").val();
+			var desc = form.find("#listDesc").val();
 			var url = Globals.path + "/MyAccount/AJAX";
 			var params = {
 				'method': 'addList',
@@ -4132,7 +4132,7 @@ AspenDiscovery.Account = (function () {
 		showCloneListForm: function (listId) {
 			if (Globals.loggedIn) {
 				var url = Globals.path + "/MyAccount/AJAX";
-				var params = {method: "getCloneListForm", listId: listId};
+				var params = {method: "getCreateListForm", cloneListId: listId};
 				$.getJSON(url, params, function (data) {
 					if (data.success === false) {
 						AspenDiscovery.showMessage(__('Error'), data.message);
@@ -14189,7 +14189,6 @@ AspenDiscovery.Lists = (function () {
 		},
 
 		updateListEditFields: function (source) {
-			console.log('updateListEditFields');
 			let container = source ? $(source).closest('form') : $('#addListForm');
 			if (container.length === 0) {
 				container = $('#myListFormHead');

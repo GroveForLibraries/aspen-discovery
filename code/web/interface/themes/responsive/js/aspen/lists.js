@@ -28,7 +28,6 @@ AspenDiscovery.Lists = (function () {
 		},
 
 		updateListEditFields: function (source) {
-			console.log('updateListEditFields');
 			let container = source ? $(source).closest('form') : $('#addListForm');
 			if (container.length === 0) {
 				container = $('#myListFormHead');
