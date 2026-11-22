@@ -4061,7 +4061,9 @@ class GroupedWorkDriver extends IndexRecordDriver {
 			return translate(['text' => 'On Order', 'isPublicFacing'=>true]) . $debugSuffix;
 		}else {
 			$purchaseDate = new DateTimeImmutable();
-			$purchaseDate = $purchaseDate->sub(new DateInterval('P' . $daysSinceAdded . 'D'));
+			if ($daysSinceAdded != 0) {
+				$purchaseDate = $purchaseDate->sub(new DateInterval('P' . $daysSinceAdded . 'D'));
+			}
 			require_once ROOT_DIR . '/sys/Utils/DateUtils.php';
 			return DateUtils::formatDateMedium($purchaseDate) . $debugSuffix;
 		}
