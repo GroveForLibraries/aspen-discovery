@@ -44,6 +44,11 @@
 
 			&ensp;
 			<div class="btn-group btn-group-sm">
+				<button onclick="return AspenDiscovery.Account.showCloneListForm('{$userList->id}');" class="btn btn-sm btn-default">{translate text='Clone List' isPublicFacing=true}</button>
+			</div>
+
+			&ensp;
+			<div class="btn-group btn-group-sm">
 				<button value="printOptions" id="printOptions" class="btn btn-sm btn-default" onclick='return AspenDiscovery.Lists.getPrintListOptions("{$userList->id}","{$selectedResourceTypes|escape:"javascript"}","{$activeFilters|escape:"javascript"}")'>{translate text='Print' isPublicFacing=true}</button>
 			</div>
 			&ensp;

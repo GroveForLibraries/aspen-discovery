@@ -80,6 +80,53 @@ AspenDiscovery.Account = (function () {
 			return false;
 		},
 
+		initializeListForm: function () {
+			var form = $("#addListForm");
+			if (form.length === 0) {
+				return;
+			}
+			form.find("#public, #searchable, #displayListAuthor").each(function () {
+				var control = $(this);
+				if (!control.data("bootstrap-switch")) {
+					control.bootstrapSwitch();
+				}
+			});
+			form.find("#public, #searchable, #displayListAuthor")
+				.off("switchChange.listForm")
+				.on("switchChange.listForm", function () {
+					AspenDiscovery.Lists.updateListEditFields();
+				});
+			AspenDiscovery.Lists.updateListEditFields();
+		},
+
+		/**
+		 * Clones the list represented by the create-list form after applying the user's edits.
+		 * @returns {boolean}
+		 */
+		cloneList: function () {
+			const form = $("#addListForm");
+			const isPublic = form.find("#public").prop("checked");
+			const params = {
+				method: 'cloneList',
+				sourceListId: form.find("input[name=sourceListId]").val(),
+				title: form.find("input[name=title]").val(),
+				desc: form.find("#listDesc").val(),
+				public: isPublic,
+				searchable: form.find("#searchable").prop("checked"),
+				displayListAuthor: form.find("#displayListAuthor").prop("checked"),
+				customAuthorName: form.find("input[name=customAuthorName]").val(),
+				listGroupId: form.find("#addToList-listGroup").val() || -1
+			};
+			$.getJSON(Globals.path + "/MyAccount/AJAX", params, function (data) {
+				if (data.success) {
+					AspenDiscovery.showMessage(__('Cloned Successfully'), data.message, true, true);
+				} else {
+					AspenDiscovery.showMessage(__('Error'), data.message);
+				}
+			}).fail(AspenDiscovery.ajaxFail);
+			return false;
+		},
+
 		/**
 		 * Do an ajax process, but only if the user is logged in.
 		 * If the user is not logged in, force them to log in and then do the process.
@@ -1592,10 +1639,31 @@ AspenDiscovery.Account = (function () {
 				// noinspection JSUnresolvedFunction
 				$.getJSON(url, params, function (data) {
 					AspenDiscovery.showMessageWithButtons(data.title, data.modalBody, data.modalButtons);
+					AspenDiscovery.Account.initializeListForm();
 				}).fail(AspenDiscovery.ajaxFail);
 			} else {
 				AspenDiscovery.Account.ajaxLogin($trigger, function () {
 					return AspenDiscovery.Account.showCreateListForm(source, sourceId,defaultGroupId);
+				}, false);
+			}
+			return false;
+		},
+
+		showCloneListForm: function (listId) {
+			if (Globals.loggedIn) {
+				var url = Globals.path + "/MyAccount/AJAX";
+				var params = {method: "getCloneListForm", listId: listId};
+				$.getJSON(url, params, function (data) {
+					if (data.success === false) {
+						AspenDiscovery.showMessage(__('Error'), data.message);
+					} else {
+						AspenDiscovery.showMessageWithButtons(data.title, data.modalBody, data.modalButtons);
+						AspenDiscovery.Account.initializeListForm();
+					}
+				}).fail(AspenDiscovery.ajaxFail);
+			} else {
+				AspenDiscovery.Account.ajaxLogin(null, function () {
+					return AspenDiscovery.Account.showCloneListForm(listId);
 				}, false);
 			}
 			return false;

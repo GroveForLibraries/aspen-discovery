@@ -1607,9 +1607,66 @@ class MyAccount_AJAX extends JSON_Action {
 	}
 
 	/** @noinspection PhpUnused */
+	function cloneList() : array {
+		$this->requireLoggedInUser(null, "You must be logged in to clone a list");
+		$return = ['success' => false];
+		$sourceListId = $_REQUEST['sourceListId'] ?? null;
+		if (!is_numeric($sourceListId)) {
+			$return['message'] = 'A valid source list was not specified';
+			return $return;
+		}
+
+		require_once ROOT_DIR . '/sys/UserLists/UserList.php';
+		$sourceList = new UserList();
+		$sourceList->id = (int)$sourceListId;
+		if (!$sourceList->find(true) || $sourceList->deleted || !$sourceList->isVisibleToUser()) {
+			$return['message'] = 'You do not have permission to clone this list';
+			return $return;
+		}
+
+		$title = (isset($_REQUEST['title']) && !is_array($_REQUEST['title'])) ? trim(strip_tags(urldecode($_REQUEST['title']))) : '';
+		if ($title === '') {
+			$return['message'] = 'You must provide a title for the list';
+			return $return;
+		}
+
+		$description = $_REQUEST['desc'] ?? '';
+		if (is_array($description)) {
+			$description = reset($description);
+		}
+		$groupId = $_REQUEST['listGroupId'] ?? -1;
+		$clonedList = $sourceList->clone([
+			'title' => $title,
+			'description' => strip_tags(urldecode($description)),
+			'public' => isset($_REQUEST['public']) && $_REQUEST['public'] === 'true',
+			'searchable' => isset($_REQUEST['searchable']) && $_REQUEST['searchable'] === 'true',
+			'displayListAuthor' => isset($_REQUEST['displayListAuthor']) && $_REQUEST['displayListAuthor'] === 'true',
+			'customAuthorName' => $_REQUEST['customAuthorName'] ?? '',
+			'listGroupId' => is_numeric($groupId) ? (int)$groupId : -1,
+		]);
+
+		if ($clonedList === false) {
+			$return['message'] = 'Unable to clone the list';
+			return $return;
+		}
+
+		$return['success'] = true;
+		$return['newId'] = $clonedList->id;
+		$return['message'] = "Cloned list $clonedList->title successfully";
+		return $return;
+	}
+
+	/** @noinspection PhpUnused */
 	function getCreateListForm() : array {
 		$this->requireLoggedInUser();
 		global $interface;
+		$interface->assign('listFormIsClone', false);
+		$interface->assign('listTitle', '');
+		$interface->assign('listDescription', '');
+		$interface->assign('listPublic', false);
+		$interface->assign('listSearchable', true);
+		$interface->assign('listDisplayListAuthor', true);
+		$interface->assign('listCustomAuthorName', '');
 
 		if (isset($_REQUEST['sourceId'])) {
 			$sourceId = $_REQUEST['sourceId'];
@@ -1679,6 +1736,63 @@ class MyAccount_AJAX extends JSON_Action {
 					'text' => 'Create List',
 					'isPublicFacing' => true,
 				]) . "</button>",
+		];
+	}
+
+	/** @noinspection PhpUnused */
+	function getCloneListForm() : array {
+		$this->requireLoggedInUser();
+		global $interface;
+		$sourceListId = $_REQUEST['listId'] ?? $_REQUEST['sourceListId'] ?? null;
+		if (!is_numeric($sourceListId)) {
+			return ['success' => false, 'message' => 'A valid list was not specified'];
+		}
+
+		require_once ROOT_DIR . '/sys/UserLists/UserList.php';
+		$sourceList = new UserList();
+		$sourceList->id = (int)$sourceListId;
+		if (!$sourceList->find(true) || $sourceList->deleted || !$sourceList->isVisibleToUser()) {
+			return ['success' => false, 'message' => 'You do not have permission to clone this list'];
+		}
+
+		// Reuse the create-list form, but seed it with the source list's editable values.
+		$interface->assign('listFormIsClone', true);
+		$interface->assign('sourceListId', $sourceList->id);
+		$interface->assign('listTitle', $sourceList->title);
+		$interface->assign('listDescription', $sourceList->description);
+		$interface->assign('listPublic', (bool)$sourceList->public);
+		$interface->assign('listSearchable', (bool)$sourceList->searchable);
+		$interface->assign('listDisplayListAuthor', (bool)$sourceList->displayListAuthor);
+		$interface->assign('listCustomAuthorName', $sourceList->customAuthorName);
+		$defaultGroupId = null;
+		if ($sourceList->listGroupId > 0) {
+			require_once ROOT_DIR . '/sys/UserLists/UserListGroup.php';
+			$sourceGroup = new UserListGroup();
+			$sourceGroup->id = $sourceList->listGroupId;
+			$sourceGroup->userId = UserAccount::getActiveUserId();
+			if ($sourceGroup->find(true)) {
+				$defaultGroupId = $sourceList->listGroupId;
+			}
+		}
+		$interface->assign('defaultGroupId', $defaultGroupId);
+
+		$library = $GLOBALS['library'];
+		$interface->assign('publicListWillBeIndexed', false);
+		$interface->assign('enableListDescriptions', $library->enableListDescriptions);
+		$interface->assign('validListNames', []);
+		require_once ROOT_DIR . '/sys/UserLists/UserListGroup.php';
+		$listGroup = new UserListGroup();
+		$userListGroups = $listGroup->getListGroups(UserAccount::getActiveUserObj());
+		$interface->assign('userListGroups', $userListGroups);
+		$interface->assign('userListGroupLastAdded', $sourceList->listGroupId);
+		$interface->assign('userListGroupLastViewed', $sourceList->listGroupId);
+
+		return [
+			'title' => translate(['text' => 'Clone List', 'isPublicFacing' => true]),
+			'modalBody' => $interface->fetch('MyAccount/createListForm.tpl'),
+			'modalButtons' => "<button type='button' class='tool btn btn-primary' onclick='AspenDiscovery.Account.cloneList(); return false;'>" . translate([
+				'text' => 'Clone List', 'isPublicFacing' => true,
+			]) . '</button>',
 		];
 	}
 
