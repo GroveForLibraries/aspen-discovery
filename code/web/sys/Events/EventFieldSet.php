@@ -15,6 +15,11 @@ class EventFieldSet extends DataObject {
 		if (isset(self::$_objectStructure[$context])) {
 			return self::$_objectStructure[$context];
 		}
+
+		require_once ROOT_DIR . '/sys/Events/EventFieldSetField.php';
+		$eventFieldSetFieldStructure = EventFieldSetField::getObjectStructure($context);
+		unset($eventFieldSetFieldStructure['eventFieldSetId']);
+
 		$structure = [
 			'id' => [
 				'property' => 'id',
@@ -46,15 +51,21 @@ class EventFieldSet extends DataObject {
 			],
 			'eventFields' => [
 				'property' => 'eventFields',
-				'type' => 'multiSelect',
-				'listStyle' => 'checkboxSimple',
+				'type' => 'oneToMany',
 				'label' => 'Event Fields',
-				'description' => 'The event fields that make up the set',
-				'values' => [],
+				'description' => 'The event fields that make up the set, in display order',
+				'keyThis' => 'id',
+				'keyOther' => 'eventFieldSetId',
+				'subObjectType' => 'EventFieldSetField',
+				'structure' => $eventFieldSetFieldStructure,
+				'sortable' => true,
+				'storeDb' => true,
+				'allowEdit' => true,
+				'canAddNew' => true,
+				'canDelete' => true,
 				'hiddenByDefault' => true,
 			],
 		];
-		$structure['eventFields']['values'] = EventField::getEventFieldList();
 
 		self::$_objectStructure[$context] = $structure;
 		return self::$_objectStructure[$context];
@@ -110,9 +121,10 @@ class EventFieldSet extends DataObject {
 			$this->_eventFields = [];
 			$field = new EventFieldSetField();
 			$field->eventFieldSetId = $this->id;
+			$field->orderBy('weight');
 			$field->find();
 			while ($field->fetch()) {
-				$this->_eventFields[$field->eventFieldId] = clone($field);
+				$this->_eventFields[$field->id] = clone($field);
 			}
 		}
 		return $this->_eventFields;
@@ -120,25 +132,8 @@ class EventFieldSet extends DataObject {
 
 	public function saveFields() : void {
 		if (isset($this->_eventFields) && is_array($this->_eventFields)) {
-			$this->clearFields();
-
-			foreach ($this->_eventFields as $eventField) {
-				$fieldSetFields = new EventFieldSetField();
-				$fieldSetFields->eventFieldId = $eventField;
-				$fieldSetFields->eventFieldSetId = $this->id;
-				$fieldSetFields->update();
-			}
+			$this->saveOneToManyOptions($this->_eventFields, 'eventFieldSetId');
 			unset($this->_eventFields);
-		}
-	}
-
-	private function clearFields() : void {
-		//Delete existing field/field set associations
-		$fieldSetFields = new EventFieldSetField();
-		$fieldSetFields->eventFieldSetId = $this->id;
-		$fieldSetFields->find();
-		while ($fieldSetFields->fetch()){
-			$fieldSetFields->delete(true);
 		}
 	}
 
