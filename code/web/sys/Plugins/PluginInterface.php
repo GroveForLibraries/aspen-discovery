@@ -17,6 +17,18 @@ abstract class PluginInterface {
 
 	public abstract function handleAction($module, $action) : bool;
 
+	/**
+	 * Returns Plugin JavaScript functionality formatted with script tags.
+	 * JavaScript is emitted in layout.tpl
+	 *
+	 * @param string $module
+	 * @param string $action
+	 * @return string
+	 */
+	public function getJavascriptForAction(string $module, string $action) : string {
+		return '';
+	}
+
 	public abstract function getPath() : string;
 
 	public abstract function getDatabaseUpdates() : array;

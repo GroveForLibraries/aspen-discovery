@@ -3570,6 +3570,7 @@ class SirsiDynixROA extends AbstractIlsDriver {
 					],
 				];
 				$postCreditResponse = $this->getWebServiceResponse('addPayment', $this->getWebServiceURL() . '/circulation/block/addPayment', $creditRequestBody, $sessionToken, 'POST');
+				$logger->log("addPayment response for fine $fineId (amount $paymentAmount), payment {$payment->id}: " . json_encode($postCreditResponse), Logger::LOG_DEBUG);
 
 				if ($postCreditResponse === false) {
 					$logger->log("addPayment returned no response for fine $fineId (amount $paymentAmount), user {$patron->id}, payment {$payment->id}. Status in Symphony unknown.", Logger::LOG_ERROR);
@@ -4180,7 +4181,7 @@ class SirsiDynixROA extends AbstractIlsDriver {
 		}
 		if ($numOverdue > 0) {
 			if ($userProfileResponse) {
-				if ($numOverdue >= $userProfileResponse->fields->overdueThreshold) {
+				if ($numOverdue >= $userProfileResponse->fields->overdueThreshold && $userProfileResponse->fields->overdueThreshold !== 0) {
 					$result['message'] = translate([
 						'text' => 'Your account has too many overdue titles to check out this title.',
 						'isPublicFacing' => true,

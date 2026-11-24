@@ -8428,6 +8428,18 @@ AspenDiscovery.Admin = (function () {
 			}
 		},
 
+		getActiveIlsForPropertySearch: function () {
+			var activeIlsInput = $("#activeIls");
+			if (activeIlsInput.length > 0) {
+				return activeIlsInput.val();
+			}
+			var ilsSelect = $("#ilsSelect");
+			if (ilsSelect.length > 0) {
+				return ilsSelect.val();
+			}
+			return null;
+		},
+
 		searchProperties: function () {
 			var searchValue = $("#propertySearch").val();
 			var searchRegex = new RegExp(searchValue, 'i');
@@ -8438,19 +8450,23 @@ AspenDiscovery.Admin = (function () {
 				$(".propertySection").show();
 				if ($("#activeIls").length > 0) {
 					AspenDiscovery.Admin.toggleIlsSpecificFields();
+				} else if ($("#ilsSelect").length > 0) {
+					AspenDiscovery.Admin.toggleAccountProfileIlsFields();
 				}
 				//Collapse all panels
 				$(".editor .panel-title a").removeClass('expanded').addClass('collapsed').attr("aria-expanded", "false");
 				$(".editor .panel").removeClass('active').attr("aria-expanded", "false");
 				$(".editor .accordion_body").removeClass('in').hide();
 			} else {
-				var activeIls = $("#activeIls").val();
+				var activeIls = AspenDiscovery.Admin.getActiveIlsForPropertySearch();
 				propertyRows.hide();
 				propertyRows.filter(function () {
 					var row = $(this);
 					var isSection = row.find(".propertyRow").length > 0;
 					var relatedIls = row.closest("[data-related-ils]").data("related-ils");
-					var appliesToIls = relatedIls === undefined || relatedIls.includes("~" + activeIls + "~");
+					var appliesToIls = activeIls === null
+						|| relatedIls === undefined
+						|| String(relatedIls).indexOf("~" + activeIls + "~") !== -1;
 
 					return !isSection && appliesToIls && searchRegex.test(row.text());
 				}).each(function () {
@@ -16205,43 +16221,22 @@ AspenDiscovery.Account.ReadingHistory = (function(){
 				return;
 			}
 
-			const newDate = new Date(newDateStr + 'T00:00:00');
-			const newTimestamp = Math.floor(newDate.getTime() / 1000);
-
-			// Validate that the date is not in the future.
-			const now = new Date();
-			now.setHours(0, 0, 0, 0);
-			const todayTimestamp = Math.floor(now.getTime() / 1000);
-			if (newTimestamp > todayTimestamp) {
-				$input.hide();
-				$display.show();
-				AspenDiscovery.showMessageWithButtons(__('Invalid Date'), __('Return date cannot be in the future.'));
-				return;
-			}
-
-			const currentTimestamp = (editedTimestamp && editedTimestamp !== '') ? editedTimestamp : originalTimestamp;
-			if (newTimestamp === parseInt(currentTimestamp)) {
-				// No change, just hide input and show display.
-				$input.hide();
-				$display.show();
-				return;
-			}
-
 			const url = `${Globals.path}/MyAccount/AJAX`;
 			const params = {
 				method: 'updateReadingHistoryReturnDate',
 				entryId: entryId,
-				newReturnDate: newTimestamp
+				newReturnDate: newDateStr
 			};
 
 			// noinspection JSUnresolvedFunction
 			$.getJSON(url, params)
 				.done((data) => {
 					if (data.success) {
-						const { formattedDate }  = data;
+						const { formattedDate, editedDate, editedTimestamp } = data;
 						$display.removeClass('label label-success');
 						$display.text(formattedDate);
-						$td.data('edited-date', newTimestamp);
+						$td.data('edited-date', editedTimestamp);
+						$input.val(editedDate);
 						$input.hide();
 						$display.show();
 
@@ -17701,7 +17696,7 @@ AspenDiscovery.Searches = (function(){
 			event.stopPropagation();
 			var url = Globals.path + "/Search/AJAX";
 			var params = "method=clearAllLockedFacets";
-			if (searchSource) {
+			if (searchSourceSpecial) {
 				params += "&searchSourceSpecial=" + encodeURIComponent(searchSourceSpecial);
 			}
 			var fullUrl = url + "?" + params;

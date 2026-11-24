@@ -386,7 +386,7 @@ class SearchObject_GroupedWorkSearcher2 extends SearchObject_AbstractGroupedWork
 					}elseif ($facetName == 'availability_at' || $facetName == 'owning_location') {
 						$limit = $numLocations;
 					}else{
-						$limit = $facetInfo->numTotalEntriesToShowInMore;
+						$limit = $facetInfo->numTotalEntriesToShowInMore > 0 ? $facetInfo->numTotalEntriesToShowInMore : $limit;
 					}
 
 					$facetMethod = 'enum';

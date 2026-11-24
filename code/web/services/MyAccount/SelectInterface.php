@@ -1,7 +1,8 @@
 <?php
 
 class MyAccount_SelectInterface extends Action {
-	public $selectInterfaceMessage;
+	public ?string $selectInterfaceMessage = null;
+	public ?array $libraryIdsToRestrictTo = null;
 
 	public static function getLibraryBaseUrl(Library $selectedLibrary): string {
 		if (!empty($selectedLibrary->baseUrl)) {
@@ -18,7 +19,7 @@ class MyAccount_SelectInterface extends Action {
 		if ($activeLibrary && !empty($activeLibrary->subdomain)) {
 			$urlPortions[1] = preg_replace('/^' . preg_quote($activeLibrary->subdomain, '/') . '\\./', '', $urlPortions[1]);
 		}
-		if (strpos($urlPortions[1], 'opac2') !== false) {
+		if (str_contains($urlPortions[1], 'opac2')) {
 			$urlPortions[1] = str_replace('opac2.', '', $urlPortions[1]);
 			$subdomain .= '2';
 		}
@@ -26,7 +27,7 @@ class MyAccount_SelectInterface extends Action {
 		return rtrim($urlPortions[0] . '://' . $subdomain . '.' . $urlPortions[1], '/');
 	}
 
-	function launch() {
+	function launch() : void {
 		global $interface;
 		global $logger;
 
@@ -34,6 +35,9 @@ class MyAccount_SelectInterface extends Action {
 		$library = new Library();
 		$library->createSearchInterface = 1;
 		$library->showInSelectInterface = 1;
+		if ($this->libraryIdsToRestrictTo !== null) {
+			$library->whereAddIn('libraryId', $this->libraryIdsToRestrictTo, false);
+		}
 		$library->orderBy('displayName');
 		$library->find();
 		while ($library->fetch()) {
@@ -47,6 +51,9 @@ class MyAccount_SelectInterface extends Action {
 		$location = new Location();
 		$location->createSearchInterface = 1;
 		$location->showInSelectInterface = 1;
+		if ($this->libraryIdsToRestrictTo !== null) {
+			$location->whereAddIn('libraryId', $this->libraryIdsToRestrictTo, false);
+		}
 		$location->orderBy('displayName');
 		$location->find();
 		while ($location->fetch()) {

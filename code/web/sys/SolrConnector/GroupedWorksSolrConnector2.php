@@ -344,7 +344,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 			$options['debugQuery'] = 'on';
 		}
 
-		$result = $this->_select('POST', $options, false, 'mlt');
+		$result = $this->_select('POST', $options);
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
 		}
@@ -408,18 +408,26 @@ class GroupedWorksSolrConnector2 extends Solr {
 			$uniqueFormatCategories = [];
 			foreach ($sourceTitleSearch['response']['docs'] as $titleInfo) {
 				$foundIds[] = $titleInfo['id'];
-				foreach ($titleInfo['language'] as $fieldValue) {
-					$uniqueLanguages[$fieldValue] = '"' . $fieldValue . '"';
+				if (isset($titleInfo['language'])) {
+					foreach ($titleInfo['language'] as $fieldValue) {
+						$uniqueLanguages[$fieldValue] = '"' . $fieldValue . '"';
+					}
 				}
-				foreach ($titleInfo['literary_form'] as $fieldValue) {
-					$uniqueLiteraryForms[$fieldValue] = '"' . $fieldValue . '"';
+				if (isset($titleInfo['literary_form'])) {
+					foreach ($titleInfo['literary_form'] as $fieldValue) {
+						$uniqueLiteraryForms[$fieldValue] = '"' . $fieldValue . '"';
+					}
 				}
-				foreach ($titleInfo['target_audience'] as $fieldValue) {
-					$uniqueAudiences[$fieldValue] = '"' . $fieldValue . '"';
+				if (isset($titleInfo['target_audience'])) {
+					foreach ($titleInfo['target_audience'] as $fieldValue) {
+						$uniqueAudiences[$fieldValue] = '"' . $fieldValue . '"';
+					}
 				}
-				foreach ($titleInfo['format_category'] as $fieldValue) {
-					if (str_starts_with($fieldValue, $solrScope . '#')) {
-						$uniqueFormatCategories[$fieldValue] = '"' . $fieldValue . '"';
+				if (isset($titleInfo['format_category'])) {
+					foreach ($titleInfo['format_category'] as $fieldValue) {
+						if (str_starts_with($fieldValue, $solrScope . '#')) {
+							$uniqueFormatCategories[$fieldValue] = '"' . $fieldValue . '"';
+						}
 					}
 				}
 			}
@@ -498,7 +506,7 @@ class GroupedWorksSolrConnector2 extends Solr {
 		}
 
 		//Now do the more like this search
-		$result = $this->_select('POST', $options, true, 'mlt');
+		$result = $this->_select('POST', $options);
 		if ($result instanceof AspenError) {
 			AspenError::raiseError($result);
 		}
@@ -741,11 +749,11 @@ class GroupedWorksSolrConnector2 extends Solr {
 							}
 						}
 					} elseif ($field == 'id') {
-						if (!preg_match('/^"?(\d+|.[boi]\d+x?|a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12})(\\\\?-\w{3})?"?$/i', $fieldValue)) {
+						if (!preg_match('/^"?(\d+|.[boi]\d+x?|[a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12})(\\\\?-\w{3})?"?$/i', $fieldValue)) {
 							continue;
 						}
 					} elseif ($field == 'alternate_ids') {
-						if (!preg_match('/^"?(\d+|.?[boi]\d+x?|a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12}|MWT\d+|CARL\d+)"?$/i', $fieldValue)) {
+						if (!preg_match('/^"?(\d+|.?[boi]\d+x?|[a-f0-9]{8}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{4}\\\\?-[a-f0-9]{12}|MWT\d+|CARL\d+)"?$/i', $fieldValue)) {
 							continue;
 						}
 					} elseif ($field == 'issn') {
