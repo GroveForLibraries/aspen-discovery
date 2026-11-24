@@ -313,6 +313,19 @@ class Events_Calendar extends Action {
 
 		$searchResults = $searchObject->getResultRecordSet() ?? [];
 
+		$showClosures = $this->getShowLibraryClosures($calendarDisplaySettingId);
+		$closuresByDate = [];
+		if ($showClosures) {
+			if ($useWeek) {
+				$closureStart = date('Y-m-d', $calendarStartDay);
+				$closureEnd = date('Y-m-d',  $calendarEndDay);
+			} else {
+				$closureStart = $monthFilter . '-01';
+				$closureEnd = date('Y-m-t', strtotime($closureStart));
+			}
+			$closuresByDate = $this->getClosuresByDate($closureStart, $closureEnd, $selectedLocation, $allLocations);
+		}
+
 		$defaultTimezone = new DateTimeZone(date_default_timezone_get());
 
 		//Set up the calendar display
@@ -359,6 +372,26 @@ class Events_Calendar extends Action {
 					'fullDate' => $eventDate->format('l, F jS'),
 					'events' => [],
 				];
+
+				if (!empty($closuresByDate[$eventDay])) {
+					foreach ($closuresByDate[$eventDay] as $closure) {
+						$closedText = translate(['text' => 'Closed', 'isPublicFacing' => true]);
+						$closureTitle = (!empty($closure['name']) ? $closure['name'] . ' - ' . $closedText : $closedText)
+							. ($closure['allClosed'] ? '' : ':');
+						$eventDayObj['events'][] = [
+							'id' => '',
+							'title' => $closureTitle,
+							'link' => '',
+							'formattedTime' => 'All day',
+							'isCancelled' => false,
+							'hiddenTimestamps' => true,
+							'eventFields' => [],
+							'location' => $closure['allClosed'] ? '' : implode(', ', $closure['branches']),
+							'highlightColor' => null,
+							'isClosure' => true,
+						];
+					}
+				}
 
 				//Loop through search results to find events for this day
 				foreach ($searchResults as $result) {
@@ -576,6 +609,109 @@ class Events_Calendar extends Action {
 			return $setting->fullMonthName;
 		}
 		return 0;
+	}
+
+	function getShowLibraryClosures($calendarDisplaySettingId) {
+		require_once ROOT_DIR . '/sys/Events/CalendarDisplaySetting.php';
+		$setting = new CalendarDisplaySetting();
+		$setting->id = $calendarDisplaySettingId;
+		if ($setting->find(true)) {
+			return $setting->showLibraryClosures;
+		}
+		return 0;
+	}
+
+	function getClosuresByDate(string $startDate, string $endDate, string $selectedLocation, array $allLocations) : array {
+		require_once ROOT_DIR . '/sys/LibraryLocation/Holiday.php';
+
+		// Branches shown on the calendar (already scoped by getLocationList / aspenEventsToInclude)
+		$branches = [];
+		$location = new Location();
+		$location->find();
+		while ($location->fetch()) {
+			if (!in_array($location->displayName, $allLocations)) {
+				continue;
+			}
+			if ($selectedLocation !== 'all' && $location->code !== $selectedLocation) {
+				continue;
+			}
+			$branches[$location->locationId] = $location->displayName;
+		}
+		if (empty($branches)) {
+			return [];
+		}
+
+		$start = DateTime::createFromFormat('Y-m-d', $startDate);
+		$end = DateTime::createFromFormat('Y-m-d', $endDate);
+		if (!$start || !$end) {
+			return [];
+		}
+
+		$holiday = new Holiday();
+		$holiday->closed = 1;
+		$holiday->whereAdd("date >= '" . $start->format('Y-m-d') . "' AND date <= '" . $end->format('Y-m-d') . "'");
+		$holiday->whereAddIn('locationId', array_keys($branches), false);
+		$holiday->find();
+
+		$grouped = [];
+		while ($holiday->fetch()) {
+			$grouped[$holiday->date][$holiday->name][$holiday->locationId] = $branches[$holiday->locationId];
+		}
+
+		$closures = [];
+		foreach ($grouped as $date => $byName) {
+			foreach ($byName as $name => $closedBranches) {
+				$closedBranches = array_values($closedBranches);
+				sort($closedBranches);
+				$closures[$date][] = [
+					'name' => $name,
+					'branches' => $closedBranches,
+					'allClosed' => count($closedBranches) >= count($branches),
+				];
+			}
+		}
+		return $closures;
+	}
+
+	function getHighlightColors(array $searchResults) : array {
+		require_once ROOT_DIR . '/sys/Events/Event.php';
+		require_once ROOT_DIR . '/sys/Events/EventInstance.php';
+
+		//Only Aspen native events can be color-coded, create array of Aspen event ids
+		$instanceIdsByResult = [];
+		foreach ($searchResults as $result) {
+			if (str_starts_with($result['id'], 'aspen') && preg_match('/(\d+)$/', $result['id'], $m)) {
+				$instanceIdsByResult[$result['id']] = (int)$m[1];
+			}
+		}
+		if (empty($instanceIdsByResult)) {
+			return [];
+		}
+
+		$eventIdByInstance = [];
+		$instance = new EventInstance();
+		$instance->whereAddIn('id', array_values(array_unique($instanceIdsByResult)), false);
+		$instance->find();
+		while ($instance->fetch()) {
+			$eventIdByInstance[(int)$instance->id] = (int)$instance->eventId;
+		}
+
+		$colorByEvent = [];
+		foreach (array_unique($eventIdByInstance) as $eventId) {
+			$event = new Event();
+			$event->id = $eventId;
+			if ($event->find(true)) {
+				$colorByEvent[$eventId] = $event->getEffectiveHighlightColor();
+			}
+		}
+
+		//Build and return the array of colors using the event ids as the keys and color as the value
+		$colors = [];
+		foreach ($instanceIdsByResult as $resultId => $instanceId) {
+			$eventId = $eventIdByInstance[$instanceId] ?? null;
+			$colors[$resultId] = $eventId ? ($colorByEvent[$eventId] ?? null) : null;
+		}
+		return $colors;
 	}
 
 	/**
