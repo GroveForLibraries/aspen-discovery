@@ -12,6 +12,7 @@ class CalendarDisplaySetting extends DataObject {
 	public $altText;
 	public $footer;
 	public $fullMonthName;
+	public $showLibraryClosures;
 
 	private $_libraries;
 	/** @var EventFieldCalendarOptions[] */
@@ -67,6 +68,12 @@ class CalendarDisplaySetting extends DataObject {
 				'type' => 'checkbox',
 				'label' => 'Show Full Month Names',
 				'description' => 'Show full names of months on calendar',
+			],
+			'showLibraryClosures' => [
+				'property' => 'showLibraryClosures',
+				'type' => 'checkbox',
+				'label' => 'Show Library Closures',
+				'description' => 'Show library closures on calendar',
 			],
 			'eventFields' => [
 				'property' => 'eventFields',
