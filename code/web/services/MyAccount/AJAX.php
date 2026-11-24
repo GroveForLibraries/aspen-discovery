@@ -1651,7 +1651,7 @@ class MyAccount_AJAX extends JSON_Action {
 		$return = ['success' => false];
 		$sourceListId = $_REQUEST['sourceListId'] ?? null;
 		if (!is_numeric($sourceListId)) {
-			$return['message'] = 'A valid source list was not specified';
+			$return['message'] = translate(['text' => 'A valid source list was not specified', 'isPublicFacing' => true]);
 			return $return;
 		}
 
@@ -1659,13 +1659,13 @@ class MyAccount_AJAX extends JSON_Action {
 		$sourceList = new UserList();
 		$sourceList->id = (int)$sourceListId;
 		if (!$sourceList->find(true) || $sourceList->deleted || !$sourceList->isVisibleToUser()) {
-			$return['message'] = 'You do not have permission to clone this list';
+			$return['message'] = translate(['text' => 'You do not have permission to clone this list', 'isPublicFacing' => true]);
 			return $return;
 		}
 
 		$title = (isset($_REQUEST['title']) && !is_array($_REQUEST['title'])) ? trim(strip_tags(urldecode($_REQUEST['title']))) : '';
 		if ($title === '') {
-			$return['message'] = 'You must provide a title for the list';
+			$return['message'] = translate(['text' => 'You must provide a title for the list', 'isPublicFacing' => true]);
 			return $return;
 		}
 
@@ -1676,7 +1676,7 @@ class MyAccount_AJAX extends JSON_Action {
 		$user = UserAccount::getLoggedInUser();
 		$listGroupId = $this->getListGroupIdFromRequest($user);
 		if ($listGroupId === false) {
-			$return['message'] = 'The selected list group is invalid';
+			$return['message'] = translate(['text' => 'The selected list group is invalid', 'isPublicFacing' => true]);
 			return $return;
 		}
 		$cloneData = [
@@ -1698,7 +1698,7 @@ class MyAccount_AJAX extends JSON_Action {
 		$clonedList = $sourceList->clone($cloneData);
 
 		if ($clonedList === false) {
-			$return['message'] = 'Unable to clone the list';
+			$return['message'] = translate(['text' => 'Unable to clone the list', 'isPublicFacing' => true]);
 			return $return;
 		}
 
@@ -1709,7 +1709,7 @@ class MyAccount_AJAX extends JSON_Action {
 			$userObject->lastListUsed = $clonedList->id;
 			$userObject->update();
 		}
-		$return['message'] = "Cloned list $clonedList->title successfully";
+		$return['message'] = translate(['text' => 'Cloned list %1% successfully', 1 => $clonedList->title, 'isPublicFacing' => true]);
 		return $return;
 	}
 
@@ -1722,14 +1722,14 @@ class MyAccount_AJAX extends JSON_Action {
 		$isClone = $cloneListId !== null;
 		if ($isClone) {
 			if (!is_numeric($cloneListId)) {
-				return ['success' => false, 'message' => 'A valid list was not specified'];
+				return ['success' => false, 'message' => translate(['text' => 'A valid list was not specified', 'isPublicFacing' => true])];
 			}
 
 			require_once ROOT_DIR . '/sys/UserLists/UserList.php';
 			$sourceList = new UserList();
 			$sourceList->id = (int)$cloneListId;
 			if (!$sourceList->find(true) || $sourceList->deleted || !$sourceList->isVisibleToUser()) {
-				return ['success' => false, 'message' => 'You do not have permission to clone this list'];
+				return ['success' => false, 'message' => translate(['text' => 'You do not have permission to clone this list', 'isPublicFacing' => true])];
 			}
 		}
 
@@ -1743,7 +1743,7 @@ class MyAccount_AJAX extends JSON_Action {
 
 		if ($sourceList !== null) {
 			$interface->assign('sourceListId', $sourceList->id);
-			$interface->assign('listTitle', 'Clone of ' . $sourceList->title);
+			$interface->assign('listTitle', translate(['text' => 'Clone of %1%', 1 => $sourceList->title, 'isPublicFacing' => true]));
 			$interface->assign('listDescription', $sourceList->description);
 			$interface->assign('listPublic', (bool)$sourceList->public);
 			$interface->assign('listSearchable', (bool)$sourceList->searchable);

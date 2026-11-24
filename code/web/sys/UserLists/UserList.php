@@ -2084,7 +2084,7 @@ class UserList extends DataObject {
 		$newList = new UserList();
 		$newList->title = trim((string)($cloneData['title'] ?? ''));
 		if ($newList->title === '') {
-			$newList->title = 'Clone of ' . $this->title;
+			$newList->title = translate(['text' => 'Clone of %1%', 1 => $this->title, 'isPublicFacing' => true]);
 		}
 
 		$newList->user_id = $activeUserId;
