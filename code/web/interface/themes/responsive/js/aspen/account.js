@@ -25,14 +25,14 @@ AspenDiscovery.Account = (function () {
 			let sourceId = form.find("input[name=sourceId]").val();
 			let isPublic = form.find("#public").prop("checked");
 			let isSearchable = false;
-			let searchableControl = $("#searchable");
+			let searchableControl = form.find("#searchable");
 			let isDisplayListAuthor = false;
 			let customAuthorName = '';
-			if (searchableControl) {
+			if (searchableControl.length > 0) {
 				isSearchable = searchableControl.prop("checked");
 				if (isSearchable) {
-					let displayListAuthorControl = $("#displayListAuthor");
-					if (displayListAuthorControl) {
+					let displayListAuthorControl = form.find("#displayListAuthor");
+					if (displayListAuthorControl.length > 0) {
 						isDisplayListAuthor = displayListAuthorControl.prop("checked");
 						if (isDisplayListAuthor) {
 							customAuthorName = form.find("input[name=customAuthorName]").val();
@@ -46,14 +46,16 @@ AspenDiscovery.Account = (function () {
 			if (titleInput.length > 0) {
 				title = titleInput.val();
 			} else {
-				title = $('#listTitle option:selected').text();
+				title = form.find('#listTitle option:selected').text();
 			}
 
-			var addToListGroupOption = $('#addToListGroup-Options').val();
-			var addToListGroupNewName = $('#addToListGroup-NewName').val();
-			var addToListGroupNested = $('#addToListGroup-Nested').val();
+			var addToListGroupOption = form.find('#addToListGroup-Options').val();
+			var addToListGroupNewName = form.find('#addToListGroup-NewName').val();
+			var addToListGroupNested = addToListGroupOption === 'existing'
+				? form.find('#addToList-listGroup').val()
+				: form.find('#addToListGroup-Nested').val();
 
-			var desc = $("#listDesc").val();
+			var desc = form.find("#listDesc").val();
 			var url = Globals.path + "/MyAccount/AJAX";
 			var params = {
 				'method': 'addList',
@@ -73,6 +75,63 @@ AspenDiscovery.Account = (function () {
 			$.getJSON(url, params, function (data) {
 				if (data.success) {
 					AspenDiscovery.showMessage(__('Added Successfully'), data.message, true, true);
+				} else {
+					AspenDiscovery.showMessage(__('Error'), data.message);
+				}
+			}).fail(AspenDiscovery.ajaxFail);
+			return false;
+		},
+
+		initializeListForm: function () {
+			var form = $("#addListForm");
+			if (form.length === 0) {
+				return;
+			}
+			form.find("#public, #searchable, #displayListAuthor").each(function () {
+				var control = $(this);
+				if (!control.data("bootstrap-switch")) {
+					control.bootstrapSwitch();
+				}
+			});
+			form.find("#public, #searchable, #displayListAuthor")
+				.off("switchChange.listForm")
+				.on("switchChange.listForm", function () {
+					AspenDiscovery.Lists.updateListEditFields();
+				});
+			var groupOption = form.find("#addToListGroup-Options");
+			groupOption.off("change.listForm").on("change.listForm", function () {
+				var selectedOption = $(this).val();
+				form.find("#addToListGroup-New").toggle(selectedOption === 'new');
+				form.find("#addToListGroup-Existing").toggle(selectedOption === 'existing');
+			});
+			groupOption.trigger('change');
+			AspenDiscovery.Lists.updateListEditFields();
+		},
+
+		/**
+		 * Clones the list represented by the create-list form after applying the user's edits.
+		 * @returns {boolean}
+		 */
+		cloneList: function () {
+			const form = $("#addListForm");
+			const params = {
+				method: 'cloneList',
+				sourceListId: form.find("input[name=sourceListId]").val(),
+				title: form.find("input[name=title]").val(),
+				desc: form.find("#listDesc").val(),
+				public: form.find("#public").prop("checked"),
+				searchable: form.find("#searchable").prop("checked"),
+				displayListAuthor: form.find("#displayListAuthor").prop("checked"),
+				customAuthorName: form.find("input[name=customAuthorName]").val(),
+				addToListGroupOption: form.find("#addToListGroup-Options").val(),
+				addToListGroupNewName: form.find("#addToListGroup-NewName").val(),
+				addToListGroupNested: form.find("#addToListGroup-Options").val() === 'existing'
+					? form.find("#addToList-listGroup").val()
+					: form.find("#addToListGroup-Nested").val(),
+			};
+			$.getJSON(Globals.path + "/MyAccount/AJAX", params, function (data) {
+				if (data.success) {
+					AspenDiscovery.showMessage(__('Cloned Successfully'), data.message, true, true);
 				} else {
 					AspenDiscovery.showMessage(__('Error'), data.message);
 				}
@@ -1592,10 +1651,31 @@ AspenDiscovery.Account = (function () {
 				// noinspection JSUnresolvedFunction
 				$.getJSON(url, params, function (data) {
 					AspenDiscovery.showMessageWithButtons(data.title, data.modalBody, data.modalButtons);
+					AspenDiscovery.Account.initializeListForm();
 				}).fail(AspenDiscovery.ajaxFail);
 			} else {
 				AspenDiscovery.Account.ajaxLogin($trigger, function () {
 					return AspenDiscovery.Account.showCreateListForm(source, sourceId,defaultGroupId);
+				}, false);
+			}
+			return false;
+		},
+
+		showCloneListForm: function (listId) {
+			if (Globals.loggedIn) {
+				var url = Globals.path + "/MyAccount/AJAX";
+				var params = {method: "getCreateListForm", cloneListId: listId};
+				$.getJSON(url, params, function (data) {
+					if (data.success === false) {
+						AspenDiscovery.showMessage(__('Error'), data.message);
+					} else {
+						AspenDiscovery.showMessageWithButtons(data.title, data.modalBody, data.modalButtons);
+						AspenDiscovery.Account.initializeListForm();
+					}
+				}).fail(AspenDiscovery.ajaxFail);
+			} else {
+				AspenDiscovery.Account.ajaxLogin(null, function () {
+					return AspenDiscovery.Account.showCloneListForm(listId);
 				}, false);
 			}
 			return false;

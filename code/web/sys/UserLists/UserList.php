@@ -2066,6 +2066,132 @@ class UserList extends DataObject {
 		return $listEntry->fetchAll('source', 'source');
 	}
 
+	/**
+	 * Create a new list containing the entries from this list that the active user can see.
+	 *
+	 * The returned list is owned by the active user. Uploaded covers are copied to the
+	 * new list's ID; generated cover-cache data is intentionally not copied.
+	 *
+	 * @param array $cloneData List fields supplied by the clone form.
+	 * @return UserList|false
+	 */
+	public function clone(array $cloneData): UserList|false {
+		$activeUserId = UserAccount::getActiveUserId();
+		if (empty($this->id) || empty($activeUserId) || $this->deleted || !$this->isVisibleToUser()) {
+			return false;
+		}
+
+		$newList = new UserList();
+		$newList->title = trim((string)($cloneData['title'] ?? ''));
+		if ($newList->title === '') {
+			$newList->title = translate(['text' => 'Clone of %1%', 1 => $this->title, 'isPublicFacing' => true]);
+		}
+
+		$newList->user_id = $activeUserId;
+
+		$newList->description = (string)($cloneData['description'] ?? '');
+		$newList->public = !empty($cloneData['public']) ? 1 : 0;
+		$newList->searchable = !empty($cloneData['searchable']) ? 1 : 0;
+		$newList->displayListAuthor = !empty($cloneData['displayListAuthor']) ? 1 : 0;
+		$newList->customAuthorName = (string)($cloneData['customAuthorName'] ?? '');
+		$newList->listGroupId = -1;
+		$newList->defaultSort = $this->defaultSort;
+		$newList->deleted = 0;
+		$newList->deleteFromIndex = 0;
+		$newList->dateDeleted = 0;
+		$newList->deletedBy = null;
+
+
+		// Groups are owned by users. Never attach a clone to another user's group.
+		$requestedGroupId = $cloneData['listGroupId'] ?? -1;
+		if (is_numeric($requestedGroupId) && (int)$requestedGroupId > 0) {
+			require_once ROOT_DIR . '/sys/UserLists/UserListGroup.php';
+			$listGroup = new UserListGroup();
+			$listGroup->id = (int)$requestedGroupId;
+			$listGroup->userId = $activeUserId;
+			if ($listGroup->find(true)) {
+				$newList->listGroupId = (int)$requestedGroupId;
+			}
+		}
+
+		$uploadedCoverSource = null;
+		global $configArray;
+		if (!empty($configArray['Site']['coverPath'])) {
+			$sourceCover = $configArray['Site']['coverPath'] . '/original/lists/' . $this->id . '.png';
+			if (file_exists($sourceCover)) {
+				$uploadedCoverSource = $sourceCover;
+			}
+		}
+
+		require_once ROOT_DIR . '/sys/UserLists/UserListEntry.php';
+		require_once ROOT_DIR . '/sys/DB/DatabaseTransaction.php';
+		try {
+			$result = DatabaseTransaction::runInTransaction(function () use ($newList, $uploadedCoverSource, $configArray) {
+				if (!$newList->insert()) {
+					return false;
+				}
+
+				$sourceEntries = new UserListEntry();
+				$sourceEntries->listId = $this->id;
+				$sourceEntries->orderBy('weight, id');
+				$sourceEntries->find();
+				while ($sourceEntries->fetch()) {
+					// Private nested lists must not be disclosed by cloning a visible list.
+					if ($sourceEntries->source === 'Lists') {
+						$nestedList = new UserList();
+						$nestedList->id = $sourceEntries->sourceId;
+						if (!$nestedList->find(true) || $nestedList->deleted || !$nestedList->isVisibleToUser()) {
+							continue;
+						}
+					}
+
+					$clonedEntry = new UserListEntry();
+					$clonedEntry->listId = $newList->id;
+					$clonedEntry->source = $sourceEntries->source;
+					$clonedEntry->sourceId = $sourceEntries->sourceId;
+					$clonedEntry->title = $sourceEntries->title;
+					$clonedEntry->notes = $sourceEntries->notes;
+					$clonedEntry->weight = $sourceEntries->weight;
+					$clonedEntry->dateAdded = time();
+					if (!$clonedEntry->insert()) {
+						return false;
+					}
+				}
+
+				if ($uploadedCoverSource !== null) {
+					$destinationDirectory = $configArray['Site']['coverPath'] . '/original/lists/';
+					if (!is_dir($destinationDirectory) && !mkdir($destinationDirectory, 0755, true) && !is_dir($destinationDirectory)) {
+						return false;
+					}
+					$destinationCover = $destinationDirectory . $newList->id . '.png';
+					if (!copy($uploadedCoverSource, $destinationCover)) {
+						return false;
+					}
+				}
+
+				return true;
+			});
+		} catch (Throwable $e) {
+			global $logger;
+			$logger->log('Unable to clone user list ' . $this->id . ': ' . $e->getMessage(), Logger::LOG_ERROR);
+			if (!empty($newList->id) && !empty($configArray['Site']['coverPath'])) {
+				$destinationCover = $configArray['Site']['coverPath'] . '/original/lists/' . $newList->id . '.png';
+				if (file_exists($destinationCover)) {
+					@unlink($destinationCover);
+				}
+			}
+			return false;
+		}
+		if (!$result && !empty($newList->id) && !empty($configArray['Site']['coverPath'])) {
+			$destinationCover = $configArray['Site']['coverPath'] . '/original/lists/' . $newList->id . '.png';
+			if (file_exists($destinationCover)) {
+				@unlink($destinationCover);
+			}
+		}
+
+		return $result ? $newList : false;
+	}
+
 	public function getNumListEntriesBySource(string $listSource) : int {
 		$listEntry = new UserListEntry();
 		$listEntry->listId = $this->id;

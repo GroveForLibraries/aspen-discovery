@@ -7,7 +7,7 @@
 			<label for="listTitle" class="col-sm-3 control-label">{translate text="List" isPublicFacing=true}</label>
 			<div class="col-sm-9">
 				{if empty($validListNames)}
-					<input type="text" id="listTitle" name="title" value="" size="50" class="form-control">
+					<input type="text" id="listTitle" name="title" value="{$listTitle|default:''|escape:'html'}" size="50" class="form-control">
 				{else}
 					<select id="listTitle" name="titleSelect" class="form-control">
 						{foreach from=$validListNames item=listName key=listNameIndex}
@@ -21,14 +21,14 @@
 			<div class="form-group">
 			  <label for="listDesc" class="col-sm-3 control-label">{translate text="Description" isPublicFacing=true}</label>
 				<div class="col-sm-9">
-					<textarea name="desc" id="listDesc" rows="3" cols="50" class="form-control"></textarea>
+				  <textarea name="desc" id="listDesc" rows="3" cols="50" class="form-control">{$listDescription|default:''|escape:'html'}</textarea>
 				</div>
 			</div>
 		{/if}
 		<div class="form-group">
 			<label for="public" class="col-sm-3 control-label">{translate text="Access" isPublicFacing=true}</label>
 			<div class="col-sm-9">
-				<input type='checkbox' name='public' id='public' data-on-text="{translate text="Public" isPublicFacing=true}" data-off-text="{translate text="Private" isPublicFacing=true}" {if in_array('Include Lists In Search Results', $userPermissions)}onchange="AspenDiscovery.Lists.updateListEditFields();"{/if}/>
+				<input type='checkbox' name='public' id='public' data-on-text="{translate text="Public" isPublicFacing=true}" data-off-text="{translate text="Private" isPublicFacing=true}" {if !empty($listPublic)}checked{/if} {if in_array('Include Lists In Search Results', $userPermissions)}onchange="AspenDiscovery.Lists.updateListEditFields(this);"{/if}/>
 				<div class="form-text text-muted">
 					<small>{translate text="Public lists can be shared with other people by copying the URL of the list or using the Email List button when viewing the list." isPublicFacing=true}</small>
 				</div>
@@ -39,7 +39,7 @@
 				<div class="form-group" id="searchableRow" style="display: none">
 					<label for="searchable" class="col-sm-3 control-label">{translate text="Show in search results" isPublicFacing=true}</label>
 					<div class="col-sm-9">
-						<input type='checkbox' name='searchable' id='searchable' data-on-text="{translate text="Yes" isPublicFacing=true}" data-off-text="{translate text="No" isPublicFacing=true}" checked onchange="AspenDiscovery.Lists.updateListEditFields();"/>
+						<input type='checkbox' name='searchable' id='searchable' data-on-text="{translate text="Yes" isPublicFacing=true}" data-off-text="{translate text="No" isPublicFacing=true}" {if !empty($listSearchable)}checked{/if} onchange="AspenDiscovery.Lists.updateListEditFields(this);"/>
 						<div class="form-text text-muted">
 							<small>{translate text="If enabled, this list can be found by searching user lists. It must have at least 3 titles to be shown." isPublicFacing=true}</small>
 						</div>
@@ -48,7 +48,7 @@
 				<div class="form-group" id="displayListAuthorRow" style="display: none">
 					<label for="displayListAuthor" class="col-sm-3 control-label">{translate text="Show list author in search results" isPublicFacing=true}</label>
 					<div class="col-sm-9">
-						<input type='checkbox' name='displayListAuthor' id='displayListAuthor' data-on-text="{translate text="Yes" isPublicFacing=true}" data-off-text="{translate text="No" isPublicFacing=true}" checked onchange="AspenDiscovery.Lists.updateListEditFields();"/>
+						<input type='checkbox' name='displayListAuthor' id='displayListAuthor' data-on-text="{translate text="Yes" isPublicFacing=true}" data-off-text="{translate text="No" isPublicFacing=true}" {if !empty($listDisplayListAuthor)}checked{/if} onchange="AspenDiscovery.Lists.updateListEditFields(this);"/>
 						<div class="form-text text-muted">
 							<small>{translate text="If enabled, your name (or the custom name) will be displayed as the author of this public list. If disabled, will show &quot;Library Staff&quot;." isPublicFacing=true}</small>
 						</div>
@@ -57,7 +57,7 @@
 				<div class="form-group" id="customAuthorNameRow" style="display: none">
 					<label for="customAuthorName" class="col-sm-3 control-label">{translate text="List Author Name" isPublicFacing=true}</label>
 					<div class="col-sm-9">
-						<input type='text' name='customAuthorName' id='customAuthorName' maxlength="256" class="form-control"/>
+						<input type='text' name='customAuthorName' id='customAuthorName' maxlength="256" class="form-control" value="{$listCustomAuthorName|default:''|escape:'html'}"/>
 						<div class="form-text text-muted">
 							<small>{translate text="Leave blank to use your user display name." isPublicFacing=true}</small>
 						</div>
@@ -156,6 +156,7 @@
 		{/if}
 		<input type="hidden" name="source" value="{if !empty($source)}{$source}{/if}">
 		<input type="hidden" name="sourceId" value="{if !empty($sourceId)}{$sourceId}{/if}">
+		{if !empty($listFormIsClone)}<input type="hidden" name="sourceListId" value="{$sourceListId|escape:'html'}">{/if}
 	</form>
 	<br/>
 {/strip}
