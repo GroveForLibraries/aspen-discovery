@@ -36,9 +36,9 @@ AspenDiscovery.Lists = (function () {
 			let publicSwitch = container.find('input[name="public"]');
 			let searchableSwitch = container.find('input[name="searchable"]');
 			let displayListAuthorSwitch = container.find('input[name="displayListAuthor"]');
-			let searchableRow = container.find('[id="searchableRow"]');
-			let displayListAuthorRow = container.find('[id="displayListAuthorRow"]');
-			let customAuthorNameRow = container.find('[id="customAuthorNameRow"]');
+			let searchableRow = container.find('#searchableRow');
+			let displayListAuthorRow = container.find('#displayListAuthorRow');
+			let customAuthorNameRow = container.find('#customAuthorNameRow');
 			if (publicSwitch.prop('checked')) {
 				searchableRow.show();
 				if (searchableSwitch.prop('checked')) {

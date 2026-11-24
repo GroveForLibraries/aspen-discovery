@@ -2126,7 +2126,7 @@ class UserList extends DataObject {
 		require_once ROOT_DIR . '/sys/UserLists/UserListEntry.php';
 		require_once ROOT_DIR . '/sys/DB/DatabaseTransaction.php';
 		try {
-			$result = DatabaseTransaction::runInTransaction(function () use ($newList, $uploadedCoverSource, $activeUserId, $configArray) {
+			$result = DatabaseTransaction::runInTransaction(function () use ($newList, $uploadedCoverSource, $configArray) {
 				if (!$newList->insert()) {
 					return false;
 				}
@@ -2140,11 +2140,7 @@ class UserList extends DataObject {
 					if ($sourceEntries->source === 'Lists') {
 						$nestedList = new UserList();
 						$nestedList->id = $sourceEntries->sourceId;
-						if (!$nestedList->find(true) || $nestedList->deleted || !(
-							$nestedList->public
-							|| (int)$nestedList->user_id === (int)$activeUserId
-							|| UserAccount::userHasPermission('Edit All Lists')
-						)) {
+						if (!$nestedList->find(true) || $nestedList->deleted || !$nestedList->isVisibleToUser()) {
 							continue;
 						}
 					}
