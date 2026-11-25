@@ -37,7 +37,7 @@
 		{if count($validLanguages) > 1 || count($allActiveThemes) > 1}
 			<div id="language-selection-header" class="col-tn-12 col-xs-4 col-sm-4 col-md-4 col-lg-4 pull-right">
 				{if $languageAndDisplayInHeader}
-					<a id="theme-selection-dropdown" role="button" class="btn btn-default btn-sm" {if !empty($loggedIn)}href="/MyAccount/MyPreferences" {else} href="#" onclick="AspenDiscovery.showDisplaySettings()"{/if}>
+					{if !empty($loggedIn)}<a id="theme-selection-dropdown" class="btn btn-default btn-sm" href="/MyAccount/MyPreferences">{else}<button type="button" id="theme-selection-dropdown" class="btn btn-default btn-sm" onclick="AspenDiscovery.showDisplaySettings()">{/if}
 						{if count($validLanguages) > 1 && count($allActiveThemes) > 1}
 							{translate text="Languages & Display" isPublicFacing=true}&nbsp;<i class="fa fa-cog" role="presentation"></i>
 						{elseif count($validLanguages) > 1}
@@ -45,15 +45,15 @@
 						{else}
 							{translate text="Display" isPublicFacing=true}&nbsp;<i class="fa fa-cog" role="presentation"></i>
 						{/if}
-					</a>
+					{if !empty($loggedIn)}</a>{else}</button>{/if}
 				{/if}
 				{if count($validLanguages) > 1}
 					{if !empty($loggedIn) && in_array('Translate Aspen', $userPermissions)}
 						<div id="translationMode" style="padding-top:.5em">
 							{if !empty($translationModeActive)}
-								<a href="#" onclick="return AspenDiscovery.changeTranslationMode(false)" class="btn btn-primary btn-xs active" role="button">{translate text="Exit Translation Mode" isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.changeTranslationMode(false)" class="btn btn-primary btn-xs active">{translate text="Exit Translation Mode" isPublicFacing=true}</button>
 							{else}
-								<a href="#" onclick="return AspenDiscovery.changeTranslationMode(true)" class="btn btn-primary btn-xs" tabindex="0" role="button">{translate text="Start Translation Mode" isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.changeTranslationMode(true)" class="btn btn-primary btn-xs">{translate text="Start Translation Mode" isPublicFacing=true}</button>
 							{/if}
 						</div>
 					{/if}
@@ -80,9 +80,9 @@
 						{if !empty($loggedIn) && in_array('Translate Aspen', $userPermissions)}
 							<div id="translationMode" style="padding-top:.5em">
 								{if !empty($translationModeActive)}
-									<a href="#" onclick="return AspenDiscovery.changeTranslationMode(false)" class="btn btn-primary btn-xs active" role="button">{translate text="Exit Translation Mode" isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.changeTranslationMode(false)" class="btn btn-primary btn-xs active">{translate text="Exit Translation Mode" isPublicFacing=true}</button>
 								{else}
-									<a href="#" onclick="return AspenDiscovery.changeTranslationMode(true)" class="btn btn-primary btn-xs" tabindex="0" role="button">{translate text="Start Translation Mode" isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.changeTranslationMode(true)" class="btn btn-primary btn-xs">{translate text="Start Translation Mode" isPublicFacing=true}</button>
 								{/if}
 							</div>
 						{/if}
@@ -101,9 +101,9 @@
 						{if !empty($loggedIn) && in_array('Translate Aspen', $userPermissions)}
 							<div id="translationMode">
 								{if !empty($translationModeActive)}
-									<a href="#" onclick="return AspenDiscovery.changeTranslationMode(false)" class="btn btn-primary btn-xs active" role="button">{translate text="Exit Translation Mode" isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.changeTranslationMode(false)" class="btn btn-primary btn-xs active">{translate text="Exit Translation Mode" isPublicFacing=true}</button>
 								{else}
-									<a href="#" onclick="return AspenDiscovery.changeTranslationMode(true)" class="btn btn-primary btn-xs" tabindex="0" role="button">{translate text="Start Translation Mode" isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.changeTranslationMode(true)" class="btn btn-primary btn-xs">{translate text="Start Translation Mode" isPublicFacing=true}</button>
 								{/if}
 							</div>
 						{/if}

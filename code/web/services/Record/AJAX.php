@@ -119,10 +119,10 @@ class Record_AJAX extends JSON_Action {
 								'isPublicFacing' => true,
 							]),
 							'modalBody' => $interface->fetch("Record/local-ill-request-popup.tpl"),
-							'modalButtons' => '<a href="#" class="btn btn-primary" onclick="return AspenDiscovery.Record.submitLocalIllRequest(\'Record\', \'' . $id . '\')">' . translate([
+							'modalButtons' => '<button type="button" class="btn btn-primary" onclick="return AspenDiscovery.Record.submitLocalIllRequest(\'Record\', \'' . $id . '\')">' . translate([
 									'text' => 'Place Request',
 									'isPublicFacing' => true,
-								]) . '</a>',
+								]) . '</button>',
 							'success' => true,
 						];
 					}else{
@@ -466,10 +466,10 @@ class Record_AJAX extends JSON_Action {
 					$results['message'] = "<div class='alert alert-success'>" . $results['message'] . '</div>';
 				} else {
 					if (isset($results['confirmationNeeded']) && $results['confirmationNeeded']) {
-						$results['modalButtons'] = '<a href="#" class="btn btn-primary" onclick="return AspenDiscovery.Record.confirmHold(\'Record\', \'' . $shortId . '\', ' . $results['confirmationId'] . ')">' . translate([
+						$results['modalButtons'] = '<button type="button" class="btn btn-primary" onclick="return AspenDiscovery.Record.confirmHold(\'Record\', \'' . $shortId . '\', ' . $results['confirmationId'] . ')">' . translate([
 								'text' => 'Yes, Place Hold',
 								'isPublicFacing' => true,
-							]) . '</a>';
+							]) . '</button>';
 					}
 				}
 
@@ -606,7 +606,7 @@ class Record_AJAX extends JSON_Action {
 					'isPublicFacing' => true,
 				]),
 				'modalBody' => $interface->fetch('Record/hold-select-edition-popup.tpl'),
-				'modalButtons' => '<a href="#" class="btn btn-primary" onclick="return AspenDiscovery.Record.showPlaceHold(\'Record\', \'' . $recordSource . '\', \'' . $marcRecord->getId() . '\', \'\', \'\', this);">No, place a hold on this edition</a>',
+				'modalButtons' => '<button type="button" class="btn btn-primary" onclick="return AspenDiscovery.Record.showPlaceHold(\'Record\', \'' . $recordSource . '\', \'' . $marcRecord->getId() . '\', \'\', \'\', this);">No, place a hold on this edition</button>',
 			];
 		} else {
 			$results = [
@@ -839,10 +839,10 @@ class Record_AJAX extends JSON_Action {
 			$results = [
 				'title' => 'Select a volume to place a hold on',
 				'modalBody' => $interface->fetch('Record/hold-select-volume-popup.tpl'),
-				'modalButtons' => '<a href="#" class="btn btn-primary" onclick="return AspenDiscovery.Record.placeVolumeHold(this);">' . "<i class='fas fa-spinner fa-spin hidden' role='status' aria-hidden='true'></i>&nbsp;" . translate([
+				'modalButtons' => '<button type="button" class="btn btn-primary" onclick="return AspenDiscovery.Record.placeVolumeHold(this);">' . "<i class='fas fa-spinner fa-spin hidden' role='status' aria-hidden='true'></i>&nbsp;" . translate([
 						'text' => 'Place Hold',
 						'isPublicFacing' => true,
-					]) . '</a>',
+					]) . '</button>',
 			];
 		} else {
 			$results = [
@@ -1130,10 +1130,10 @@ class Record_AJAX extends JSON_Action {
 													'isPublicFacing' => true,
 												]),
 												'modalBody' => $interface->fetch("Record/local-ill-request-popup.tpl"),
-												'modalButtons' => '<a href="#" class="btn btn-primary" onclick="return AspenDiscovery.Record.submitLocalIllRequest(\'Record\', \'' . $recordId . '\')">' . translate([
+												'modalButtons' => '<button type="button" class="btn btn-primary" onclick="return AspenDiscovery.Record.submitLocalIllRequest(\'Record\', \'' . $recordId . '\')">' . translate([
 														'text' => 'Place Request',
 														'isPublicFacing' => true,
-													]) . '</a>',
+													]) . '</button>',
 												'success' => true,
 												'needsIllRequest' => true,
 											];
@@ -1194,10 +1194,10 @@ class Record_AJAX extends JSON_Action {
 					// Sierra place hold does not set a Go to Holds action, so modalButtons may be null
 					$results['modalButtons'] = $return['modalButtons'] ?? null;
 					if ($confirmationNeeded) {
-						$results['modalButtons'] = '<a href="#" class="btn btn-primary" onclick="return AspenDiscovery.Record.confirmHold(\'Record\', \'' . $shortId . '\', ' . $return['confirmationId'] . ')">' . translate([
+						$results['modalButtons'] = '<button type="button" class="btn btn-primary" onclick="return AspenDiscovery.Record.confirmHold(\'Record\', \'' . $shortId . '\', ' . $return['confirmationId'] . ')">' . translate([
 								'text' => 'Yes, Place Hold',
 								'isPublicFacing' => true,
-							]) . '</a>';
+							]) . '</button>';
 					}
 					if (isset($_REQUEST['autologout']) && $return['success']) {
 						$masqueradeMode = UserAccount::isUserMasquerading();
@@ -1283,10 +1283,10 @@ class Record_AJAX extends JSON_Action {
 			'modalButtons' => $return['modalButtons'] ?? '',
 		];
 		if ($confirmationNeeded) {
-			$results['modalButtons'] = '<a href="#" class="btn btn-primary" onclick="return AspenDiscovery.Record.confirmHold(\'Record\', \'' . $shortId . '\', ' . $return['confirmationId'] . ')">' . translate([
+			$results['modalButtons'] = '<button type="button" class="btn btn-primary" onclick="return AspenDiscovery.Record.confirmHold(\'Record\', \'' . $shortId . '\', ' . $return['confirmationId'] . ')">' . translate([
 					'text' => 'Yes, Place Hold',
 					'isPublicFacing' => true,
-				]) . '</a>';
+				]) . '</button>';
 		}
 		return $results;
 	}

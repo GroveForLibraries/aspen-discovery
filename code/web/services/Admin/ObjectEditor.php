@@ -447,10 +447,10 @@ abstract class ObjectEditor extends Admin_Admin {
 						'isAdminFacing' => true,
 					]),
 					'modalBody' => $optionsForm,
-					'modalButtons' => '<a href="#" class="btn btn-primary" onclick="return $(\'#copyOptions\').submit();">' . translate([
+					'modalButtons' => '<button type="button" class="btn btn-primary" onclick="return $(\'#copyOptions\').submit();">' . translate([
 							'text' => 'Continue',
 							'isPublicFacing' => true,
-						]) . '</a>',
+							]) . '</button>',
 				];
 
 			}

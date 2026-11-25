@@ -160,9 +160,9 @@
 						{/if}
 						<input type="hidden" id="{$propName}Deleted_{$subObject->id}" name="{$propName}Deleted[{$subObject->id}]" value="false">
 						{if !empty($property.canDelete) && $subObject->canActiveUserDelete() && empty($property.readOnly)}
-							<a href="#" class="btn btn-sm btn-warning" onclick="AspenDiscovery.confirm('Delete Row', '{translate text='Are you sure you want to delete this row?' inAttribute=true isAdminFacing=true}', 'Delete', 'Cancel', true, 'deleteOneToManyRow_{$propName}({$subObject->id})', 'btn-danger'); return false;">
+							<button type="button" class="btn btn-sm btn-warning" onclick="AspenDiscovery.confirm('Delete Row', '{translate text='Are you sure you want to delete this row?' inAttribute=true isAdminFacing=true}', 'Delete', 'Cancel', true, 'deleteOneToManyRow_{$propName}({$subObject->id})', 'btn-danger'); return false;">
 								<i class="fas fa-trash"></i> {translate text="Delete" isAdminFacing=true}
-							</a>
+							</button>
 						{/if}
 						{if !empty($property.editLink) || method_exists($subObject, 'getEditLink')}</div>{/if}
 					</td>
@@ -177,7 +177,7 @@
 	</div>
 	<div class="{$propName}Actions">
 		{if !empty($property.canAddNew) && empty($property.readOnly)}
-			<a href="#" onclick="addNew{$propName}();return false;" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> {translate text="Add New" isAdminFacing=true}</a>
+			<button type="button" onclick="addNew{$propName}();return false;" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> {translate text="Add New" isAdminFacing=true}</button>
 		{/if}
 		{if !empty($property.additionalOneToManyActions) && (!empty($id) || !empty($property.newCanDoAdditionalActions))}{* Only display these actions for an existing object *}
 			<div class="btn-group pull-right" style="padding-top: 0">
@@ -319,9 +319,9 @@
 			newRow += "<td>";
 			newRow += "<input type='hidden' id='{$propName}Deleted_" + numAdditional{$propName} + "' name='{$propName}Deleted[" + numAdditional{$propName} + "]' value='false'>";
 			{if !empty($property.canDelete) && empty($property.readOnly)}
-			newRow += "<a href='#' class='btn btn-sm btn-warning' onclick='$(\"#{$propName}" + numAdditional{$propName} + "\").remove(); return false;'>";
+			newRow += "<button type='button' class='btn btn-sm btn-warning' onclick='$(\"#{$propName}" + numAdditional{$propName} + "\").remove(); return false;'>";
 			newRow += "<i class='fas fa-trash'></i> {translate text='Delete' isAdminFacing=true}";
-			newRow += "</a>";
+			newRow += "</button>";
 			{/if}
 			newRow += "</td>";
 			newRow += "</tr>";

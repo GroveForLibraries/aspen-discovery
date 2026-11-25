@@ -23,10 +23,10 @@
 							{if !empty($loggedIn) && (in_array('Administer All Collection Spotlights', $userPermissions) || in_array('Administer Library Collection Spotlights', $userPermissions) || in_array('Administer All Browse Categories', $userPermissions) || in_array('Administer Library Browse Categories', $userPermissions))}
 								<div class="btn-group btn-group-sm">
 									{if (in_array('Administer All Collection Spotlights', $userPermissions) || in_array('Administer Library Collection Spotlights', $userPermissions))}
-										&nbsp;&nbsp;<a href="#" class="button btn btn-sm btn-default listViewButton" id="FavCreateSpotlight" onclick="return AspenDiscovery.CollectionSpotlights.createSpotlightFromCourseReserve('{$courseReserve->id}')">{translate text='Create Spotlight' isAdminFacing=true}</a>
+										&nbsp;&nbsp;<button type="button" class="button btn btn-sm btn-default listViewButton" id="FavCreateSpotlight" onclick="return AspenDiscovery.CollectionSpotlights.createSpotlightFromCourseReserve('{$courseReserve->id}')">{translate text='Create Spotlight' isAdminFacing=true}</button>
 									{/if}
 									{if (in_array('Administer All Browse Categories', $userPermissions) || in_array('Administer Library Browse Categories', $userPermissions) || in_array('Administer Selected Browse Category Groups', $userPermissions))}
-										<a href="#" id="FavHome" class="btn btn-sm btn-default listViewButton" onclick="return AspenDiscovery.CourseReserves.addToHomePage('{$courseReserve->id}')">{translate text='Add To Browse' isAdminFacing=true}</a>
+										<button type="button" id="FavHome" class="btn btn-sm btn-default listViewButton" onclick="return AspenDiscovery.CourseReserves.addToHomePage('{$courseReserve->id}')">{translate text='Add To Browse' isAdminFacing=true}</button>
 									{/if}
 								</div>
 							{/if}

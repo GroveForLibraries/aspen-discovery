@@ -43,20 +43,20 @@
 								{if !empty($savedSearch)}
 									<a href="/MyAccount/SaveSearch?delete={$searchId}" class="btn btn-default btn-block">{translate text='Remove Saved Search' isPublicFacing=true}</a>
 								{else}
-									<a href="#" onclick="return AspenDiscovery.Account.showSaveSearchForm('{$searchId}')" class="btn btn-default btn-block">{translate text='Save Search' isPublicFacing=true}</a>
+						<button type="button" onclick="return AspenDiscovery.Account.showSaveSearchForm('{$searchId}')" class="btn btn-default btn-block">{translate text='Save Search' isPublicFacing=true}</button>
 								{/if}
 							{/if}
-							<a href="#" onclick="return AspenDiscovery.Account.showEmailSearchForm();" class="btn btn-default btn-block">{translate text='Email this Search' isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.Account.showEmailSearchForm();" class="btn btn-default btn-block">{translate text='Email this Search' isPublicFacing=true}</button>
 						{/if}
 						<a href="{$rssLink|escape}" class="btn btn-default btn-block">{translate text='Get RSS Feed' isPublicFacing=true}</a>
 						{if !empty($excelLink)}<a href="{$excelLink|escape}" class="btn btn-default btn-block">{translate text='Export To CSV' isPublicFacing=true}</a>{/if}
 						{if !empty($risLink)}<a href="{$risLink|escape}" class="btn btn-default btn-block">{translate text="Export To RIS" isPublicFacing=true}</a>{/if}
 					{/if}
 					{if !empty($loggedIn) && (in_array('Administer All Collection Spotlights', $userPermissions) || in_array('Administer Library Collection Spotlights', $userPermissions))}
-						<a href="#" onclick="return AspenDiscovery.CollectionSpotlights.createSpotlightFromSearch('{$searchId}')" class="btn btn-default btn-block">{translate text='Create Spotlight' isAdminFacing=true}</a>
+						<button type="button" onclick="return AspenDiscovery.CollectionSpotlights.createSpotlightFromSearch('{$searchId}')" class="btn btn-default btn-block">{translate text='Create Spotlight' isAdminFacing=true}</button>
 					{/if}
 					{if !empty($loggedIn) && (in_array('Administer All Browse Categories', $userPermissions) || in_array('Administer Library Browse Categories', $userPermissions) || in_array('Administer Selected Browse Category Groups', $userPermissions))}
-						<a href="#" onclick="return AspenDiscovery.Browse.addToHomePage('{$searchId}')" class="btn btn-default btn-block">{translate text='Add To Browse' isPublicFacing=true}</a>
+						<button type="button" onclick="return AspenDiscovery.Browse.addToHomePage('{$searchId}')" class="btn btn-default btn-block">{translate text='Add To Browse' isPublicFacing=true}</button>
 					{/if}
 				</div>
 			</div>

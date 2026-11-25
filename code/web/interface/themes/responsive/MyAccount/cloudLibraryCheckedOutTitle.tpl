@@ -100,9 +100,9 @@
 							<a onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</a>
 						{/if}
 						{if $record->canRenew}
-							<a href="#" onclick="return AspenDiscovery.CloudLibrary.renewCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-info btn-wrap">{translate text='Renew Checkout' isPublicFacing=true}</a>
+						<button type="button" onclick="return AspenDiscovery.CloudLibrary.renewCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-info btn-wrap">{translate text='Renew Checkout' isPublicFacing=true}</button>
 						{/if}
-						<a href="#" onclick="return AspenDiscovery.CloudLibrary.returnCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-warning btn-wrap">{translate text='Return Now' isPublicFacing=true}</a>
+						<button type="button" onclick="return AspenDiscovery.CloudLibrary.returnCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-warning btn-wrap">{translate text='Return Now' isPublicFacing=true}</button>
 					</div>
 					{if !empty($showYouMightAlsoLike)}
 						<div class="btn-group btn-group-vertical btn-block">

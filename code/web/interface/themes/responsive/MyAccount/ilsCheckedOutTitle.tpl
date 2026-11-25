@@ -233,9 +233,9 @@
 							{if !isset($record->canRenew) || $record->canRenew == true}
 								{if isset($record->autoRenew) && $record->autoRenew == true && !empty($record->autoRenewError)}
 									{$record->autoRenewError}
-									<a style="margin-bottom: .5em; margin-top: .25em;" href="#" onclick="return AspenDiscovery.Account.renewTitle('{$record->userId}', '{$record->recordId}', '{$record->renewIndicator}');" class="btn btn-sm btn-primary">{translate text='Renew Early' isPublicFacing=true}</a>
+									<button type="button" style="margin-bottom: .5em; margin-top: .25em;" onclick="return AspenDiscovery.Account.renewTitle('{$record->userId}', '{$record->recordId}', '{$record->renewIndicator}');" class="btn btn-sm btn-primary">{translate text='Renew Early' isPublicFacing=true}</button>
 								{else}
-									<a href="#" onclick="return AspenDiscovery.Account.renewTitle('{$record->userId}', '{$record->recordId}', '{$record->renewIndicator}');" class="btn btn-sm btn-primary">{translate text='Renew' isPublicFacing=true}</a>
+									<button type="button" onclick="return AspenDiscovery.Account.renewTitle('{$record->userId}', '{$record->recordId}', '{$record->renewIndicator}');" class="btn btn-sm btn-primary">{translate text='Renew' isPublicFacing=true}</button>
 								{/if}
 							{elseif isset($record->autoRenew) && $record->autoRenew == true}
 								{if !empty($record->autoRenewError)}

@@ -101,9 +101,9 @@
 							{/if}
 						{/if}
 						{if $record->canRenew}
-							<a href="#" onclick="return AspenDiscovery.Axis360.renewCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-info">{translate text='Renew Checkout' isPublicFacing=true}</a>
+							<button type="button" onclick="return AspenDiscovery.Axis360.renewCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-info">{translate text='Renew Checkout' isPublicFacing=true}</button>
 						{/if}
-						<a href="#" onclick="return AspenDiscovery.Axis360.returnCheckout('{$record->userId}', '{$record->recordId}', '{$record->transactionId}');" class="btn btn-sm btn-warning">{translate text='Return Now' isPublicFacing=true}</a>
+							<button type="button" onclick="return AspenDiscovery.Axis360.returnCheckout('{$record->userId}', '{$record->recordId}', '{$record->transactionId}');" class="btn btn-sm btn-warning">{translate text='Return Now' isPublicFacing=true}</button>
 					</div>
 					{if !empty($showYouMightAlsoLike)}
 						<div class="btn-group btn-group-vertical btn-block">
