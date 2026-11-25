@@ -5,7 +5,7 @@
 			<div class="selectTitle col-xs-12 col-sm-1">
 				{if ($record->cancelable || $record->canFreeze || !empty($record->holdGroupId)) && !$record->cancelled}
 					<input type="checkbox" name="selected[{$record->userId}|{$record->sourceId}|{$record->cancelId}]"
-						   class="titleSelect" id="selected{$record->cancelId}" value="{$record->id}" data-hold-id="{$record->id}">
+						   class="titleSelect" id="selected{$record->cancelId}" value="{$record->id}" data-hold-id="{$record->id}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !$record->getTitle()|removeTrailingPunctuation}{translate text='unavailable title' inAttribute=true isPublicFacing=true}{else}{$record->getTitle()|removeTrailingPunctuation}{/if}">
 				{/if}
 			</div>
 		{/if}

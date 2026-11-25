@@ -1,7 +1,7 @@
 {strip}
 	<div class="result row palace_projectHold_{$record->recordId|escapeCSS}_{$record->userId}" data-record-type="palace" data-record-id="{$record->recordId}">
 		<div class="selectTitle col-xs-12 col-sm-1">
-			<input type="checkbox" name="selected[{$record->userId}|{$record->sourceId|escapeCSS}|{$record->cancelId|escapeCSS}]" class="titleSelect" id="selected{$record->cancelId|escapeCSS}">
+			<input type="checkbox" name="selected[{$record->userId}|{$record->sourceId|escapeCSS}|{$record->cancelId|escapeCSS}]" class="titleSelect" id="selected{$record->cancelId|escapeCSS}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !$record->getTitle()|removeTrailingPunctuation}{translate text='unavailable title' inAttribute=true isPublicFacing=true}{else}{$record->getTitle()|removeTrailingPunctuation}{/if}">
 		</div>
 		{* Cover column *}
 		{if !empty($showCovers)}

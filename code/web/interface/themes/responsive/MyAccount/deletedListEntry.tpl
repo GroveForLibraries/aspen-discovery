@@ -3,7 +3,7 @@
 	<div class="row">
 		{if !empty($listEditAllowed)}
 			<div class="selectTitle col-xs-12 col-sm-1">
-				<input type="checkbox" name="selected[{$listEntryId}]" class="titleSelect" id="selected{$listEntryId}">
+				<input type="checkbox" name="selected[{$listEntryId}]" class="titleSelect" id="selected{$listEntryId}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !empty($deletedEntryTitle)}{$deletedEntryTitle}{elseif $listEntrySource == "Events"}{translate text='event' inAttribute=true isPublicFacing=true}{else}{translate text='unavailable entry' inAttribute=true isPublicFacing=true}{/if}">
 			</div>
 		{/if}
 		{if !empty($showCovers)}

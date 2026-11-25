@@ -8,7 +8,7 @@
 				<div class="row">
 					<div class="selectTitle col-xs-12 col-sm-1">
 						{if !isset($record->canRenew) || $record->canRenew == true}
-						<input type="checkbox" name="selected[{$record->userId}|{$record->recordId}|{$record->renewIndicator}]" class="titleSelect" id="selected{$record->itemId}">
+						<input type="checkbox" name="selected[{$record->userId}|{$record->recordId}|{$record->renewIndicator}]" class="titleSelect" id="selected{$record->itemId}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !$record->getTitle()|removeTrailingPunctuation}{translate text='unavailable title' inAttribute=true isPublicFacing=true}{else}{$record->getTitle()|removeTrailingPunctuation}{/if}">
 						{/if}
 					</div>
 					<div class="{*coverColumn *}text-center col-xs-12 col-sm-10">
@@ -29,7 +29,7 @@
 		{else}
 			<div class="col-xs-1">
 				{if !isset($record->canRenew) || $record->canRenew == true}
-					<input type="checkbox" name="selected[{$record->userId}|{$record->recordId}|{$record->renewIndicator}]" class="titleSelect" id="selected{$record->itemId}">
+					<input type="checkbox" name="selected[{$record->userId}|{$record->recordId}|{$record->renewIndicator}]" class="titleSelect" id="selected{$record->itemId}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !$record->getTitle()|removeTrailingPunctuation}{translate text='unavailable title' inAttribute=true isPublicFacing=true}{else}{$record->getTitle()|removeTrailingPunctuation}{/if}">
 				{/if}
 			</div>
 		{/if}

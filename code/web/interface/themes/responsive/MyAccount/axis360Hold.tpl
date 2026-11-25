@@ -1,7 +1,7 @@
 {strip}
 	<div class="result row axis360Hold_{$record->recordId}_{$record->userId}">
 		<div class="selectTitle col-xs-12 col-sm-1">
-			<input type="checkbox" name="selected[{$record->userId}|{$record->sourceId}|{$record->cancelId}]" class="titleSelect" id="selected{$record->cancelId}">
+			<input type="checkbox" name="selected[{$record->userId}|{$record->sourceId}|{$record->cancelId}]" class="titleSelect" id="selected{$record->cancelId}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !$record->getTitle()|removeTrailingPunctuation}{translate text='unavailable title' inAttribute=true isPublicFacing=true}{else}{$record->getTitle()|removeTrailingPunctuation}{/if}">
 		</div>
 		{* Cover column *}
 		{if !empty($showCovers)}
