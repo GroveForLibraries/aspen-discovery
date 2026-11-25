@@ -18,15 +18,15 @@
 						<input class="form-check-input" type="checkbox" id="hideCovers" {if $showCovers == false}checked{/if} style="position: relative; top: 5px">
 						<label class="form-check-label" for="hideCovers">{translate text='Hide Covers' isPublicFacing=true}</label>
 					</div>
-					<div class="btn-group btn-group-sm" data-toggle="buttons" style="margin-right: 1rem">
-						<label for="covers" title="Covers" class="btn btn-sm btn-default">
-							<input onchange="AspenDiscovery.Searches.toggleDisplayMode(this.id)" type="radio" id="covers">
-							<i class='fas fa-th'></i> {translate text=Covers isPublicFacing=true}
-						</label>
-						<label for="list" title="Lists" class="btn btn-sm btn-default">
-							<input onchange="AspenDiscovery.Searches.toggleDisplayMode(this.id)" type="radio" id="list">
-							<i class='fas fa-list'></i> {translate text=List isPublicFacing=true}
-						</label>
+					<div class="btn-group btn-group-sm" style="margin-right: 1rem">
+						<button type="button" id="covers" title="Covers" class="btn btn-sm btn-default{if $displayMode == 'covers'} active{/if}" onclick="AspenDiscovery.Searches.toggleDisplayMode('covers')">
+							<span class="thumbnail-icon" role="presentation"></span>
+							<span> {translate text=Covers isPublicFacing=true}</span>
+						</button>
+						<button type="button" id="list" title="Lists" class="btn btn-sm btn-default{if $displayMode == 'list'} active{/if}" onclick="AspenDiscovery.Searches.toggleDisplayMode('list')">
+							<span class="list-icon" role="presentation"></span>
+							<span> {translate text=List isPublicFacing=true}</span>
+						</button>
 					</div>
 					{if $showSearchTools || ($loggedIn && count($userPermissions) > 0)}
 						<div class="btn-group btn-group-sm">
