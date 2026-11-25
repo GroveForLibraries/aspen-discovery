@@ -1,0 +1,12 @@
+Jira: DIS-3212
+Type: Bug
+Developer: Stephen Wicks (SW)
+Contributing Org: Grove For Libraries
+Sponsor: CLAMS
+GroveRelease: 26.12.00
+CommunityRelease: 27.05.00
+Component: Search
+Description:
+  - Fix keyboard focus on Covers/List buttons in search results
+New Settings:
+New Permissions:
