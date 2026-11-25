@@ -1,7 +1,7 @@
 {strip}
 	<div id="page-content" class="col-xs-12">
 		<h1>{translate text='Two-factor Authentication' isPublicFacing=true}</h1>
-		<p class="alert alert-danger" id="codeVerificationFailedPlaceholder" style="display: none;"></p>
+		<p class="alert alert-danger" id="codeVerificationFailedPlaceholder" style="display: none;" role="alert"></p>
 		<div id="loginFormWrapper">
             {if $authMethod === 'totp'}
                 {if !$codeSent}
@@ -11,13 +11,13 @@
                 {/if}
             {else}
                 {if !$codeSent}
-					<div class="alert alert-warning">{translate text="Unable to send your authentication code. Verify your account has a valid email address. To access your account now, you may provide a backup code." isPublicFacing=true}</div>
+					<div class="alert alert-warning" role="alert">{translate text="Unable to send your authentication code. Verify your account has a valid email address. To access your account now, you may provide a backup code." isPublicFacing=true}</div>
                 {else}
 					<p>{translate text="Enter the code sent to your authentication method or provide a backup code." isPublicFacing=true}</p>
                 {/if}
             {/if}
-			<p id="newCodeSentPlaceholder" class="alert alert-info" style="display: none;"></p>
-			<p class="alert alert-info" id="loading" style="display: none">
+			<p id="newCodeSentPlaceholder" class="alert alert-info" style="display: none;" role="status"></p>
+			<p class="alert alert-info" id="loading" style="display: none" role="status">
                 {translate text="Logging you in now. Please wait." isPublicFacing=true}
 			</p>
 			<form id="twoFactorAuthForm" class="form-horizontal">

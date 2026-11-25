@@ -1,11 +1,11 @@
 {strip}
-	<p class="alert alert-danger" id="loginError" style="display: none"></p>
-	<p class="alert alert-danger" id="cookiesError" style="display: none">{translate text="It appears that you do not have cookies enabled on this computer.  Cookies are required to access account information." isPublicFacing=true}</p>
-	<p class="alert alert-info" id="loading" style="display: none">
+	<p class="alert alert-danger" id="loginError" style="display: none" role="alert"></p>
+	<p class="alert alert-danger" id="cookiesError" style="display: none" role="alert">{translate text="It appears that you do not have cookies enabled on this computer.  Cookies are required to access account information." isPublicFacing=true}</p>
+	<p class="alert alert-info" id="loading" style="display: none" role="status">
 		{translate text="Logging you in now. Please wait." isPublicFacing=true}
 	</p>
 	{if !empty($offline)}
-		<div class="alert alert-warning">
+		<div class="alert alert-warning" role="alert">
 			{translate text="$offlineMessage" isPublicFacing=true}
 		</div>
 	{/if}
