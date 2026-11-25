@@ -3,7 +3,7 @@
 	<div class="row">
         {if !empty($listEditAllowed) && $printInterface === false}
 			<div class="selectTitle col-xs-12 col-sm-1">
-				<input type="checkbox" name="selected[{$listEntryId}]" class="titleSelect" id="selected{$listEntryId}">
+				<input type="checkbox" name="selected[{$listEntryId}]" class="titleSelect" id="selected{$listEntryId}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !$summTitle|removeTrailingPunctuation}{translate text='unavailable title' inAttribute=true isPublicFacing=true}{else}{$summTitle|removeTrailingPunctuation}{/if}">
 			</div>
 		{/if}
         {if (!empty($showCovers) && $printInterface === false) || ($printInterface === true && $printEntryCovers === true)}

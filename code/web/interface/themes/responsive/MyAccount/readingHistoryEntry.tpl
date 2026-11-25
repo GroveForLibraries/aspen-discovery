@@ -1,7 +1,7 @@
 {strip}<div class="row result reading-history-entry" id="readingHistoryEntry{$record.id}">
 	{* Checkbox Column *}
 	<div class="selectTitle" style="display: none;">
-		<input type="checkbox" name="selected[{$record.id}]" class="titleSelect" id="selected{$record.id}">
+		<input type="checkbox" name="selected[{$record.id}]" class="titleSelect" id="selected{$record.id}" aria-label="{translate text='Select' inAttribute=true isPublicFacing=true} {if !$record.title|removeTrailingPunctuation}{translate text='unavailable title' inAttribute=true isPublicFacing=true}{else}{$record.title|removeTrailingPunctuation}{/if}">
 	</div>
 
 	{* Cover Column *}
