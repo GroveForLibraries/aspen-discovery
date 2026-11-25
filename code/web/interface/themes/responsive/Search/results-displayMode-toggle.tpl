@@ -20,7 +20,7 @@
 						<span class="thumbnail-icon" role="presentation"></span>
 						<span> {translate text=Covers isPublicFacing=true}</span>
 					</button>
-					<button type="button" id="list" title="Lists" class="btn btn-sm btn-default{if $displayMode == 'list'} active{/if}" onclick="AspenDiscovery.Searches.toggleDisplayMode('list')">
+					<button type="button" id="list" title="List" class="btn btn-sm btn-default{if $displayMode == 'list'} active{/if}" onclick="AspenDiscovery.Searches.toggleDisplayMode('list')">
 						<span class="list-icon" role="presentation"></span>
 						<span> {translate text=List isPublicFacing=true}</span>
 					</button>
