@@ -1,0 +1,12 @@
+Jira: DIS-3233
+Type: Bug
+Developer: Stephen Wicks (SW)
+Contributing Org: Grove For Libraries
+Sponsor: CLAMS
+GroveRelease: 26.12.00
+CommunityRelease: 27.05.00
+Component: Many
+Description:
+  - Fix elements styled as buttons that are the wrong semantic element, and other accessibility issues
+New Settings:
+New Permissions:
