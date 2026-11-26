@@ -3,16 +3,16 @@
 	<h1>{translate text='Sign in to your staff account' isPublicFacing=true}</h1>
 	<div id="loginFormWrapper">
 		{if !empty($message)}{* Errors for Full Login Page *}
-			<p class="alert alert-danger" id="loginError" >{translate text=$message isPublicFacing=true isPublicFacing=true}</p>
+			<p class="alert alert-danger" id="loginError" role="alert">{translate text=$message isPublicFacing=true isPublicFacing=true}</p>
 		{else}
-			<p class="alert alert-danger" id="loginError" style="display: none"></p>
+			<p class="alert alert-danger" id="loginError" style="display: none" role="alert"></p>
 		{/if}
-		<p class="alert alert-danger" id="cookiesError" style="display: none">{translate text="It appears that you do not have cookies enabled on this computer.  Cookies are required to access account information." isPublicFacing=true}</p>
-		<p class="alert alert-info" id="loading" style="display: none">
+		<p class="alert alert-danger" id="cookiesError" style="display: none" role="alert">{translate text="It appears that you do not have cookies enabled on this computer.  Cookies are required to access account information." isPublicFacing=true}</p>
+		<p class="alert alert-info" id="loading" style="display: none" role="status">
 			{translate text="Logging you in now. Please wait." isPublicFacing=true}
 		</p>
 		{if !empty($offline)}
-			<div class="alert alert-warning">
+			<div class="alert alert-warning" role="alert">
 				<p>
 					{translate text=$offlineMessage isPublicFacing=true}
 				</p>

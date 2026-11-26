@@ -1,0 +1,12 @@
+Jira: DIS-3228
+Type: Bug
+Developer: Stephen Wicks (SW)
+Contributing Org: Grove For Libraries
+Sponsor: CLAMS
+GroveRelease: 26.12.00
+CommunityRelease: 27.05.00
+Component: Login
+Description:
+  - Fix login error accessibility for screenreaders
+New Settings:
+New Permissions:
