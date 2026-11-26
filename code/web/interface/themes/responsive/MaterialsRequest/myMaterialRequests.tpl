@@ -70,9 +70,9 @@
 								<td>{translate text=$request->statusLabel isPublicFacing=true isAdminEnteredData=true}</td>
 								<td>{$request->dateCreated|date_format}</td>
 								<td>
-									<a role="button" onclick='AspenDiscovery.MaterialsRequest.showMaterialsRequestDetails("{$request->id}", false)' class="btn btn-info btn-sm">{translate text="Details" isPublicFacing=true}</a>
+									<button type="button" role="button" onclick='AspenDiscovery.MaterialsRequest.showMaterialsRequestDetails("{$request->id}", false)' class="btn btn-info btn-sm">{translate text="Details" isPublicFacing=true}</button>
 									{if $request->status == $defaultStatus}
-									<a role="button" onclick="return AspenDiscovery.MaterialsRequest.cancelMaterialsRequest('{$request->id}');" class="btn btn-danger btn-sm">{translate text="Cancel Materials Request" isPublicFacing=true}</a>
+									<button type="button" role="button" onclick="return AspenDiscovery.MaterialsRequest.cancelMaterialsRequest('{$request->id}');" class="btn btn-danger btn-sm">{translate text="Cancel Materials Request" isPublicFacing=true}</button>
 									{/if}
 								</td>
 							</tr>

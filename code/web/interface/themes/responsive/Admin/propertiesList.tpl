@@ -225,7 +225,7 @@
 								{/if}
 								{if $dataItem->getAdditionalListJavascriptActions()}
 									{foreach from=$dataItem->getAdditionalListJavascriptActions() item=action}
-										<a class="btn btn-default btn-sm" aria-label="{$action.text} for Item {$id}" onclick="{$action.onClick}">{if !empty($action.icon)}<i class="fas {$action.icon}"></i> {/if} {translate text=$action.text isAdminFacing=true}</a>
+										<button type="button" class="btn btn-default btn-sm" aria-label="{$action.text} for Item {$id}" onclick="{$action.onClick}">{if !empty($action.icon)}<i class="fas {$action.icon}"></i> {/if} {translate text=$action.text isAdminFacing=true}</button>
 									{/foreach}
 								{/if}
 								{if $dataItem->canActiveUserEdit() && $showHistoryLinks}

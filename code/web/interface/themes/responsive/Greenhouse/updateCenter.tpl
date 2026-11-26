@@ -69,8 +69,8 @@
 		<div class="col-xs-12">
 			<div class="btn-toolbar" role="toolbar">
 				<div class="btn-group" role="group">
-					<a onclick="return AspenDiscovery.Admin.showSelectedScheduleUpdateForm();" class="btn btn-warning">{translate text="Schedule Update for Selected" isAdminFacing=true}</a>
-					<a onclick="return AspenDiscovery.Admin.showBatchScheduleUpdateForm('{$implementationStatusToShow}', '{$siteTypeToShow}', '{$releaseToShow}', '{$timezoneToShow}');" class="btn btn-warning">{translate text="Schedule Update for All Listed" isAdminFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.Admin.showSelectedScheduleUpdateForm();" class="btn btn-warning">{translate text="Schedule Update for Selected" isAdminFacing=true}</button>
+					<button type="button" onclick="return AspenDiscovery.Admin.showBatchScheduleUpdateForm('{$implementationStatusToShow}', '{$siteTypeToShow}', '{$releaseToShow}', '{$timezoneToShow}');" class="btn btn-warning">{translate text="Schedule Update for All Listed" isAdminFacing=true}</button>
 				</div>
 			</div>
 		</div>
@@ -106,7 +106,7 @@
 						</td>
 						<td>
 							{$site->version}<br>
-							<a class="btn btn-xs btn-warning" onclick="return AspenDiscovery.Admin.showScheduleUpdateForm('{$site->id}');"><i class="fas fa-clock"></i> {translate text="Schedule Update" isAdminFacing=true}</a>
+							<button type="button" class="btn btn-xs btn-warning" onclick="return AspenDiscovery.Admin.showScheduleUpdateForm('{$site->id}');"><i class="fas fa-clock"></i> {translate text="Schedule Update" isAdminFacing=true}</button>
 						</td>
 						<td>
 							{translate text=$site->getSiteTypeName() isAdminFacing=true}

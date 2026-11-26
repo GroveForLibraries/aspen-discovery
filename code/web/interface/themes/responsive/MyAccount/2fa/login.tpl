@@ -20,12 +20,12 @@
 						<input type="text" class="form-control" id="code" name="code" maxlength="6" spellcheck="false" autocomplete="false" autofocus>
 					</div>
 					{if $hasEmail && !$hasTotp}
-						<a class="btn btn-xs btn-link" style="margin-top: 2em" onclick="return AspenDiscovery.Account.new2FACode();">{translate text="Code expired? Send another" isPublicFacing=true}</a>
+						<button type="button" class="btn btn-xs btn-link" style="margin-top: 2em" onclick="return AspenDiscovery.Account.new2FACode();">{translate text="Code expired? Send another" isPublicFacing=true}</button>
 						<div id="newCodeSentPlaceholder" class="alert alert-info" style="display: none;"></div>
                     {/if}
                     {if $hasTotp && $hasEmail}
 						<div class="text-center">
-							<a class="btn btn-secondary" style="margin-top: 2em" onclick="$('#primaryMethodWrapper').toggle(); $('#altMethodWrapper').toggle(); return false;">{translate text="Try Another Method" isPublicFacing=true}</a>
+							<button type="button" class="btn btn-secondary" style="margin-top: 2em" onclick="$('#primaryMethodWrapper').toggle(); $('#altMethodWrapper').toggle(); return false;">{translate text="Try Another Method" isPublicFacing=true}</button>
 						</div>
                     {/if}
 				</div>

@@ -470,10 +470,10 @@ class AJAX_JSON extends Action {
 				'isPublicFacing' => true,
 			]),
 			'modalBody' => $interface->fetch('AJAX/autoReturnToHomePrompt.tpl'),
-			'modalButtons' => "<a id='continueSession' class='btn btn-primary' onclick='continueSession();'>" . translate([
+			'modalButtons' => "<button type=\"button\" id='continueSession' class='btn btn-primary' onclick='continueSession();'>" . translate([
 					'text' => 'Continue',
 					'isPublicFacing' => true,
-				]) . "</a>",
+				]) . "</button>",
 		];
 	}
 
@@ -524,10 +524,10 @@ class AJAX_JSON extends Action {
 				'isPublicFacing' => true,
 			]),
 			'modalBody' => $interface->fetch('AJAX/displaySettings.tpl'),
-			'modalButtons' => "<a id='updateDisplaySettings' class='btn btn-primary' onclick='AspenDiscovery.updateDisplaySettings();'>" . translate([
+			'modalButtons' => "<button type=\"button\" id='updateDisplaySettings' class='btn btn-primary' onclick='AspenDiscovery.updateDisplaySettings();'>" . translate([
 					'text' => 'Update Settings',
 					'isPublicFacing' => true,
-				]) . "</a>",
+				]) . "</button>",
 		];
 	}
 

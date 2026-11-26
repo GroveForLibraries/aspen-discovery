@@ -749,12 +749,12 @@
 								<div class="btn-group btn-group-sm">
 									{if !empty($property.defaultTextFile)}
 										{if $property.type == 'translatableTextBlock'}
-											<a class="btn btn-sm btn-default" onclick="tinyMCE.get('{$localPropName}').setContent(tinyMCE.get('{$propName}_default').getContent());return false;">{translate text="Copy From Default" isAdminFacing=true}</a>
+											<button type="button" class="btn btn-sm btn-default" onclick="tinyMCE.get('{$localPropName}').setContent(tinyMCE.get('{$propName}_default').getContent());return false;">{translate text="Copy From Default" isAdminFacing=true}</button>
 										{else}
-											<a class="btn btn-sm btn-default" onclick="$('#{$localPropName}').val($('#{$propName}_default').val());return false;">{translate text="Copy From Default" isAdminFacing=true}</a>
+											<button type="button" class="btn btn-sm btn-default" onclick="$('#{$localPropName}').val($('#{$propName}_default').val());return false;">{translate text="Copy From Default" isAdminFacing=true}</button>
 										{/if}
 									{/if}
-									<a class="btn btn-sm btn-danger" onclick="tinyMCE.get('{$localPropName}').setContent('');return false;">{translate text="Clear" isAdminFacing=true}</a>
+									<button type="button" class="btn btn-sm btn-danger" onclick="tinyMCE.get('{$localPropName}').setContent('');return false;">{translate text="Clear" isAdminFacing=true}</button>
 								</div>
 							</div>
 						</div>

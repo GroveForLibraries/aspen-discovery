@@ -97,7 +97,7 @@
 						{/if}
 						{if $record->showPalaceProjectLink}
 							{if $record->format == 'eBook' || $record->format == 'eAudiobook'}
-								<a onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</a>
+								<button type="button" onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</button>
 							{/if}
 						{/if}
 						{if $record->canRenew}

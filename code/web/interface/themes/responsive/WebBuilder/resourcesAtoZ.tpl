@@ -18,9 +18,9 @@
 							{/if}
 						{else}
 							{if $filter == 'num'}
-								<a  class="btn btn-primary btn-sm" disabled="true">#</a>
+								<button type="button"  class="btn btn-primary btn-sm" disabled="true">#</button>
 							{else}
-								<a  class="btn btn-primary btn-sm" disabled="true">{$filter}</a>
+								<button type="button"  class="btn btn-primary btn-sm" disabled="true">{$filter}</button>
 							{/if}
 						{/if}
 					</li>

@@ -4,15 +4,15 @@
 		<div class="steps-form">
 			<div class="steps-row setup-panel">
 				<div class="steps-step">
-					<a type="button" class="btn btn-info btn-circle">1</a>
+					<button type="button" class="btn btn-info btn-circle">1</button>
 					<p>{translate text="Register" isPublicFacing=true}</p>
 				</div>
 				<div class="steps-step">
-					<a type="button" class="btn btn-default btn-circle" disabled="disabled">2</a>
+					<button type="button" class="btn btn-default btn-circle" disabled="disabled">2</button>
 					<p>{translate text="Verify" isPublicFacing=true}</p>
 				</div>
 				<div class="steps-step">
-					<a type="button" class="btn btn-default btn-circle" disabled="disabled">3</a>
+					<button type="button" class="btn btn-default btn-circle" disabled="disabled">3</button>
 					<p>{translate text="Backup Codes" isPublicFacing=true}</p>
 				</div>
 			</div>

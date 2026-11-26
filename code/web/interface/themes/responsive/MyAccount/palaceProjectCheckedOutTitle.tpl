@@ -94,7 +94,7 @@
 				{* Actions for Title *}
 				<div class="col-sm-12 col-md-4 col-lg-3">
 					<div class="btn-group btn-group-vertical btn-block">
-						<a onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</a>
+						<button type="button" onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</button>
 						{if $record->canReturnEarly}
 						<button type="button" onclick="return AspenDiscovery.PalaceProject.returnCheckout('{$record->userId}', '{$record->recordId}', '{$record->recordId|escapeCSS}');" class="btn btn-sm btn-warning">{translate text='Return Now' isPublicFacing=true}</button>
 						{/if}

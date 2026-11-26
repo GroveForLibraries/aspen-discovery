@@ -29,7 +29,7 @@
 			{if !empty($specifiedDisplayInfo->description)}<tr><th>{translate text="Description" isPublicFacing=true}</th><td>{$specifiedDisplayInfo->description|nl2br}</td></tr>{/if}
 		</table>
 		{if !empty($loggedIn) && in_array('Set Grouped Work Display Information', $userPermissions)}
-			<tr><th></th><td><a onclick="AspenDiscovery.GroupedWork.deleteDisplayInfo('{$recordDriver->getPermanentId()}')" class="btn btn-danger btn-sm">{translate text="Delete" isPublicFacing=true}</a></td></tr>
+			<tr><th></th><td><button type="button" onclick="AspenDiscovery.GroupedWork.deleteDisplayInfo('{$recordDriver->getPermanentId()}')" class="btn btn-danger btn-sm">{translate text="Delete" isPublicFacing=true}</button></td></tr>
 		{/if}
 	</div>
 {/if}
@@ -66,7 +66,7 @@
 				<td>{$alternateTitle->alternateAuthor}</td>
 				<td>{$alternateTitle->alternateGroupingCategory}</td>
 				{if !empty($loggedIn) && in_array('Manually Group and Ungroup Works', $userPermissions)}
-					<td><a onclick="AspenDiscovery.GroupedWork.deleteAlternateTitle('{$alternateTitle->id}')" class="btn btn-danger btn-sm">{translate text="Delete" isPublicFacing=true}</a></td>
+					<td><button type="button" onclick="AspenDiscovery.GroupedWork.deleteAlternateTitle('{$alternateTitle->id}')" class="btn btn-danger btn-sm">{translate text="Delete" isPublicFacing=true}</button></td>
 				{/if}
 			</tr>
 		{/foreach}
@@ -92,7 +92,7 @@
 				<td>{$override->record_id}</td>
 				<td>{$override->date_added|date_format:"%Y-%m-%d %H:%M"}</td>
 				{if !empty($loggedIn) && in_array('Manually Group and Ungroup Works', $userPermissions)}
-					<td><a onclick="AspenDiscovery.GroupedWork.deleteRecordGroupingOverride('{$override->id}')" class="btn btn-danger btn-sm">{translate text="Delete" isPublicFacing=true}</a></td>
+					<td><button type="button" onclick="AspenDiscovery.GroupedWork.deleteRecordGroupingOverride('{$override->id}')" class="btn btn-danger btn-sm">{translate text="Delete" isPublicFacing=true}</button></td>
 				{/if}
 			</tr>
 		{/foreach}
@@ -103,7 +103,7 @@
 	<div id="ungrouping">
 		<h4>{translate text="Record Ungrouped" isPublicFacing=true}</h4>
 		<table class="table-striped table table-condensed notranslate">
-		<tr><td>{translate text="This record has been ungrouped from its original work and cannot be grouped with other records." isPublicFacing=true}</td><td><a onclick="AspenDiscovery.GroupedWork.deleteUngrouping('{$recordDriver->getPermanentId()}', '{$ungroupingId}')" class="btn btn-danger btn-sm">{translate text="Allow to Group" isPublicFacing=true}</a></td></tr>
+		<tr><td>{translate text="This record has been ungrouped from its original work and cannot be grouped with other records." isPublicFacing=true}</td><td><button type="button" onclick="AspenDiscovery.GroupedWork.deleteUngrouping('{$recordDriver->getPermanentId()}', '{$ungroupingId}')" class="btn btn-danger btn-sm">{translate text="Allow to Group" isPublicFacing=true}</button></td></tr>
 		</table>
 	</div>
 {/if}

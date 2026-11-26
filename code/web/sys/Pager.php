@@ -75,16 +75,17 @@ class Pager {
 	 */
 	public function getLinks() {
 		$links = [];
+		$closingTag = empty($this->options['linkRenderingFunction']) ? '</a>' : '</button>';
 		if ($this->_totalPages > 1) {
 			//$links['all'] = 'Pagination goes here.  On page ' . $this->getCurrentPage() . ' of ' . $this->getTotalPages();
 			$linksText = '<nav aria-label="Page navigation">';
 			$linksText .= '<div class="pagination btn-group btn-group-sm justify-content-end">';
 			if ($this->getCurrentPage() != 1) {
-				$linksText .= $this->renderLink(1) . '[1]</a>';
+				$linksText .= $this->renderLink(1) . '[1]' . $closingTag;
 				$linksText .= $this->renderLink($this->_currentPage - 1) . '&laquo; ' . translate([
 						'text' => 'Previous',
 						'isPublicFacing' => true,
-					]) . '</a>';
+				]) . $closingTag;
 			}
 
 			//Print links to pages before and after the current
@@ -106,14 +107,14 @@ class Pager {
 			}
 			for ($i = $firstPageToPrint; $i <= $lastPageToPrint; $i++) {
 				$active = ($this->_currentPage == $i) ? ' active' : '';
-				$linksText .= $this->renderLink($i, $active) . "$i</a>";
+				$linksText .= $this->renderLink($i, $active) . $i . $closingTag;
 			}
 			if ($this->_currentPage != $this->_totalPages) {
 				$linksText .= $this->renderLink($this->_currentPage + 1) . translate([
 						'text' => 'Next',
 						'isPublicFacing' => true,
-					]) . ' &raquo;</a>';
-				$linksText .= $this->renderLink($this->getTotalPages()) . '[' . $this->getTotalPages() . ']</a>';
+				]) . ' &raquo;' . $closingTag;
+				$linksText .= $this->renderLink($this->getTotalPages()) . '[' . $this->getTotalPages() . ']' . $closingTag;
 			}
 			if ($this->options['canChangeRecordsPerPage']) {
 				$linksText .= '&nbsp;<div class="form-group">';

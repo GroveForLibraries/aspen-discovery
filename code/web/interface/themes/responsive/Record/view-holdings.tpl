@@ -34,7 +34,7 @@
 						</table>
 					</div>
 					{if count($section.holdings) > 5}
-						<a onclick="$(this).remove();$('.hiddenCopy').show()" role="button" class="btn btn-default btn-sm" style="cursor: pointer;">{translate text="Show All Copies" isPublicFacing=true}</a>
+						<button type="button" onclick="$(this).remove();$('.hiddenCopy').show()" role="button" class="btn btn-default btn-sm" style="cursor: pointer;">{translate text="Show All Copies" isPublicFacing=true}</button>
 					{/if}
 				</div>
 

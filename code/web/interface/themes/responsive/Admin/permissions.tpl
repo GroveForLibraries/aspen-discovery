@@ -15,9 +15,9 @@
 			</select>
 			<div class="btn-group" style="padding-left: 1em; padding-top: 0">
 				{if $selectedRole->name != 'opacAdmin'}
-					<a class="btn btn-danger btn-sm" style="margin-bottom: 0" onclick="if (confirm('{translate text="Are you sure you want to delete this role" inAttribute=true isAdminFacing=true}')){ldelim}return AspenDiscovery.Admin.deleteRole({$selectedRole->roleId}){rdelim}else{ldelim}return false{rdelim}"><i class="fas fa-trash" role="presentation"></i> {translate text="Delete" isAdminFacing=true}</a>
+					<button type="button" class="btn btn-danger btn-sm" style="margin-bottom: 0" onclick="if (confirm('{translate text="Are you sure you want to delete this role" inAttribute=true isAdminFacing=true}')){ldelim}return AspenDiscovery.Admin.deleteRole({$selectedRole->roleId}){rdelim}else{ldelim}return false{rdelim}"><i class="fas fa-trash" role="presentation"></i> {translate text="Delete" isAdminFacing=true}</button>
 				{/if}
-				<a class="btn btn-default btn-sm" style="margin-bottom: 0"  onclick="return AspenDiscovery.Admin.showCreateRoleForm()"><i class="fas fa-plus" role="presentation"></i> {translate text="Create New Role" isAdminFacing=true}</a>
+				<button type="button" class="btn btn-default btn-sm" style="margin-bottom: 0"  onclick="return AspenDiscovery.Admin.showCreateRoleForm()"><i class="fas fa-plus" role="presentation"></i> {translate text="Create New Role" isAdminFacing=true}</button>
 			</div>
 		</div>
 	</form>

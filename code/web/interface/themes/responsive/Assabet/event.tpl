@@ -80,8 +80,8 @@
 							<a href="{$recordDriver->getExternalUrl()}" class="btn btn-sm btn-action btn-wrap" target="_blank" style="width:70%" aria-label="{translate text="You Are Registered" isPublicFacing=true inAttribute=true} ({translate text="opens in a new window" isPublicFacing=true inAttribute=true})"><i class="fas fa-external-link-alt" role="presentation"></i> {translate text="You Are Registered" isPublicFacing=true}</a>
 						{else}
 							{if !empty($recordDriver->getRegistrationModalBody())}
-								<a class="btn btn-sm btn-action btn-register btn-wrap" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Registration Information" isPublicFacing=true}
-								</a>
+								<button type="button" class="btn btn-sm btn-action btn-register btn-wrap" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Registration Information" isPublicFacing=true}
+								</button>
 							{else}
 								<a href="{$recordDriver->getExternalUrl()}" class="btn btn-sm btn-action btn-register btn-wrap" target="_blank" style="width:70%" aria-label="{translate text="Registration Information" isPublicFacing=true inAttribute=true} ({translate text="opens in a new window" isPublicFacing=true inAttribute=true})"><i class="fas fa-external-link-alt" role="presentation"></i> {translate text="Registration Information" isPublicFacing=true}</a>
 							{/if}
@@ -96,19 +96,19 @@
 				{if $recordDriver->isRegistrationRequired()}
 					<div class="btn-group btn-group-vertical btn-block">
 						{if !empty($recordDriver->getRegistrationModalBody())}
-							<a class="btn btn-sm btn-action btn-register btn-wrap" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Registration Information" isPublicFacing=true}
-							</a>
+							<button type="button" class="btn btn-sm btn-action btn-register btn-wrap" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Registration Information" isPublicFacing=true}
+							</button>
 						{else}
 							<a href="{$recordDriver->getExternalUrl()}" class="btn btn-sm btn-action btn-register btn-wrap" target="_blank" style="width:70%" aria-label="{translate text="Registration Information" isPublicFacing=true inAttribute=true} ({translate text="opens in a new window" isPublicFacing=true inAttribute=true})"><i class="fas fa-external-link-alt" role="presentation"></i> {translate text="Registration Information" isPublicFacing=true}</a>
 						{/if}
 						{if empty($offline) || $enableEContentWhileOffline}
-							<a onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet');"
+							<button type="button" onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet');"
 							  class="btn btn-sm btn-action btn-wrap addToYourEventsBtn"
-							  style="width:70%">{translate text="Add to Your Events" isPublicFacing=true}</a>
+							  style="width:70%">{translate text="Add to Your Events" isPublicFacing=true}</button>
 						{/if}
 					</div>
 				{elseif empty($offline) || $enableEContentWhileOffline}
-					<a class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:70%" onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet');">{translate text="Add to Your Events" isPublicFacing=true}</a>
+					<button type="button" class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:70%" onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'assabet');">{translate text="Add to Your Events" isPublicFacing=true}</button>
 				{/if}
 			{/if}
 		</div>

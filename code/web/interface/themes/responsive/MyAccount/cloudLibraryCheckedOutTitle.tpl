@@ -97,7 +97,7 @@
 							<a href="{$accessOnlineLink}" target="_blank" class="btn btn-sm btn-action btn-wrap" aria-label="{translate text='Open in cloudLibrary' isPublicFacing=true} ({translate text='opens in new window' isPublicFacing=true})"><i class="fas fa-external-link-alt" role="presentation"></i> {translate text='Open in cloudLibrary' isPublicFacing=true}</a>
 						{/if}
 						{if $record->showPalaceProjectLink && !empty($accessOnlineLink)}
-							<a onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</a>
+							<button type="button" onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</button>
 						{/if}
 						{if $record->canRenew}
 						<button type="button" onclick="return AspenDiscovery.CloudLibrary.renewCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-info btn-wrap">{translate text='Renew Checkout' isPublicFacing=true}</button>
