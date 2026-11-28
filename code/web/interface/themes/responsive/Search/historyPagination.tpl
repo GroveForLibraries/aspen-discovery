@@ -2,15 +2,15 @@
 	<div class="text-center">
 		<div class="pagination btn-group btn-group-sm justify-content-end">
             {if $currentPage > 1}
-				<a href="#" class="page-link btn btn-default btn-sm" onclick="AspenDiscovery.Account.loadSearchHistory('{$userSearchType}', {$currentPage - 1}, {$limit}, '{$sort}'); return false;">&laquo;</a>
+				<button type="button" class="page-link btn btn-default btn-sm" onclick="AspenDiscovery.Account.loadSearchHistory('{$userSearchType}', {$currentPage - 1}, {$limit}, '{$sort}'); return false;">&laquo;</button>
             {/if}
 
             {for $i=1 to $totalPages}
-	            <a href="#" class="page-link btn btn-default btn-sm {if $i == $currentPage}active{/if}" onclick="AspenDiscovery.Account.loadSearchHistory('{$userSearchType}', {$i}, {$limit}, '{$sort}'); return false;">{$i}</a>
+	            <button type="button" class="page-link btn btn-default btn-sm {if $i == $currentPage}active{/if}" onclick="AspenDiscovery.Account.loadSearchHistory('{$userSearchType}', {$i}, {$limit}, '{$sort}'); return false;">{$i}</button>
             {/for}
 
             {if $currentPage < $totalPages}
-				<a href="#" class="page-link btn btn-default btn-sm" onclick="AspenDiscovery.Account.loadSearchHistory('{$userSearchType}', {$currentPage + 1}, {$limit}, '{$sort}'); return false;">&raquo;</a>
+				<button type="button" class="page-link btn btn-default btn-sm" onclick="AspenDiscovery.Account.loadSearchHistory('{$userSearchType}', {$currentPage + 1}, {$limit}, '{$sort}'); return false;">&raquo;</button>
             {/if}
 		</div>
 	</div>

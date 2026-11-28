@@ -47,7 +47,7 @@
 				<div class="btn-group">
 					{if !empty($id) && $canCopy}
 						{if $hasCopyOptions}
-							<a class="btn btn-default" onclick="AspenDiscovery.Admin.showCopyOptions('{$module}', '{$toolName}', {$id})"><i class="fas fa-copy" role="presentation"></i> {translate text="Copy" isAdminFacing=true}</a>
+							<button type="button" class="btn btn-default" onclick="AspenDiscovery.Admin.showCopyOptions('{$module}', '{$toolName}', {$id})"><i class="fas fa-copy" role="presentation"></i> {translate text="Copy" isAdminFacing=true}</button>
 						{else}
 							<a class="btn btn-default" href='/{$module}/{$toolName}?sourceId={$id}&amp;objectAction=copy'><i class="fas fa-copy" role="presentation"></i> {translate text="Copy" isAdminFacing=true}</a>
 						{/if}
@@ -68,7 +68,7 @@
 					{/if}
 				</div>
 				<div class="btn-group" role="group">
-					{if !empty($id) && $id > 0 && $canDelete && $object->canActiveUserDelete() && (empty($isRecordLocked) || $userCanChangeRecordLocks)}<a class="btn btn-danger" href="#" onclick="AspenDiscovery.confirm('Delete {$objectType} #{$id}', '{translate text='Are you sure you want to delete %1% with ID %2%?' 1=$objectType 2=$id inAttribute=true isAdminFacing=true}', '{translate text='Delete' isAdminFacing=true inAttribute=true}', '{translate text='Cancel' isAdminFacing=true inAttribute=true}', true, 'window.location.href=&quot;/{$module}/{$toolName}?id={$id}&objectAction=delete&quot;', 'btn-danger'); return false;"><i class="fas fa-trash" role="presentation"></i> {translate text="Delete" isAdminFacing=true}</a>{/if}
+					{if !empty($id) && $id > 0 && $canDelete && $object->canActiveUserDelete() && (empty($isRecordLocked) || $userCanChangeRecordLocks)}<button type="button" class="btn btn-danger" onclick="AspenDiscovery.confirm('Delete {$objectType} #{$id}', '{translate text='Are you sure you want to delete %1% with ID %2%?' 1=$objectType 2=$id inAttribute=true isAdminFacing=true}', '{translate text='Delete' isAdminFacing=true inAttribute=true}', '{translate text='Cancel' isAdminFacing=true inAttribute=true}', true, 'window.location.href=&quot;/{$module}/{$toolName}?id={$id}&objectAction=delete&quot;', 'btn-danger'); return false;"><i class="fas fa-trash" role="presentation"></i> {translate text="Delete" isAdminFacing=true}</button>{/if}
 				</div>
 			</div>
 		</div>

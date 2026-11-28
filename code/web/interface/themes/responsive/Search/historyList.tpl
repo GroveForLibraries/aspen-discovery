@@ -102,7 +102,7 @@
                 {if $userSearchType == 'saved'}
                     <a class="btn btn-xs btn-warning" role="button" href="/MyAccount/SaveSearch?delete={$info.searchId|escape:"url"}&amp;mode=history">{translate text="Delete" isPublicFacing=true}</a>
 				{else}
-	                <a class="btn btn-xs btn-info" role="button" onclick="return AspenDiscovery.Account.showSaveSearchForm('{$info.searchId}', true)">{translate text="Save" isPublicFacing=true}</a>
+	                <button type="button" class="btn btn-xs btn-info" onclick="return AspenDiscovery.Account.showSaveSearchForm('{$info.searchId}', true)">{translate text="Save" isPublicFacing=true}</button>
 				{/if}
 			</td>
 		</tr>

@@ -27,8 +27,8 @@
 		{if $renewableCheckouts >= 5}
 			<div class="btn-group">
 				{if $source=='all' || $source=='ils'}
-					<a href="#" onclick="AspenDiscovery.Account.renewSelectedTitles()" class="btn btn-sm btn-default">{translate text="Renew Selected Items" isPublicFacing=true}</a>
-					<a href="#" onclick="AspenDiscovery.Account.renewAll()" class="btn btn-sm btn-default">{translate text="Renew All" isPublicFacing=true}</a>
+					<button type="button" onclick="AspenDiscovery.Account.renewSelectedTitles()" class="btn btn-sm btn-default">{translate text="Renew Selected Items" isPublicFacing=true}</button>
+					<button type="button" onclick="AspenDiscovery.Account.renewAll()" class="btn btn-sm btn-default">{translate text="Renew All" isPublicFacing=true}</button>
 				{/if}
 			</div>
 		{/if}
@@ -60,13 +60,13 @@
 		<div class="btn-group">
 			{if $renewableCheckouts >= 1}
 				{if $source=='all' || $source=='ils'}
-					<a href="#" onclick="AspenDiscovery.Account.renewSelectedTitles()" class="btn btn-sm btn-default">{translate text="Renew Selected Items" isPublicFacing=true}</a>
-					<a href="#" onclick="AspenDiscovery.Account.renewAll()" class="btn btn-sm btn-default">{translate text="Renew All" isPublicFacing=true}</a>
+					<button type="button" onclick="AspenDiscovery.Account.renewSelectedTitles()" class="btn btn-sm btn-default">{translate text="Renew Selected Items" isPublicFacing=true}</button>
+					<button type="button" onclick="AspenDiscovery.Account.renewAll()" class="btn btn-sm btn-default">{translate text="Renew All" isPublicFacing=true}</button>
 				{/if}
 			{/if}
-			<a href="#" class="btn btn-sm btn-default" id="exportToExcel" onclick="return AspenDiscovery.Account.exportCheckouts('{$source}', $('#accountSort_{$source} option:selected').val());">{translate text="Export to CSV" isPublicFacing=true}</a>
+			<button type="button" class="btn btn-sm btn-default" id="exportToExcel" onclick="return AspenDiscovery.Account.exportCheckouts('{$source}', $('#accountSort_{$source} option:selected').val());">{translate text="Export to CSV" isPublicFacing=true}</button>
 			{if $allowSelectingCheckoutsToExport}
-				<a href="#" class="btn btn-sm btn-default" id="exportSelectedToExcel" onclick="return AspenDiscovery.Account.exportOnlySelectedCheckouts('{$source}', $('#accountSort_{$source} option:selected').val());">{translate text="Export Selected Titles to CSV" isPublicFacing=true}</a>
+				<button type="button" class="btn btn-sm btn-default" id="exportSelectedToExcel" onclick="return AspenDiscovery.Account.exportOnlySelectedCheckouts('{$source}', $('#accountSort_{$source} option:selected').val());">{translate text="Export Selected Titles to CSV" isPublicFacing=true}</button>
 			{/if}
 		</div>
 	</form>

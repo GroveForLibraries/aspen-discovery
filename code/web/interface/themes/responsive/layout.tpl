@@ -95,10 +95,10 @@
 							<button type="button" class="close" data-dismiss="alert" aria-label="close" onclick="AspenDiscovery.Account.dismissMessage({$message->id})"><span aria-hidden="true">&times;</span></button>
 							{translate text=$message->message isPublicFacing=true}
 							{if !empty($message->action1Title) && !empty($message->action1)}
-								&nbsp;<a data-dismiss="alert" class="btn btn-default" onclick="{$message->action1}">{translate text=$message->action1Title isPublicFacing=true}</a>
+								&nbsp;<button type="button" data-dismiss="alert" class="btn btn-default" onclick="{$message->action1}">{translate text=$message->action1Title isPublicFacing=true}</button>
 							{/if}
 							{if !empty($message->action2Title) && !empty($message->action2)}
-								<a data-dismiss="alert" class="btn btn-default" onclick="{$message->action2}">{translate text=$message->action2Title isPublicFacing=true}</a>
+								<button type="button" data-dismiss="alert" class="btn btn-default" onclick="{$message->action2}">{translate text=$message->action2Title isPublicFacing=true}</button>
 							{/if}
 							{if !empty($message->addendum)}
 								<a href="/MyAccount/LinkedAccounts" data-dismiss="alert" id="addendum"><br>{translate text=$message->addendum isPublicFacing=true}</a>

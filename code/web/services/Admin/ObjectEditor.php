@@ -447,10 +447,10 @@ abstract class ObjectEditor extends Admin_Admin {
 						'isAdminFacing' => true,
 					]),
 					'modalBody' => $optionsForm,
-					'modalButtons' => '<a href="#" class="btn btn-primary" onclick="return $(\'#copyOptions\').submit();">' . translate([
+					'modalButtons' => '<button type="button" class="btn btn-primary" onclick="return $(\'#copyOptions\').submit();">' . translate([
 							'text' => 'Continue',
 							'isPublicFacing' => true,
-						]) . '</a>',
+							]) . '</button>',
 				];
 
 			}
@@ -1097,10 +1097,10 @@ abstract class ObjectEditor extends Admin_Admin {
 									'text' => 'This series is grouped onto: ',
 									'isAdminFacing' => true,
 								]) . "<a href='$url'>$mainSeries->displayName</a></span>" .
-								"<a onclick='AspenDiscovery.Series.ungroupSeries(\"$series->seriesPermanentId\", \"$mainSeries->seriesPermanentId\")' class='btn btn-warning'>" . translate([
+								"<button type=\"button\" onclick='AspenDiscovery.Series.ungroupSeries(\"$series->seriesPermanentId\", \"$mainSeries->seriesPermanentId\")' class='btn btn-warning'>" . translate([
 									'text' => 'Ungroup',
 									'isAdminFacing' => true,
-								]) . "</a>" .
+								]) . "</button>" .
 								"</div>";
 						}
 					}

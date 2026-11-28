@@ -97,13 +97,13 @@
 						{/if}
 						{if $record->showPalaceProjectLink}
 							{if $record->format == 'eBook' || $record->format == 'eAudiobook'}
-								<a onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</a>
+								<button type="button" onclick="AspenDiscovery.PalaceProject.showUsageInstructions();" target="_blank" class="btn btn-sm btn-action btn-wrap">{translate text='Access In Palace Project' isPublicFacing=true}</button>
 							{/if}
 						{/if}
 						{if $record->canRenew}
-							<a href="#" onclick="return AspenDiscovery.Axis360.renewCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-info">{translate text='Renew Checkout' isPublicFacing=true}</a>
+							<button type="button" onclick="return AspenDiscovery.Axis360.renewCheckout('{$record->userId}', '{$record->recordId}');" class="btn btn-sm btn-info">{translate text='Renew Checkout' isPublicFacing=true}</button>
 						{/if}
-						<a href="#" onclick="return AspenDiscovery.Axis360.returnCheckout('{$record->userId}', '{$record->recordId}', '{$record->transactionId}');" class="btn btn-sm btn-warning">{translate text='Return Now' isPublicFacing=true}</a>
+							<button type="button" onclick="return AspenDiscovery.Axis360.returnCheckout('{$record->userId}', '{$record->recordId}', '{$record->transactionId}');" class="btn btn-sm btn-warning">{translate text='Return Now' isPublicFacing=true}</button>
 					</div>
 					{if !empty($showYouMightAlsoLike)}
 						<div class="btn-group btn-group-vertical btn-block">

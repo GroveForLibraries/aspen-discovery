@@ -5,9 +5,9 @@
 			<div class="row related-manifestation grouped" >
 				{* Display Format Button (does nothing) *}
 				<div class="col-tn-4 col-xs-4 col-md-3 manifestation-format">
-					<a class="btn btn-primary btn-wrap">
+					<button type="button" class="btn btn-primary btn-wrap">
 						{translate text=$record->variationFormat isPublicFacing=true}
-					</a>
+					</button>
 				</div>
 				{* Display Item Status and Info *}
 				<div class="col-tn-8 col-xs-8 col-md-5 col-lg-6">

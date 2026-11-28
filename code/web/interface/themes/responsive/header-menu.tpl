@@ -134,7 +134,7 @@
 		{/foreach}
 	{/if}
 	{if !empty($masqueradeMode)}
-		<a class="btn btn-default btn-sm btn-block" onclick="AspenDiscovery.Account.endMasquerade()">{translate text="End Masquerade" isAdminFacing=true}</a>
+		<button type="button" class="btn btn-default btn-sm btn-block" onclick="AspenDiscovery.Account.endMasquerade()">{translate text="End Masquerade" isAdminFacing=true}</button>
 	{/if}
 
 	<a href="/MyAccount/Logout" id="logoutLink" title="{translate text="Sign Out" inAttribute=true isPublicFacing=true}" class="btn btn-default btn-sm btn-block" {if empty($loggedIn)}style="display:none"{/if}>

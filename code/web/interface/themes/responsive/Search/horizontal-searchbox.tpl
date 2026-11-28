@@ -117,7 +117,7 @@
 				{* Show/Hide Search Facets & Sort Options *}
 				{if !empty($recordCount) || !empty($sideRecommendations)}
 					<div class="col-tn-6 col-xs-6 visible-xs text-center">
-						<a class="btn btn-default" id="refineSearchButton" style="width: 95%" role="button" onclick="$('#side-bar').slideToggle('slow');return false;"><i class="fas fa-filter"></i> {translate text='Filters' isPublicFacing=true}</a>
+						<button type="button" class="btn btn-default" id="refineSearchButton" style="width: 95%" role="button" onclick="$('#side-bar').slideToggle('slow');return false;"><i class="fas fa-filter"></i> {translate text='Filters' isPublicFacing=true}</button>
 					</div>
 				{/if}
 			</div>

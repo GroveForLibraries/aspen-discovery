@@ -145,7 +145,7 @@
 			{/if}
 
 			{if !empty($masqueradeMode)}
-				<a class="btn btn-default btn-sm btn-block" onclick="AspenDiscovery.Account.endMasquerade()">{translate text="End Masquerade" isAdminFacing=true}</a>
+				<button type="button" class="btn btn-default btn-sm btn-block" onclick="AspenDiscovery.Account.endMasquerade()">{translate text="End Masquerade" isAdminFacing=true}</button>
 			{/if}
 
 			{if !empty($loggedIn)}

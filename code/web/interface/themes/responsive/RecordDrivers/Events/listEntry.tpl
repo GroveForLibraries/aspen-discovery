@@ -63,15 +63,15 @@
 								<div class="btn-group btn-group-vertical btn-block">
 									<a href="{$recordDriver->getExternalUrl()}" class="btn btn-sm btn-action btn-register btn-wrap" target="_blank" style="width:100%"aria-label="{translate text="Registration Information" isPublicFacing=true inAttribute=true} ({translate text='opens in new window' isPublicFacing=true inAttribute=true})"><i class="fas fa-external-link-alt" role="presentation"></i> {translate text="Registration Information" isPublicFacing=true}</a>
 									{if empty($offline) || $enableEContentWhileOffline}
-										<a onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', '{$eventVendor}');" class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:100%">{translate text="Add to Your Events" isPublicFacing=true}</a>
+										<button type="button" onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', '{$eventVendor}');" class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:100%">{translate text="Add to Your Events" isPublicFacing=true}</button>
 									{/if}
 								</div>
-								{*<a class="btn btn-sm btn-action btn-wrap" style="width:100%" onclick="return AspenDiscovery.Account.saveEventReg(this, 'Events', '{$recordDriver->getUniqueID()|escape}');">
+								{*<button type="button" class="btn btn-sm btn-action btn-wrap" style="width:100%" onclick="return AspenDiscovery.Account.saveEventReg(this, 'Events', '{$recordDriver->getUniqueID()|escape}');">
 									<i class="fas fa-external-link-alt" role="presentation"></i>
 									{translate text="Add to Your Events and Register" isPublicFacing=true}
-								</a>*}
+								</button>*}
 							{elseif empty($offline) || $enableEContentWhileOffline}
-								<a class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:100%" onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', '{$eventVendor}');">{translate text="Add to Your Events" isPublicFacing=true}</a>
+								<button type="button" class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:100%" onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', '{$eventVendor}');">{translate text="Add to Your Events" isPublicFacing=true}</button>
 							{/if}
 						{/if}
 					</div>
@@ -92,8 +92,8 @@
 					{if empty($listHasFiltersApplied)}
 						{if !empty($userSort) && ($resultIndex != '1')}<span class="btn btn-xs btn-default" onclick="return AspenDiscovery.Lists.changeWeight('{$listEntryId}', 'up');" title="{translate text="Move Up" isPublicFacing=true}">&#x25B2;</span>{/if}
 					{/if}
-					<a href="#" onclick="return AspenDiscovery.Account.getEditListForm({$listEntryId},{$listSelected},{$listHasFiltersApplied})" class="btn btn-default">{translate text="Edit" isPublicFacing=true}</a>
-					<a href="#" onclick="AspenDiscovery.confirm('Delete Title?', 'Are you sure you want to delete this?', 'Yes', 'No', true, 'AspenDiscovery.Lists.deleteEntryFromList({$listSelected}, {$listEntryId})', 'btn-danger');" class="btn btn-danger">{translate text='Delete' isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.Account.getEditListForm({$listEntryId},{$listSelected},{$listHasFiltersApplied})" class="btn btn-default">{translate text="Edit" isPublicFacing=true}</button>
+					<button type="button" onclick="AspenDiscovery.confirm('Delete Title?', 'Are you sure you want to delete this?', 'Yes', 'No', true, 'AspenDiscovery.Lists.deleteEntryFromList({$listSelected}, {$listEntryId})', 'btn-danger');" class="btn btn-danger">{translate text='Delete' isPublicFacing=true}</button>
 					{if empty($listHasFiltersApplied)}
 						{if !empty($userSort) && ($resultIndex != $listEntryCount)}<span class="btn btn-xs btn-default" onclick="return AspenDiscovery.Lists.changeWeight('{$listEntryId}', 'down');" title="{translate text="Move Down" isPublicFacing=true}">&#x25BC;</span>{/if}
 					{/if}

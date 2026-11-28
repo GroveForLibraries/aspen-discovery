@@ -8,9 +8,9 @@
 		<strong>{translate text="Number of Holds in Group" isPublicFacing=true}:</strong> {$record.holdCount}
 		&nbsp;|&nbsp;
 		<strong>{translate text="On Hold For" isPublicFacing=true}:</strong> {$record.userName}
-		<a href="#" onclick="$('#hyperhold_details_{$record.visual_hold_id}').toggle(); return false;" class="btn btn-sm btn-default" style="margin-left: 15px;">
+		<button type="button" onclick="$('#hyperhold_details_{$record.visual_hold_id}').toggle(); return false;" class="btn btn-sm btn-default" style="margin-left: 15px;">
 			<i class="fas fa-list"></i> {translate text="View All Records" isPublicFacing=true} ({$record.holdCount})
-		</a>
+		</button>
 	</div>
 </div>
 
@@ -22,8 +22,8 @@
 <div>
 	<form id="controlGroupedHoldsForm">
 		<div class="btn-group">
-			<a href="#" onclick="AspenDiscovery.Account.requestGroupConfirmation()" class="btn btn-sm btn-default" aria-description="{translate text="Click here to group selected holds" isPublicFacing=true inAttribute=true}">{translate text="Regroup Selected Holds" isPublicFacing=true}</a>
-			<a href="#" onclick="AspenDiscovery.Account.deleteHoldsGroup({$record.hold_group_id}, {$record.visual_hold_id}, {$record.holds[0]->userId})" class="btn btn-sm btn-warning" aria-description="{translate text='Click to here to delete hold group' isPublicFacing=true inAttribute=true} {$record.visual_hold_id}">{translate text="Ungroup Hold Group " isPublicFacing=true}{$record.visual_hold_id}</a>
+		<button type="button" onclick="AspenDiscovery.Account.requestGroupConfirmation()" class="btn btn-sm btn-default" aria-description="{translate text="Click here to group selected holds" isPublicFacing=true inAttribute=true}">{translate text="Regroup Selected Holds" isPublicFacing=true}</button>
+		<button type="button" onclick="AspenDiscovery.Account.deleteHoldsGroup({$record.hold_group_id}, {$record.visual_hold_id}, {$record.holds[0]->userId})" class="btn btn-sm btn-warning" aria-description="{translate text='Click to here to delete hold group' isPublicFacing=true inAttribute=true} {$record.visual_hold_id}">{translate text="Ungroup Hold Group " isPublicFacing=true}{$record.visual_hold_id}</button>
 		</div>
 	</form>
 </div>

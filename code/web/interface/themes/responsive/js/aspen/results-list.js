@@ -18,7 +18,7 @@ AspenDiscovery.ResultsList = (function(){
 		},
 
 		multiSelectMoreFacetPopup: function(title, name, buttonName){
-			var button = "<a class='btn btn-primary' onclick='$(\"#facetPopup_" + name + "\").trigger(\"submit\");'>"+buttonName+"</a>";
+			var button = "<button type=\"button\" class='btn btn-primary' onclick='$(\"#facetPopup_" + name + "\").trigger(\"submit\");'>"+buttonName+"</button>";
 			AspenDiscovery.showMessageWithButtons(title, $("#moreFacetPopup_" + name).html(), button);
 		},
 

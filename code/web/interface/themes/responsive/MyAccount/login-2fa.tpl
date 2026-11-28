@@ -59,14 +59,14 @@
 					</div>
                     {if $authMethod !== 'totp'}
 						<div class="col-xs-12 col-sm-offset-4 col-sm-8">
-							<a class="btn btn-xs btn-link" style="display: inline-block; margin-top: 1em" onclick="return AspenDiscovery.Account.new2FACode();">{translate text="Code expired? Send another" isPublicFacing=true}</a>
+							<button type="button" class="btn btn-xs btn-link" style="display: inline-block; margin-top: 1em" onclick="return AspenDiscovery.Account.new2FACode();">{translate text="Code expired? Send another" isPublicFacing=true}</button>
 						</div>
                     {/if}
 				</div>
 			</form>
 			{if !empty($hasTotp) && !empty($hasEmail)}
 				<div class="text-center">
-					<a class="btn btn-secondary" style="margin-top: 2em" onclick="$('#loginFormWrapper').toggle(); $('#altMethodWrapper').toggle(); return false;">{translate text="Try Another Method" isPublicFacing=true}</a>
+					<button type="button" class="btn btn-secondary" style="margin-top: 2em" onclick="$('#loginFormWrapper').toggle(); $('#altMethodWrapper').toggle(); return false;">{translate text="Try Another Method" isPublicFacing=true}</button>
 				</div>
             {/if}
 		</div>

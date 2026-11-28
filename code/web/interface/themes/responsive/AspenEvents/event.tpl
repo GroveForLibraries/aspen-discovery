@@ -132,25 +132,25 @@
 							<a href="{$recordDriver->getExternalUrl(true)}" class="btn btn-sm btn-action btn-wrap" target="_blank" style="width:70%" aria-label="{translate text="You Are Registered" isPublicFacing=true inAttribute=true} ({translate text='opens in new window' isPublicFacing=true inAttribute=true})"><i class="fas fa-external-link-alt" role="presentation"></i> {translate text="You Are Registered" isPublicFacing=true}</a>
 						{elseif $registrationAction == 'completeRegistration'}
 							<span class="btn btn-sm btn-default btn-wrap disabled" style="width:70%">{translate text="Event Full" isPublicFacing=true}</span>
-							<a class="btn btn-sm btn-action btn-register btn-wrap btn-warning" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'aspenEvents', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Complete Your Registration" isPublicFacing=true}</a>
-							<a class="btn btn-sm btn-action btn-register btn-danger" aria-label="{translate text="Join the waiting list"}" onclick="return AspenDiscovery.Account.leaveEventWaitingList('{$recordDriver->getUniqueID()|escape}');" style="width:70%">{translate text="Leave Waiting List" isPublicFacing=true}</a>
+							<button type="button" class="btn btn-sm btn-action btn-register btn-wrap btn-warning" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'aspenEvents', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Complete Your Registration" isPublicFacing=true}</button>
+							<button type="button" class="btn btn-sm btn-action btn-register btn-danger" aria-label="{translate text="Join the waiting list"}" onclick="return AspenDiscovery.Account.leaveEventWaitingList('{$recordDriver->getUniqueID()|escape}');" style="width:70%">{translate text="Leave Waiting List" isPublicFacing=true}</button>
 						{elseif $registrationAction == 'showPosition'}
 							<span class="btn btn-sm btn-default btn-wrap disabled" style="width:70%">{translate text="Event Full" isPublicFacing=true}</span>
 							<a href="{$recordDriver->getExternalUrl(true)}" class="btn btn-sm btn-action btn-wrap" aria-label="{translate text="You are number %1% on the waiting list" 1=$userWaitingListPosition isPublicFacing=true inAttribute=true}" style="width:70%">{translate text="You are number %1% on the waiting list" 1=$userWaitingListPosition isPublicFacing=true}</a>
-							<a class="btn btn-sm btn-action btn-register btn-danger" aria-label="{translate text="Join the waiting list"}" onclick="return AspenDiscovery.Account.leaveEventWaitingList('{$recordDriver->getUniqueID()|escape}');" style="width:70%">{translate text="Leave Waiting List" isPublicFacing=true}</a>
+							<button type="button" class="btn btn-sm btn-action btn-register btn-danger" aria-label="{translate text="Join the waiting list"}" onclick="return AspenDiscovery.Account.leaveEventWaitingList('{$recordDriver->getUniqueID()|escape}');" style="width:70%">{translate text="Leave Waiting List" isPublicFacing=true}</button>
 						{elseif $registrationAction == 'joinWaitingList'}
 							<span class="btn btn-sm btn-default btn-wrap disabled" style="width:70%">{translate text="Event Full" isPublicFacing=true}</span>
-							<a class="btn btn-sm btn-action btn-register btn-wrap" aria-label="{translate text="Join the waiting list"}" onclick="return AspenDiscovery.Account.joinEventWaitingList('{$recordDriver->getUniqueID()|escape}');" style="width:70%">{translate text="Join Waiting List" isPublicFacing=true}</a>
+							<button type="button" class="btn btn-sm btn-action btn-register btn-wrap" aria-label="{translate text="Join the waiting list"}" onclick="return AspenDiscovery.Account.joinEventWaitingList('{$recordDriver->getUniqueID()|escape}');" style="width:70%">{translate text="Join Waiting List" isPublicFacing=true}</button>
 						{elseif $registrationAction == 'eventFull'}
 							<span class="btn btn-sm btn-default btn-wrap disabled" style="width:70%">{translate text="Event Full" isPublicFacing=true}</span>
 						{elseif $registrationAction == 'registrationAvailable'}
-							<a class="btn btn-sm btn-action btn-register btn-wrap" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'aspenEvents', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Registration Information" isPublicFacing=true}</a>
+							<button type="button" class="btn btn-sm btn-action btn-register btn-wrap" onclick="return AspenDiscovery.Account.regInfoModal(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'aspenEvents', '{$recordDriver->getExternalUrl()}');" style="width:70%">{translate text="Registration Information" isPublicFacing=true}</button>
 						{/if}
 					{/if}
 					{if $recordDriver->inEvents()}
 						<a href="/MyAccount/MyEvents?page=1&eventsFilter=upcoming" class="btn btn-sm btn-action btn-wrap" style="width:70%">{translate text="In Your Events" isPublicFacing=true}</a>
 					{elseif empty($offline) || $enableEContentWhileOffline}
-						<a onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'aspenEvents');" class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:70%">{translate text="Add to Your Events" isPublicFacing=true}</a>
+						<button type="button" onclick="return AspenDiscovery.Account.saveEvent(this, 'Events', '{$recordDriver->getUniqueID()|escape}', 'aspenEvents');" class="btn btn-sm btn-action btn-wrap addToYourEventsBtn" style="width:70%">{translate text="Add to Your Events" isPublicFacing=true}</button>
 					{/if}
 				</div>
 			</div>
