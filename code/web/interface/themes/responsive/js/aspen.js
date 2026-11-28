@@ -1376,6 +1376,7 @@ var AspenDiscovery = (function(){
 			const modalDialog = aspenJQ("#modalDialog");
 			modalDialog.removeClass('image-popup');
 			modalDialog.modal('show');
+			document.querySelector('#modalDialog').dataset.refreshAfterClose = refreshAfterClose;
 			
 			if (autoClose) {
 				// Determine timeout duration
@@ -1432,6 +1433,7 @@ var AspenDiscovery = (function(){
 			aspenJQ(".modal-body").html(body);
 			aspenJQ('.modal-body [data-toggle="tooltip"]').tooltip();
 			aspenJQ('.modal-buttons').html(buttons);
+			document.querySelector('#modalDialog').dataset.refreshAfterClose = refreshAfterClose;
 			if (closeDestination !== undefined) {
 				Globals.modalCloseDestination = closeDestination;
 				aspenJQ(".modalClose").on('click', function () {
