@@ -107,7 +107,19 @@
 					// noinspection SillyAssignmentJS
 					window.location.reload();
 				}, Globals.timeUntilSessionExpiration + 500);
+
 			}
+			// Restore focus to the last focused element when a bootstrap modal closes and does not refresh page
+			let lastFocusedElement = null;
+			document.addEventListener('focusin', (e) => {
+				if (!e.target) return;
+				if (e.target.closest && e.target.closest('.modal')) return;
+				lastFocusedElement = e.target;
+			});
+			$(document).on('hidden.bs.modal', '.modal[data-refresh-after-close="false"]', () => {
+				if (lastFocusedElement?.isConnected) lastFocusedElement.focus();
+			});
+
 		});
 		{/literal}
 	</script>

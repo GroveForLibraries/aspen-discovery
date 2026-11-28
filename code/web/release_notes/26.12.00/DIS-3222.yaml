@@ -1,0 +1,12 @@
+Jira: DIS-3222
+Type: Bug
+Developer: Stephen Wicks (SW)
+Contributing Org: Grove For Libraries
+Sponsor: CLAMS
+GroveRelease: 26.12.00
+CommunityRelease: 27.05.00
+Component: Modals
+Description:
+  - Restore focus to the last focused element when a modal is closed
+New Settings:
+New Permissions:
