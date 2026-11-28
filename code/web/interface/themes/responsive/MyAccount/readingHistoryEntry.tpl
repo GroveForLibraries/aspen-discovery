@@ -121,9 +121,9 @@
 							{if !empty($record.timesUsed) && $record.timesUsed > 1}
 								<span class="reading-history-count-text">{translate text="Checked out %1% times" 1=$record.timesUsed isPublicFacing=true}</span>
 							{/if}
-							<a href="#" class="reading-history-toggle-details" data-target="readingHistoryDetails{$record.id}" aria-expanded="false">
-								{translate text="Show Details" isPublicFacing=true} <i class="fa fa-chevron-down"></i>
-							</a>
+							<button type="button" class="btn btn-xs btn-link reading-history-toggle-details" data-target="readingHistoryDetails{$record.id}" aria-expanded="false" aria-label="{translate text="Toggle Details for {$record.title}" isPublicFacing=true inAttribute=true}">
+								{translate text="Show Details" isPublicFacing=true} <i class="fa fa-chevron-down" aria-hidden="true"></i>
+							</button>
 						</div>
 					</div>
 				{/if}
@@ -131,7 +131,7 @@
 
 			<div class="col-xs-12 col-md-3">
 				<div class="btn-group btn-group-vertical btn-block">
-					<a href="#" onclick="return AspenDiscovery.Account.ReadingHistory.deleteGroupedEntry('{$selectedUser}', '{$record.permanentId}', '{$record.title|escape:"javascript"}', '{$record.author|escape:"javascript"}', '{$record.id}');" class="btn btn-sm btn-primary">{translate text='Delete' isPublicFacing=true}</a>
+					<button type="button" onclick="return AspenDiscovery.Account.ReadingHistory.deleteGroupedEntry('{$selectedUser}', '{$record.permanentId}', '{$record.title|escape:"javascript"}', '{$record.author|escape:"javascript"}', '{$record.id}');" class="btn btn-sm btn-primary" aria-label="{translate text="Delete all checkout records for {$record.title}" isPublicFacing=true inAttribute=true}">{translate text='Delete' isPublicFacing=true}</button>
 				</div>
 				{if !empty($showYouMightAlsoLike)}
 					{if !$record.isIll}
@@ -273,9 +273,9 @@
 													</td>
 												{/if}
 												<td class="text-center">
-													<a href="#" onclick='return AspenDiscovery.Account.ReadingHistory.deleteIndividualEntry("{$selectedUser}", "{$detail.id}", "{$record.id}");' class="btn btn-xs btn-danger" title="{translate text='Delete this checkout' isPublicFacing=true inAttribute=true}">
-														<i class="fa fa-trash"></i>
-													</a>
+															<button type="button" onclick='return AspenDiscovery.Account.ReadingHistory.deleteIndividualEntry("{$selectedUser}", "{$detail.id}", "{$record.id}");' class="btn btn-xs btn-danger" aria-label="{translate text="Delete this checkout for {$record.title}" isPublicFacing=true inAttribute=true}">
+														<i class="fa fa-trash" aria-hidden="true"></i>
+													</button>
 												</td>
 											</tr>
 										{/foreach}

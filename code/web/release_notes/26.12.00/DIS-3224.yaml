@@ -1,0 +1,12 @@
+Jira: DIS-3224
+Type: Bug
+Developer: Stephen Wicks (SW)
+Contributing Org: Grove For Libraries
+Sponsor: CLAMS
+GroveRelease: 26.12.00
+CommunityRelease: 27.05.00
+Component: Reading History
+Description:
+  - Add accessible labels to Reading History detail and delete buttons
+New Settings:
+New Permissions:
